@@ -263,7 +263,14 @@ $ffi->type('enum'   => 'wasm_externkind_t');
     my($self) = @_;
     my $size = $self->size;
     map {
-      $class{_kind($_)}->new($_)
+      my $class = $class{_kind($_)};
+      unless(defined $class)
+      {
+        use Data::Dumper qw( Dumper );
+        warn Dumper(\%class);
+        die "_kind($_) = @{[ _kind($_) ]}";
+      }
+      $class->new($_)
     } @{ $ffi->cast('opaque' => "opaque[$size]", $self->data) };
   }
 }
