@@ -39,7 +39,7 @@ our @EXPORT = (
 $ffi->type('char'   => 'byte_t');
 $ffi->type('float'  => 'float32_t');
 $ffi->type('double' => 'float64_t');
-$ffi->type('enum'   => 'wasm_externkind_t');
+$ffi->type('uint8'  => 'wasm_externkind_t');
 
 { package Wasm::Wasmtime::Config;
   $ffi->type('object(Wasm::Wasmtime::Config)' => 'wasm_config_t');
