@@ -2,6 +2,16 @@
 
 Write Perl extensions using Wasm
 
+# DESCRIPTION
+
+The `Wasm` Perl dist provides tools for writing Perl bindings using WebAssembly (Wasm).
+
+# SEE ALSO
+
+- [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime)
+
+    Low level interface to `wasmtime`.
+
 # AUTHOR
 
 Graham Ollis <plicease@cpan.org>
