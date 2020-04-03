@@ -12,9 +12,11 @@ my $post_diag;
 $modules{$_} = $_ for qw(
   Alien::wasmtime
   ExtUtils::MakeMaker
+  FFI::Build::MM
   FFI::Platypus
   FFI::Platypus::Buffer
   FFI::Platypus::Record
+  Path::Tiny
   Test2::V0
 );
 

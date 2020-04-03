@@ -14,7 +14,7 @@ use base qw( Exporter );
 =head1 SYNOPSIS
 
  use Wasm::Wasmtime;
-
+ 
  my $engine = Wasm::Wasmtime::Engine->new;
  my $wasm = wat2wasm($engine, "(module)");
 
@@ -39,6 +39,7 @@ our @EXPORT = (
 $ffi->type('char'   => 'byte_t');
 $ffi->type('float'  => 'float32_t');
 $ffi->type('double' => 'float64_t');
+$ffi->type('enum'   => 'wasm_externkind_t');
 
 { package Wasm::Wasmtime::Config;
   $ffi->type('object(Wasm::Wasmtime::Config)' => 'wasm_config_t');
@@ -84,7 +85,6 @@ $ffi->type('double' => 'float64_t');
     opaque => 'data',
   );
 }
-
 
 { package Wasm::Wasmtime::ByteVec;
   use base qw( Wasm::Wasmtime::Vec );
@@ -197,6 +197,77 @@ $ffi->type('double' => 'float64_t');
   $ffi->attach( ['delete' => 'DESTROY'] => ['wasm_trap_t'] );
 }
 
+{ package Wasm::Wasmtime::Func;
+  $ffi->type('object(Wasm::Wasmtime::Func)' => 'wasm_func_t');
+  $ffi->mangler(sub { "wasm_$_[0]" });
+
+  $ffi->attach( [ 'extern_as_func' => 'new' ] => [ 'opaque' ] => 'wasm_func_t' => sub {
+    my($xsub, undef, $pointer) = @_;
+    my $self = $xsub->($pointer);
+  });
+}
+
+{ package Wasm::Wasmtime::Global;
+  $ffi->type('object(Wasm::Wasmtime::Global)' => 'wasm_global_t');
+  $ffi->mangler(sub { "wasm_$_[0]" });
+
+  $ffi->attach( [ 'extern_as_global' => 'new' ] => [ 'opaque' ] => 'wasm_global_t' => sub {
+    my($xsub, undef, $pointer) = @_;
+    my $self = $xsub->($pointer);
+  });
+}
+
+{ package Wasm::Wasmtime::Table;
+  $ffi->type('object(Wasm::Wasmtime::Table)' => 'wasm_table_t');
+  $ffi->mangler(sub { "wasm_$_[0]" });
+
+  $ffi->attach( [ 'extern_as_table' => 'new' ] => [ 'opaque' ] => 'wasm_table_t' => sub {
+    my($xsub, undef, $pointer) = @_;
+    my $self = $xsub->($pointer);
+  });
+}
+
+{ package Wasm::Wasmtime::Memory;
+  $ffi->type('object(Wasm::Wasmtime::Memory)' => 'wasm_memory_t');
+  $ffi->mangler(sub { "wasm_$_[0]" });
+
+  $ffi->attach( [ 'extern_as_memory' => 'new' ] => [ 'opaque' ] => 'wasm_memory_t' => sub {
+    my($xsub, undef, $pointer) = @_;
+    my $self = $xsub->($pointer);
+  });
+}
+
+{ package Wasm::Wasmtime::ExternVec;
+  use base qw( Wasm::Wasmtime::Vec );
+
+  $ffi->type('record(Wasm::Wasmtime::ExternVec)', 'wasm_extern_vec_t');
+  $ffi->mangler(sub { "wasm_extern_$_[0]" });
+
+  $ffi->attach( ['vec_delete' => 'DESTROY'] => ['wasm_extern_vec_t*'] => sub {
+    my($xsub, $self) = @_;
+    $xsub->($self);
+    $self->SUPER::DESTROY;
+  });
+
+  $ffi->attach( ['kind' => '_kind' ] => ['opaque'] => 'wasm_externkind_t');
+
+  my %class = (
+    Wasm::Wasmtime::WASM_EXTERN_FUNC()   => 'Wasm::Wasmtime::Func',
+    Wasm::Wasmtime::WASM_EXTERN_GLOBAL() => 'Wasm::Wasmtime::Global',
+    Wasm::Wasmtime::WASM_EXTERN_TABLE()  => 'Wasm::Wasmtime::Table',
+    Wasm::Wasmtime::WASM_EXTERN_MEMORY() => 'Wasm::Wasmtime::Memory',
+  );
+
+  sub to_list
+  {
+    my($self) = @_;
+    my $size = $self->size;
+    map {
+      $class{_kind($_)}->new($_)
+    } @{ $ffi->cast('opaque' => "opaque[$size]", $self->data) };
+  }
+}
+
 { package Wasm::Wasmtime::Instance;
   $ffi->type('object(Wasm::Wasmtime::Instance)' => 'wasm_instance_t');
   $ffi->mangler(sub { "wasm_instance_$_[0]" });
@@ -213,6 +284,13 @@ $ffi->type('double' => 'float64_t');
       Carp::croak("error creating Wasm::Wasmtime::Instance " . $trap->message);
     }
     $self;
+  });
+
+  $ffi->attach( exports => [ 'wasm_instance_t', 'wasm_extern_vec_t*' ] => sub {
+    my($xsub, $self) = @_;
+    my $externs = Wasm::Wasmtime::ExternVec->new;
+    $xsub->($self, $externs);
+    $externs;
   });
 
   $ffi->attach( ['delete' => 'DESTROY'] => ['wasm_instance_t'] );
@@ -236,7 +314,7 @@ A L<Wasm::Wasmtime::Engine> instance.
 
 =item $wat
 
-Either a Perl string or a L<Wasm::Wasmtime::ByteVec> containing the WebAssembly text. 
+Either a Perl string or a L<Wasm::Wasmtime::ByteVec> containing the WebAssembly text.
 
 =item $wasm
 
