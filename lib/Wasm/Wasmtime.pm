@@ -8,8 +8,6 @@ use Carp ();
 use FFI::Platypus 1.00;
 use base qw( Exporter );
 
-our @EXPORT = qw( wat2wasm );
-
 # ABSTRACT: Write Perl interface to wasmtime
 # VERSION
 
@@ -29,6 +27,13 @@ This module provides a low level interface for C<wasmtime>.
 my $ffi = FFI::Platypus->new(
   api => 1,
   lib => [Alien::wasmtime->dynamic_libs],
+);
+
+$ffi->bundle('Wasm');
+
+our @EXPORT = (
+  'wat2wasm',
+  grep /^(WASM_|WASMTIME_)/, keys %Wasm::Wasmtime::
 );
 
 $ffi->type('char'   => 'byte_t');

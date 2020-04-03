@@ -2,4 +2,4 @@
 
 set -ex
 
-cip exec cpanm -n https://dist.wdlabs.com/Alien-wasmtime-0.01.tar.gz
+cip exec cpanm -n https://dist.wdlabs.com/Alien-wasmtime-0.02.tar.gz

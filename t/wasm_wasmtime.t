@@ -1,6 +1,8 @@
 use Test2::V0 -no_srand => 1;
 use Wasm::Wasmtime;
 
+imported_ok 'wat2wasm';
+
 subtest 'good wat' => sub {
 
   my $engine = Wasm::Wasmtime::Engine->new;
