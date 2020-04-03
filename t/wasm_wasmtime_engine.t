@@ -6,10 +6,14 @@ isa_ok(
   'Wasm::Wasmtime::Engine',
 );
 
-isa_ok(
-  Wasm::Wasmtime::Engine->new(Wasm::Wasmtime::Config->new),
-  'Wasm::Wasmtime::Engine',
-);
+{
+  my $config = Wasm::Wasmtime::Config->new;
+
+  isa_ok(
+    Wasm::Wasmtime::Engine->new($config),
+    'Wasm::Wasmtime::Engine',
+  );
+}
 
 done_testing;
 
