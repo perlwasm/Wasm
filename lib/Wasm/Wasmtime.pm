@@ -249,7 +249,8 @@ $ffi->type('uint8'  => 'wasm_externkind_t');
     $self->SUPER::DESTROY;
   });
 
-  $ffi->attach( ['kind' => '_kind' ] => ['opaque'] => 'wasm_externkind_t');
+  #$ffi->attach( ['kind' => '_kind' ] => ['opaque'] => 'wasm_externkind_t');
+  $ffi->attach( ['kind' => '_kind' ] => ['opaque'] => 'uint8');
 
   my %class = (
     Wasm::Wasmtime::WASM_EXTERN_FUNC()   => 'Wasm::Wasmtime::Func',
@@ -264,12 +265,7 @@ $ffi->type('uint8'  => 'wasm_externkind_t');
     my $size = $self->size;
     map {
       my $class = $class{_kind($_)};
-      unless(defined $class)
-      {
-        use Data::Dumper qw( Dumper );
-        warn Dumper(\%class);
-        die "_kind($_) = @{[ _kind($_) ]}";
-      }
+      die "internal: illegal kind: @{[ _kind($_) ]}" unless defined $class;
       $class->new($_)
     } @{ $ffi->cast('opaque' => "opaque[$size]", $self->data) };
   }
