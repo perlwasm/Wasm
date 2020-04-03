@@ -86,6 +86,8 @@ $ffi->type('double' => 'float64_t');
   use FFI::Platypus::Buffer ();
 
   $ffi->type('record(Wasm::Wasmtime::ByteVec)', 'wasm_byte_vec_t');
+  $ffi->type('wasm_byte_vec_t', 'wasm_name_t');
+  $ffi->type('wasm_name_t', 'wasm_message_t');
   $ffi->mangler(sub { "wasm_byte_vec$_[0]" });
 
   $ffi->attach( '_new'               => [ 'wasm_byte_vec_t*', 'size_t', 'opaque' ] => 'void' );
@@ -151,6 +153,64 @@ $ffi->type('double' => 'float64_t');
   });
 
   $ffi->attach( ['delete' => 'DESTROY'] => ['wasm_module_t'] );
+}
+
+{ package Wasm::Wasmtime::Trap;
+  $ffi->type('object(Wasm::Wasmtime::Trap)' => 'wasm_trap_t');
+  $ffi->mangler(sub { "wasm_trap_$_[0]" });
+
+  $ffi->attach( new => ['wasm_store_t', 'wasm_message_t*'] => 'wasm_trap_t' => sub {
+    my($xsub, undef, $store, $messagep) = @_;
+    my $message;
+    if(ref $messagep)
+    {
+      $message = $messagep;
+    }
+    else
+    {
+      $messagep .= "\0" unless $messagep =~ /\0$/;
+      $message = Wasm::Wasmtime::ByteVec->new($messagep);
+    }
+    $xsub->($store, $message);
+  });
+
+  sub _new_raw
+  {
+    my($class, $ptr) = @_;
+    bless \$ptr, $class;
+  }
+
+  $ffi->attach( message => ['wasm_trap_t', 'wasm_message_t*'] => sub {
+    my($xsub, $self) = @_;
+    my $message = Wasm::Wasmtime::ByteVec->_new_raw;
+    $xsub->($self, $message);
+    $message = $message->to_string;
+    $message =~ s/\0$//;
+    $message;
+  });
+
+  $ffi->attach( ['delete' => 'DESTROY'] => ['wasm_trap_t'] );
+}
+
+{ package Wasm::Wasmtime::Instance;
+  $ffi->type('object(Wasm::Wasmtime::Instance)' => 'wasm_instance_t');
+  $ffi->mangler(sub { "wasm_instance_$_[0]" });
+
+  $ffi->attach( new => [ 'wasm_store_t', 'wasm_module_t', 'opaque', 'opaque' ] => 'wasm_instance_t' => sub {
+    my($xsub, undef, $store, $mod) = @_;
+    # TODO: third argument is wasm_extern_t*[]
+    my $trap;
+    my $self = $xsub->($store, $mod, undef, \$trap);
+    unless(defined $self)
+    {
+      # TODO: unit test for this, how do we get it to fail?
+      $trap = Wasm::Wasmtime::Trap->_new_raw($trap);
+      Carp::croak("error creating Wasm::Wasmtime::Instance " . $trap->message);
+    }
+    $self;
+  });
+
+  $ffi->attach( ['delete' => 'DESTROY'] => ['wasm_instance_t'] );
 }
 
 $ffi->mangler(sub { "wasmtime_$_[0]" });
