@@ -10,7 +10,9 @@ my %modules;
 my $post_diag;
 
 $modules{$_} = $_ for qw(
+  Alien::wasmtime
   ExtUtils::MakeMaker
+  FFI::Platypus
   Test2::V0
 );
 
