@@ -207,7 +207,7 @@ $ffi->type('uint8'  => 'wasm_externkind_t');
   });
 }
 
-{ package Wasm::Wasmtime::Global;
+{ package Wasm::Wasmtime::Global; # TODO
   $ffi->type('object(Wasm::Wasmtime::Global)' => 'wasm_global_t');
   $ffi->mangler(sub { "wasm_$_[0]" });
 
@@ -217,7 +217,7 @@ $ffi->type('uint8'  => 'wasm_externkind_t');
   });
 }
 
-{ package Wasm::Wasmtime::Table;
+{ package Wasm::Wasmtime::Table; # TODO
   $ffi->type('object(Wasm::Wasmtime::Table)' => 'wasm_table_t');
   $ffi->mangler(sub { "wasm_$_[0]" });
 
@@ -227,7 +227,7 @@ $ffi->type('uint8'  => 'wasm_externkind_t');
   });
 }
 
-{ package Wasm::Wasmtime::Memory;
+{ package Wasm::Wasmtime::Memory; # TODO
   $ffi->type('object(Wasm::Wasmtime::Memory)' => 'wasm_memory_t');
   $ffi->mangler(sub { "wasm_$_[0]" });
 
