@@ -197,8 +197,35 @@ $ffi->type('uint8'  => 'wasm_externkind_t');
   $ffi->attach( ['delete' => 'DESTROY'] => ['wasm_trap_t'] );
 }
 
+{ package Wasm::Wasmtime::ValTypeVec;
+  use  base qw( Wasm::Wasmtime::Vec );
+
+  $ffi->type('record(Wasm::Wasmtime::ValTypeVec)', 'wasm_valtype_vec_t');
+  $ffi->mangler(sub { "wasm_valtype_$_[0]" });
+
+  #$ffi->attach( ['vec_delete' => 'DESTROY'] => ['wasm_valtype_vec_t*'] => sub {
+  #  my($xsub, $self) = @_;
+  #  $xsub->($self);
+  #  $self->SUPER::DESTROY;
+  #});
+
+  #$ffi->attach( ['kind' => '_kind' ] => ['opaque'] => 'wasm_valkind_t');
+  $ffi->attach( ['kind' => '_kind' ] => ['opaque'] => 'uint8');
+
+  sub to_list
+  {
+    my $self = shift;
+    map { _kind($_) } @{ $ffi->cast('opaque' => "opaque[@{[ $self->size ]}]", $self->data) };
+  }
+}
+
 { package Wasm::Wasmtime::Func;
   $ffi->type('object(Wasm::Wasmtime::Func)' => 'wasm_func_t');
+  $ffi->mangler(sub { "wasm_func_$_[0]" });
+
+  $ffi->attach( param_arity => [ 'wasm_func_t' ] => 'size_t' );
+  $ffi->attach( result_arity => [ 'wasm_func_t' ] => 'size_t' );
+
   $ffi->mangler(sub { "wasm_$_[0]" });
 
   $ffi->attach( [ 'extern_as_func' => 'new' ] => [ 'opaque' ] => 'wasm_func_t' => sub {
@@ -262,12 +289,11 @@ $ffi->type('uint8'  => 'wasm_externkind_t');
   sub to_list
   {
     my($self) = @_;
-    my $size = $self->size;
     map {
       my $class = $class{_kind($_)};
       die "internal: illegal kind: @{[ _kind($_) ]}" unless defined $class;
       $class->new($_)
-    } @{ $ffi->cast('opaque' => "opaque[$size]", $self->data) };
+    } @{ $ffi->cast('opaque' => "opaque[@{[ $self->size ]}]", $self->data) };
   }
 }
 
