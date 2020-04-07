@@ -4,7 +4,7 @@ use Wasm::Wasmtime;
 subtest 'basic' => sub {
 
   my $engine = Wasm::Wasmtime::Engine->new;
-  my $wasm   = wat2wasm( $engine, "(module)" );
+  my $wasm   = wat2wasm( "(module)" );
   my $store  = Wasm::Wasmtime::Store->new($engine);
 
   is(

@@ -16,7 +16,7 @@ use base qw( Exporter );
  use Wasm::Wasmtime;
  
  my $engine = Wasm::Wasmtime::Engine->new;
- my $wasm = wat2wasm($engine, "(module)");
+ my $wasm = wat2wasm("(module)");
 
 =head2 DESCRIPTION
 
@@ -331,7 +331,7 @@ $ffi->mangler(sub { "wasmtime_$_[0]" });
 
 =head2 wat2wasm
 
- my $wasm = wat2wasm($engine, $wat);
+ my $wasm = wat2wasm($wat);
 
 Converts WebAssembly text format to Wasm.
 
@@ -353,12 +353,12 @@ A L<Wasm::Wasmtime::ByteVec> containing the converted Wasm.
 
 =cut
 
-$ffi->attach( wat2wasm => [ 'wasm_engine_t', 'wasm_byte_vec_t*', 'wasm_byte_vec_t*', 'wasm_byte_vec_t*' ] => 'bool' => sub {
-  my($xsub, $engine, $watp) = @_;
+$ffi->attach( wat2wasm => [ 'wasm_byte_vec_t*', 'wasm_byte_vec_t*', 'wasm_byte_vec_t*' ] => 'bool' => sub {
+  my($xsub, $watp) = @_;
   my $wat = ref $watp ? $watp : Wasm::Wasmtime::ByteVec->new($watp);
   my $ret = Wasm::Wasmtime::ByteVec->_new_raw;
   my $error_message = Wasm::Wasmtime::ByteVec->_new_raw;
-  if($xsub->($engine, $wat, $ret, $error_message))
+  if($xsub->($wat, $ret, $error_message))
   {
     return $ret;
   }

@@ -4,7 +4,7 @@ use Path::Tiny qw( path );
 
 subtest 'basic' => sub {
   my $engine = Wasm::Wasmtime::Engine->new;
-  my $wasm   = wat2wasm( $engine, path("corpus/gcd.wat")->slurp );
+  my $wasm   = wat2wasm( path("corpus/gcd.wat")->slurp );
   my $store  = Wasm::Wasmtime::Store->new($engine);
   my $mod = Wasm::Wasmtime::Module->new($store, $wasm);
 
