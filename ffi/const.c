@@ -2,7 +2,8 @@
 #include <wasm.h>
 #include <wasmtime.h>
 
-#define ec(name) c->set_uint("Wasm::Wasmtime::" #name, name)
+#define ec(name) c->set_uint("Wasm::Wasmtime::" #name, name); \
+                 c->set_uint("Wasm::NWasmtime::" #name, name);
 
 void
 ffi_pl_bundle_constant(const char *package, ffi_platypus_constant_t *c)
