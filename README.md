@@ -8,7 +8,7 @@ The `Wasm` Perl dist provides tools for writing Perl bindings using WebAssembly 
 
 # SEE ALSO
 
-- [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime)
+- [Wasm::Wasmtime](https://metacpan.org/pod/Wasm%3A%3AWasmtime)
 
     Low level interface to `wasmtime`.
 

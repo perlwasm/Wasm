@@ -15,6 +15,7 @@ $modules{$_} = $_ for qw(
   FFI::Platypus
   FFI::Platypus::Buffer
   FFI::Platypus::Record
+  Path::Tiny
   Test2::V0
 );
 
