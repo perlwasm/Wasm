@@ -32,6 +32,7 @@ foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
   $ffi->attach( [ "${prop}_set" => $prop ] => [ 'opaque', 'bool' ] => sub {
     my($xsub, $self, $value) = @_;
     $xsub->($self->{ptr}, $value);
+    $self;
   });
 }
 
@@ -56,6 +57,7 @@ $ffi->attach( [ 'strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] =
   {
     Carp::croak("unknown strategy: $value");
   }
+  $self;
 });
 
 my %cranelift_opt_level = (
@@ -74,6 +76,7 @@ $ffi->attach( ['cranelift_opt_level_set' => 'cranelift_opt_level' ] => ['wasm_co
   {
     Carp::croak("unknown cranelift_opt_level: $value");
   }
+  $self;
 });
 
 my %profiler = (
@@ -96,6 +99,7 @@ $ffi->attach( ['profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => '
   {
     Carp::croak("unknown profiler: $value");
   }
+  $self;
 });
 
 1;
