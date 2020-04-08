@@ -43,8 +43,6 @@ is(
   'file key',
 );
 
-=pod
-
 is(
   Wasm::Wasmtime::Module->validate(wat2wasm('(module)')),
   T(),
@@ -64,7 +62,5 @@ is(
   Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, 'f00f'),
   F(),
 );
-
-=cut
 
 done_testing;
