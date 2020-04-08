@@ -9,7 +9,7 @@ my $critic = Perl::Critic->new(
   -profile => 'perlcriticrc',
 );
 
-perl_critic_ok ['lib','t'], $critic;
+perl_critic_ok ['examples','lib','t'], $critic;
 
 done_testing;
 
