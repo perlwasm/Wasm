@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Module;
+use Wasm::Wasmtime::Extern;
 
 # ABSTRACT: Wasmtime instance class
 # VERSION
@@ -27,6 +28,13 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque','opaque*'] => 'was
     # TODO: totally untested! not sure how to force this for a unit test.
     Carp::croak("error creating Wasm::Wasmtime::Instance " . $trap->message);
   }
+});
+
+$ffi->attach( exports => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
+  my($xsub, $self) = @_;
+  my $externs = Wasm::Wasmtime::ExternVec->new;
+  $xsub->($self->{ptr}, $externs);
+  $externs->to_list;
 });
 
 $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_engine_t'] => sub {

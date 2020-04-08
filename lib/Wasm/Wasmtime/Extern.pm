@@ -3,6 +3,7 @@ package Wasm::Wasmtime::Extern;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::ExternType;
 
 # ABSTRACT: Wasmtime extern class
 # VERSION
@@ -25,6 +26,11 @@ sub new
   }, $class;
 }
 
+$ffi->attach( type => ['wasm_extern_t'] => 'wasm_externtype_t' => sub {
+  my($xsub, $self) = @_;
+  Wasm::Wasmtime::ExternType->new($xsub->($self->{ptr}), undef);
+});
+
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_extern_t'] => sub {
   my($xsub, $self) = @_;
   if(defined $self->{ptr} && !defined $self->{owner})
@@ -32,5 +38,7 @@ $ffi->attach( [ delete => "DESTROY" ] => ['wasm_extern_t'] => sub {
     $xsub->($self->{ptr});
   }
 });
+
+_generate_vec_class();
 
 1;
