@@ -1,5 +1,0 @@
-#!/bin/sh
-
-set -ex
-
-cip exec cpanm -n https://dist.wdlabs.com/Alien-wasmtime-0.03.tar.gz
