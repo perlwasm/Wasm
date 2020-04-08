@@ -2,4 +2,3 @@ Wasm-*
 /.build/
 *.swp
 /.tmp/
-/ffi/_build/
