@@ -6,6 +6,9 @@ is(
   Wasm::Wasmtime::Instance->new(Wasm::Wasmtime::Module->new(wat => '(module)')),
   object {
     call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
+    call module => object {
+      call [ isa => 'Wasm::Wasmtime::Module' ] => T();
+    };
   },
   'created instance instance'
 );
@@ -26,6 +29,10 @@ is(
   })),
   object {
     call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
+    call [ get_export => 'add' ] => object {
+      call [isa => 'Wasm::Wasmtime::Extern'] => T();
+    };
+    call [ get_export => 'foo' ] => U();
     call_list exports => array {
       item object {
         call [isa => 'Wasm::Wasmtime::Extern'] => T();

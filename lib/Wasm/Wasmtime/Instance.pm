@@ -30,6 +30,34 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque','opaque*'] => 'was
   }
 });
 
+=head1 METHODS
+
+=head2 get_export
+
+=cut
+
+sub get_export
+{
+  my($self, $name) = @_;
+  $self->{exports} ||= do {
+    my @exports = $self->exports;
+    my @module_exports   = $self->module->exports;
+    my %exports;
+    foreach my $i (0..$#exports)
+    {
+      $exports{$module_exports[$i]->name} = $exports[$i];
+    }
+    \%exports;
+  };
+  $self->{exports}->{$name};
+}
+
+=head2 module
+
+=cut
+
+sub module { shift->{module} }
+
 $ffi->attach( exports => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
   my($xsub, $self) = @_;
   my $externs = Wasm::Wasmtime::ExternVec->new;
