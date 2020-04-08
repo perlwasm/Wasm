@@ -53,9 +53,8 @@ $ffi->attach( validate => ['wasm_store_t','wasm_byte_vec_t*'] => 'bool' => sub {
   my $xsub = shift;
   my $class = shift;
   my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
-  $DB::single = 1;
   my $wasm = Wasm::Wasmtime::ByteVec->new($_[0]);
-  $xsub->($store, $wasm);
+  $xsub->($store->{ptr}, $wasm);
 });
 
 $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
