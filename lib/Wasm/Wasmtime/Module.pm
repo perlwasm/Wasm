@@ -61,3 +61,12 @@ $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
   $xsub->($self->{ptr}) if $self->{ptr};
 });
 
+=head1 METHODS
+
+=head2 store
+
+=cut
+
+sub store { shift->{store} }
+
+1;

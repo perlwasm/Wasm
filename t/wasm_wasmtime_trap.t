@@ -8,6 +8,7 @@ is(
     call [isa => 'Wasm::Wasmtime::Trap'] => T();
     call message => 'foo';
   },
+  'created trap ok',
 );
 
 done_testing;
