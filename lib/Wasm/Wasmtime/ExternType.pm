@@ -3,6 +3,7 @@ package Wasm::Wasmtime::ExternType;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::FuncType;
 
 # ABSTRACT: Wasmtime extern type class
 # VERSION
@@ -35,6 +36,12 @@ my %kind = (
 $ffi->attach( kind => ['wasm_externtype_t'] => 'uint8' => sub {
   my($xsub, $self) = @_;
   $kind{$xsub->($self->{ptr})};
+});
+
+$ffi->attach( as_functype => ['wasm_externtype_t'] => 'wasm_functype_t' => sub {
+  my($xsub, $self) = @_;
+  my $ptr = $xsub->($self->{ptr});
+  $ptr ? Wasm::Wasmtime::FuncType->new($ptr, $self->{owner} || $self) : undef;
 });
 
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_externtype_t'] => sub {
