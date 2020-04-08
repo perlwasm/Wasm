@@ -80,6 +80,11 @@ $ffi->type('opaque' => 'wasm_store_t');
 $ffi->type('opaque' => 'wasm_module_t');
 $ffi->type('opaque' => 'wasm_trap_t');
 $ffi->type('opaque' => 'wasm_instance_t');
+$ffi->type('opaque' => 'wasm_extern_t');
+$ffi->type('opaque' => 'wasm_func_t');
+$ffi->type('opaque' => 'wasm_global_t');
+$ffi->type('opaque' => 'wasm_table_t');
+$ffi->type('opaque' => 'wasm_memory_t');
 
 $ffi->attach( wasm_config_new             => []                => 'wasm_config_t' );
 $ffi->attach( wasm_config_delete          => ['wasm_config_t'] => 'void'          );
@@ -159,7 +164,31 @@ $ffi->attach( wasm_instance_new => ['wasm_store_t', 'wasm_module_t', 'opaque', '
   $instance;
 });
 
+{ package Wasm::NWasmtime::ExternVec;
+  use base qw( Wasm::NWasmtime::Vec );
+
+  $ffi->type( 'record(Wasm::NWasmtime::ExternVec)' => 'wasm_extern_vec_t' );
+
+  sub to_list
+  {
+    my($self) = @_;
+    @{ $ffi->cast('opaque' => "wasm_extern_t[@{[ $self->size ]}]", $self->data) };
+  }
+}
+
+$ffi->attach( wasm_instance_exports => ['wasm_instance_t', 'wasm_extern_vec_t*'] => sub {
+  my($xsub, $instance) = @_;
+  my $externs = Wasm::NWasmtime::ExternVec->new;
+  $xsub->($instance, $externs);
+  $externs;
+});
+
 $ffi->attach( wasm_instance_delete => ['wasm_instance_t'] );
+
+$ffi->attach( wasm_extern_as_func   => ['wasm_extern_t'] => 'wasm_func_t' );
+$ffi->attach( wasm_extern_as_global => ['wasm_extern_t'] => 'wasm_global_t' );
+$ffi->attach( wasm_extern_as_table  => ['wasm_extern_t'] => 'wasm_table_t' );
+$ffi->attach( wasm_extern_as_memory => ['wasm_extern_t'] => 'wasm_memory_t' );
 
 our @EXPORT = (grep /^(WASM_|WASMTIME_|wasm_|wasmtime_)/, keys %Wasm::NWasmtime::);
 

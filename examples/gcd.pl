@@ -10,6 +10,9 @@ my $wat = path(__FILE__)->parent->child('gcd.wat')->slurp_utf8;
 our $wasm = wasmtime_wat2wasm($wat);
 my $module = wasm_module_new($store, $wasm);
 my $instance = wasm_instance_new($store, $module);
+my $externs = wasm_instance_exports($instance);
+
+my($gcd) = map { wasm_extern_as_func($_) } $externs->to_list;
 
 wasm_instance_delete($instance);
 wasm_module_delete($module);
