@@ -93,6 +93,7 @@ is(
         local.get 0
         local.get 1
         i32.sub)
+      (memory (export "frooble") 2 3)
     )
   }),
   object {
@@ -100,10 +101,26 @@ is(
       item object {
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
         call name => 'add';
+        call type => object {
+          call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+          call kind => 'func';
+        };
       };
       item object {
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
         call name => 'sub';
+        call type => object {
+          call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+          call kind => 'func';
+        };
+      };
+      item object {
+        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+        call name => 'frooble';
+        call type => object {
+          call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+          call kind => 'memory';
+        };
       };
       end;
     };
