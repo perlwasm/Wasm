@@ -10,7 +10,7 @@ use base qw( Exporter );
 # ABSTRACT: Private class for Wasm::Wasmtime
 # VERSION
 
-our @EXPORT = qw( $ffi );
+our @EXPORT = qw( $ffi _generate_vec_class );
 
 our $ffi = FFI::Platypus->new( api => 1 );
 $ffi->lib(Alien::wasmtime->dynamic_libs);
@@ -54,6 +54,45 @@ $ffi->lib(Alien::wasmtime->dynamic_libs);
   }
 
   $ffi->attach( delete => ['wasm_byte_vec_t*'] => 'void' );
+}
+
+sub _generic_vec_delete
+{
+  my($xsub, $self) = @_;
+  $xsub->($self);
+  # cannot use SUPER::DELETE because we aren't
+  # in the right package.
+  Wasm::Wasmtime::Vec::DESTROY($self);
+}
+
+sub _generate_vec_class
+{
+  my %opts = @_;
+  my($class) = caller;
+  my $type = $class;
+  $type =~ s/^.*:://;
+  my $v_type = "wasm_@{[ lc $type ]}_vec_t";
+  my $c_type = "wasm_@{[ lc $type ]}_t";
+  my $vclass  = "Wasm::Wasmtime::${type}Vec";
+  my $prefix = "wasm_@{[ lc $type ]}_vec";
+
+  my $to_list = sub {
+    my($self) = @_;
+    my $size = $self->size;
+    my $ptrs = $ffi->cast('opaque', "${c_type}[$size]", $self->data);
+    map { $class->new($_, $self) } @$ptrs;
+  };
+
+  {
+    no strict 'refs';
+    @{join '::', $vclass, 'ISA'} = ('Wasm::Wasmtime::Vec');
+    *{join '::', $vclass, 'to_list'} = $to_list;
+  }
+  $ffi->mangler(sub { join '_', $prefix, $_[0] });
+  $ffi->type("record($vclass)" => $v_type);
+  $ffi->attach( [ delete => join('::', $vclass, 'DESTROY') ] => ["$v_type*"] => \&_generic_vec_delete)
+    if !defined($opts{delete}) || $opts{delete};
+
 }
 
 1;

@@ -3,6 +3,7 @@ package Wasm::Wasmtime::FuncType;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::ValType;
 
 # ABSTRACT: Wasmtime function type class
 # VERSION
@@ -24,6 +25,18 @@ sub new
     owner => $owner,
   }, $class;
 }
+
+$ffi->attach( params => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
+  my($xsub, $self) = @_;
+  $DB::single = 1;
+  $xsub->($self->{ptr})->to_list;
+});
+
+$ffi->attach( results => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
+  my($xsub, $self) = @_;
+  $DB::single = 1;
+  $xsub->($self->{ptr})->to_list;
+});
 
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_functype_t'] => sub {
   my($xsub, $self) = @_;
