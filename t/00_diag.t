@@ -17,6 +17,7 @@ $modules{$_} = $_ for qw(
   FFI::Platypus::Record
   Path::Tiny
   Test2::V0
+  Test::Script
 );
 
 
