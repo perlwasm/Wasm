@@ -13,6 +13,8 @@ $modules{$_} = $_ for qw(
   Alien::wasmtime
   ExtUtils::MakeMaker
   FFI::Platypus
+  FFI::Platypus::Buffer
+  FFI::Platypus::Record
   Test2::V0
 );
 
