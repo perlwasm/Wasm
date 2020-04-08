@@ -3,6 +3,7 @@ package Wasm::Wasmtime::Trap;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::Store;
 
 # ABSTRACT: Wasmtime trap class
 # VERSION
