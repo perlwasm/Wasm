@@ -82,4 +82,33 @@ is(
   'validate bad with store',
 );
 
+is(
+  Wasm::Wasmtime::Module->new(wat => q{
+    (module
+      (func (export "add") (param i32 i32) (result i32)
+        local.get 0
+        local.get 1
+        i32.add)
+      (func (export "sub") (param i32 i32) (result i32)
+        local.get 0
+        local.get 1
+        i32.sub)
+    )
+  }),
+  object {
+    call_list exports => array {
+      item object {
+        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+        call name => 'add';
+      };
+      item object {
+        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+        call name => 'sub';
+      };
+      end;
+    };
+  },
+  'exports',
+);
+
 done_testing;

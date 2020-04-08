@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
+use Wasm::Wasmtime::ExportType;
 
 # ABSTRACT: Wasmtime module class
 # VERSION
@@ -54,6 +55,15 @@ $ffi->attach( validate => ['wasm_store_t','wasm_byte_vec_t*'] => 'bool' => sub {
   my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
   my $wasm = Wasm::Wasmtime::ByteVec->new($_[0]);
   $xsub->($store->{ptr}, $wasm);
+});
+
+$ffi->attach( exports => [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
+  my($xsub, $self) = @_;
+  my $exports = Wasm::Wasmtime::ExportTypeVec->new;
+  $xsub->($self->{ptr}, $exports);
+  my $size = $exports->size;
+  my $ptrs = $ffi->cast('opaque', "wasm_exporttype_t[$size]", $exports->data);
+  map { Wasm::Wasmtime::ExportType->new($_, $exports) } @$ptrs;
 });
 
 $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
