@@ -104,6 +104,9 @@ is(
         call type => object {
           call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
           call kind => 'func';
+          call as_functype => object {
+            call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+          };
         };
       };
       item object {
@@ -112,6 +115,9 @@ is(
         call type => object {
           call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
           call kind => 'func';
+          call as_functype => object {
+            call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+          };
         };
       };
       item object {
@@ -120,6 +126,7 @@ is(
         call type => object {
           call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
           call kind => 'memory';
+          call as_functype => U();
         };
       };
       end;
