@@ -52,6 +52,8 @@ is(
           call type => object {
             call [isa => 'Wasm::Wasmtime::FuncType'] => T();
           };
+          call param_arity => 2;
+          call result_arity => 1;
         };
       };
       item object {

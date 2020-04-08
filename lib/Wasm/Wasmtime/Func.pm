@@ -31,6 +31,16 @@ $ffi->attach( type => ['wasm_func_t'] => 'wasm_functype_t' => sub {
   Wasm::Wasmtime::FuncType->new($xsub->($self->{ptr}), $self->{owner} || $self);
 });
 
+$ffi->attach( param_arity => ['wasm_func_t'] => 'size_t' => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->{ptr});
+});
+
+$ffi->attach( result_arity => ['wasm_func_t'] => 'size_t' => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->{ptr});
+});
+
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_func_t'] => sub {
   my($xsub, $self) = @_;
   if(defined $self->{ptr} && !defined $self->{owner})
