@@ -47,6 +47,12 @@ is(
             };
           };
         };
+        call as_func => object {
+          call [isa => 'Wasm::Wasmtime::Func'] => T();
+          call type => object {
+            call [isa => 'Wasm::Wasmtime::FuncType'] => T();
+          };
+        };
       };
       item object {
         call [isa => 'Wasm::Wasmtime::Extern'] => T();
