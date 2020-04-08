@@ -54,6 +54,8 @@ is(
           };
           call param_arity => 2;
           call result_arity => 1;
+          call [call => 1, 2] => 3;
+          call_list [call => 1, 2] => [3];
         };
       };
       item object {
@@ -68,6 +70,16 @@ is(
               end;
             };
           };
+        };
+        call as_func => object {
+          call [isa => 'Wasm::Wasmtime::Func'] => T();
+          call type => object {
+            call [isa => 'Wasm::Wasmtime::FuncType'] => T();
+          };
+          call param_arity => 2;
+          call result_arity => 1;
+          call [call => 3, 1] => 2;
+          call_list [call => 3, 1] => [2];
         };
       };
       item object {

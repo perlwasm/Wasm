@@ -28,13 +28,11 @@ sub new
 
 $ffi->attach( params => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
   my($xsub, $self) = @_;
-  $DB::single = 1;
   $xsub->($self->{ptr})->to_list;
 });
 
 $ffi->attach( results => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
   my($xsub, $self) = @_;
-  $DB::single = 1;
   $xsub->($self->{ptr})->to_list;
 });
 

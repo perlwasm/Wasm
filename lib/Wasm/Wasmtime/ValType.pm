@@ -26,10 +26,10 @@ sub new
 }
 
 my %kind = (
-  0 => 'i32',
-  1 => 'i64',
-  2 => 'f32',
-  3 => 'f64',
+  0   => 'i32',
+  1   => 'i64',
+  2   => 'f32',
+  3   => 'f64',
   128 => 'anyref',
   129 => 'funcref',
 );
@@ -37,6 +37,11 @@ my %kind = (
 $ffi->attach( kind => ['wasm_valtype_t'] => 'uint8' => sub {
   my($xsub, $self) = @_;
   $kind{$xsub->($self->{ptr})};
+});
+
+$ffi->attach( [kind => 'kind_num'] => ['wasm_valtype_t'] => 'uint8' => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->{ptr});
 });
 
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_valtype_t'] => sub {
