@@ -25,7 +25,7 @@ $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_config_t'] => sub {
 
 $ffi->mangler(sub { "wasmtime_config_$_[0]" });
 
-foreach my $prop (qw( debug_info wasm_threads wasm_reference_types 
+foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
                       wasm_simd wasm_bulk_memory wasm_multi_value
                       cranelift_debug_verifier ))
 {
