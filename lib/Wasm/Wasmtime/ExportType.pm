@@ -48,17 +48,6 @@ $ffi->attach( [ delete => "DESTROY" ] => ['wasm_exporttype_t'] => sub {
   }
 });
 
-{ package Wasm::Wasmtime::ExportTypeVec;
-  use base qw( Wasm::Wasmtime::Vec );
-  use Wasm::Wasmtime::FFI;
-
-  $ffi->mangler(sub { "wasm_exporttype_vec_$_[0]" });
-  $ffi->type('record(Wasm::Wasmtime::ExportTypeVec)' => 'wasm_exporttype_vec_t');
-  $ffi->attach([delete => 'DESTROY'] => ['wasm_exporttype_vec_t*'] => sub {
-    my($xsub, $self) = @_;
-    $xsub->($self);
-    $self->SUPER::DESTROY;
-  });
-}
+_generate_vec_class();
 
 1;

@@ -89,10 +89,10 @@ is(
         local.get 0
         local.get 1
         i32.add)
-      (func (export "sub") (param i32 i32) (result i32)
+      (func (export "sub") (param i64 i64) (result i64)
         local.get 0
         local.get 1
-        i32.sub)
+        i64.sub)
       (memory (export "frooble") 2 3)
     )
   }),
@@ -106,6 +106,24 @@ is(
           call kind => 'func';
           call as_functype => object {
             call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+            call_list params => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              end;
+            };
+            call_list results => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              end;
+            };
           };
         };
       };
@@ -117,6 +135,24 @@ is(
           call kind => 'func';
           call as_functype => object {
             call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+            call_list params => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              end;
+            };
+            call_list results => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              end;
+            };
           };
         };
       };

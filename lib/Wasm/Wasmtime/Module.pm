@@ -61,9 +61,7 @@ $ffi->attach( exports => [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
   my($xsub, $self) = @_;
   my $exports = Wasm::Wasmtime::ExportTypeVec->new;
   $xsub->($self->{ptr}, $exports);
-  my $size = $exports->size;
-  my $ptrs = $ffi->cast('opaque', "wasm_exporttype_t[$size]", $exports->data);
-  map { Wasm::Wasmtime::ExportType->new($_, $exports) } @$ptrs;
+  $exports->to_list;
 });
 
 $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
