@@ -43,8 +43,10 @@ $ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => s
       $wasm = Wasm::Wasmtime::ByteVec->new($data);
     }
   }
+  my $ptr = $xsub->($store->{ptr}, $wasm);
+  Carp::croak("error creating module") unless $ptr;
   bless {
-    ptr   => $xsub->($store->{ptr}, $wasm),
+    ptr   => $ptr,
     store => $store,
   }, $class;
 });
