@@ -15,6 +15,12 @@ is(
 );
 
 is(
+  dies { Wasm::Wasmtime::Module->new('f00f') },
+  match qr/error creating module/,
+  'exception for bad wasm',
+);
+
+is(
   Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Store->new, wat2wasm('(module)')),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
@@ -59,37 +65,57 @@ is(
 );
 
 is(
-  Wasm::Wasmtime::Module->validate(wat2wasm('(module)')),
+  scalar(Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))),
   T(),
   'validate good',
 );
 
 is(
-  Wasm::Wasmtime::Module->validate( wat => '(module)' ),
+  [Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))],
+  array {
+    item T();
+    item '';
+    end;
+  },
+  'validate good, list context',
+);
+
+is(
+  scalar(Wasm::Wasmtime::Module->validate( wat => '(module)' )),
   T(),
   'validate good, key wat',
 );
 
 is(
-  Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat2wasm('(module)')),
+  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat2wasm('(module)'))),
   T(),
   'validate good with store',
 );
 
 is(
-  Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat => '(module)'),
+  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat => '(module)')),
   T(),
   'validate good with store, key wat',
 );
 
 is(
-  Wasm::Wasmtime::Module->validate('f00f'),
+  scalar(Wasm::Wasmtime::Module->validate('f00f')),
   F(),
   'validate bad',
 );
 
 is(
-  Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, 'f00f'),
+  [Wasm::Wasmtime::Module->validate('f00f')],
+  array {
+    item F();
+    item match qr/./;
+    end;
+  },
+  'validate bad, list context',
+);
+
+is(
+  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, 'f00f')),
   F(),
   'validate bad with store',
 );

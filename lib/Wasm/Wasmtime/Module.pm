@@ -5,6 +5,7 @@ use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::ExportType;
+use Carp ();
 
 # ABSTRACT: Wasmtime module class
 # VERSION
@@ -47,24 +48,57 @@ sub _args
   ($store, \$wasm, \$data);
 }
 
-$ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => sub {
-  my $xsub = shift;
-  my $class = shift;
-  my($store, $wasm, $data) = _args(@_);
-  my $ptr = $xsub->($store->{ptr}, $$wasm);
-  Carp::croak("error creating module") unless $ptr;
-  bless {
-    ptr   => $ptr,
-    store => $store,
-  }, $class;
-});
+if($ffi->find_symbol('wasmtime_error_message'))
+{
 
-$ffi->attach( validate => ['wasm_store_t','wasm_byte_vec_t*'] => 'bool' => sub {
-  my $xsub = shift;
-  my $class = shift;
-  my($store, $wasm, $data) = _args(@_);
-  $xsub->($store->{ptr}, $$wasm);
-});
+  $ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_store_t', 'wasm_byte_vec_t*', 'wasm_module_t*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my($store, $wasm, $data) = _args(@_);
+    my $ptr;
+    if(my $error = $xsub->($store->{ptr}, $$wasm, \$ptr))
+    {
+      Carp::croak("error creating module: " . $error->message);
+    }
+    bless { ptr => $ptr, store => $store }, $class;
+  });
+
+  $ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my($store, $wasm, $data) = _args(@_);
+    my $error = $xsub->($store->{ptr}, $$wasm);
+    wantarray  ## no critic (Freenode::Wantarray)
+      ? $error ? (0, $error->message) : (1, '')
+      : $error ? 0 : 1;
+  });
+}
+else
+{
+
+  $ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my($store, $wasm, $data) = _args(@_);
+    my $ptr = $xsub->($store->{ptr}, $$wasm);
+    Carp::croak("error creating module") unless $ptr;
+    bless {
+      ptr   => $ptr,
+      store => $store,
+    }, $class;
+  });
+
+  $ffi->attach( validate => ['wasm_store_t','wasm_byte_vec_t*'] => 'bool' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my($store, $wasm, $data) = _args(@_);
+    my $ok = $xsub->($store->{ptr}, $$wasm);
+    wantarray  ## no critic (Freenode::Wantarray)
+      ? $ok ? (1, '') : (0, 'unknown error')
+      : $ok ? 1 : 0;
+  });
+
+}
 
 $ffi->attach( exports => [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
   my($xsub, $self) = @_;

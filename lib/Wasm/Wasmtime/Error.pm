@@ -8,7 +8,14 @@ use Wasm::Wasmtime::FFI;
 # VERSION
 
 $ffi_prefix = 'wasmtime_error_';
-$ffi->type('opaque' => 'wasmtime_error_t');
+$ffi->custom_type(
+  wasmtime_error_t => {
+    native_type => 'opaque',
+    native_to_perl => sub {
+      defined $_[0] ? __PACKAGE__->new($_[0]) : undef
+    },
+  },
+);
 
 =head1 CONSTRUCTORS
 
