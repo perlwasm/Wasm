@@ -14,6 +14,36 @@ $ffi->custom_type('wasi_config_t' => {
   native_to_perl => sub { bless { ptr => shift }, __PACKAGE__ },
 });
 
+=head1 CONSTRUCTOR
+
+=head2 new
+
+=head1 METHODS
+
+=head2 set_argv
+
+=head2 inherit_argv
+
+=head2 set_env
+
+=head2 inherit_env
+
+=head2 set_stdin_file
+
+=head2 inherit_stdin
+
+=head2 set_stdout_file
+
+=head2 inherit_stdout
+
+=head2 set_stderr_file
+
+=head2 inherit_stderr
+
+=head2 preopen_dir
+
+=cut
+
 $ffi->attach( new             => []                                  => 'wasi_config_t' );
 $ffi->attach( set_stdin_file  => ['wasi_config_t','string']          => 'void' );
 $ffi->attach( set_stdout_file => ['wasi_config_t','string']          => 'void' );
