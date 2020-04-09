@@ -7,14 +7,14 @@ use base qw( Exporter );
 
 our @EXPORT = qw( wasm_func_ok );
 
-sub wasm_func_ok ($$)
+sub _module
 {
-  my $f = shift;
+  my $name = shift;
   my $wat = shift;
-  require Wasm::Wasmtime;
+
+  require Wasm::Wasmtime::Module;
 
   my $ctx = context();
-  my $name = "function $f";
 
   local $@ = '';
   my $store = eval {
@@ -28,8 +28,44 @@ sub wasm_func_ok ($$)
   my $module = eval { Wasm::Wasmtime::Module->new($store, wat => $wat) };
   return $ctx->fail_and_release($name, "error loading module", "$@") if $@;
 
+  $ctx->release;
+  $module;
+}
+
+sub _instance
+{
+  my $module = _module(@_);
+  my $name = shift;
+
+  return 0 unless $module;
+
+  require Wasm::Wasmtime::Instance;
+
+  my $ctx = context();
+
   my $instance = eval { Wasm::Wasmtime::Instance->new($module) };
   return $ctx->fail_and_release($name, "error creating instance", "$@") if $@;
+
+  $ctx->release;
+  $instance;
+}
+
+sub wasm_func_ok ($$)
+{
+  my $f = shift;
+  my $wat = shift;
+
+  require Wasm::Wasmtime::Func;
+
+  my $ctx = context();
+  my $name = "function $f";
+  my $instance = _instance($name, $wat);
+
+  unless($instance)
+  {
+    $ctx->release;
+    return 0;
+  }
 
   my $extern = $instance->get_export($f);
   return $ctx->fail_and_release($name, "no export $f") unless $extern;
