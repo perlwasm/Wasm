@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use FFI::Platypus 1.00;
 use FFI::Platypus::Buffer ();
-use Alien::wasmtime;
+use FFI::CheckLib 0.26 qw( find_lib );
 use base qw( Exporter );
 
 # ABSTRACT: Private class for Wasm::Wasmtime
@@ -12,8 +12,13 @@ use base qw( Exporter );
 
 our @EXPORT = qw( $ffi _generate_vec_class );
 
+sub _lib
+{
+  find_lib lib => 'wasmtime', alien => 'Alien::wasmtime';
+}
+
 our $ffi = FFI::Platypus->new( api => 1 );
-$ffi->lib(Alien::wasmtime->dynamic_libs);
+$ffi->lib(__PACKAGE__->_lib);
 
 { package Wasm::Wasmtime::Vec;
   use FFI::Platypus::Record;
