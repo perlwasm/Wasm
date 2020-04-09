@@ -90,6 +90,7 @@ sub _generate_vec_class
   my $to_list = sub {
     my($self) = @_;
     my $size = $self->size;
+    return () if $size == 0;
     my $ptrs = $ffi->cast('opaque', "${c_type}[$size]", $self->data);
     map { $class->new($_, $self) } @$ptrs;
   };
