@@ -3,6 +3,7 @@ package Wasm::Wasmtime::Memory;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::MemoryType;
 
 # ABSTRACT: Wasmtime memory class
@@ -11,20 +12,26 @@ use Wasm::Wasmtime::MemoryType;
 $ffi_prefix = 'wasm_memory_';
 $ffi->type('opaque' => 'wasm_memory_t');
 
-=head1 CONSTRUCTORS
-
-=head2 new
-
-=cut
-
-sub new
-{
-  my($class, $ptr, $owner) = @_;
+$ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' => sub {
+  my $xsub = shift;
+  my $class = shift;
+  my $ptr;
+  my $owner;
+  if(ref $_[0])
+  {
+    my($store, $memorytype) = @_;
+    $ptr = $xsub->($store->{ptr}, $memorytype->{ptr});
+    $owner = [$store, $memorytype];
+  }
+  else
+  {
+    ($ptr, $owner) = @_;
+  }
   bless {
     ptr   => $ptr,
     owner => $owner,
   }, $class;
-}
+});
 
 $ffi->attach( type => ['wasm_memory_t'] => 'wasm_memorytype_t' => sub {
   my($xsub, $self) = @_;

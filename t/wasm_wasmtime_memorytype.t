@@ -13,11 +13,20 @@ is(
     call [ get_export => 'frooble' ] => object {
       call as_memorytype => object {
         call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
-        call_list limits => [2,6];
+        call limits => [2,6];
       };
     };
   },
   'memorytype class basics',
+);
+
+is(
+  Wasm::Wasmtime::MemoryType->new([2,3]),
+  object {
+    call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
+    call limits => [2,3];
+  },
+  'standalone',
 );
 
 done_testing;

@@ -2,6 +2,8 @@ use Test2::V0 -no_srand => 1;
 use lib 't/lib';
 use Test2::Tools::Wasm;
 use Wasm::Wasmtime::Memory;
+use Wasm::Wasmtime::Store;
+use Wasm::Wasmtime::MemoryType;
 
 is(
   wasm_instance_ok(q{
@@ -26,6 +28,17 @@ is(
     };
   },
   'memory class basics',
+);
+
+is(
+  Wasm::Wasmtime::Memory->new(
+    Wasm::Wasmtime::Store->new,
+    Wasm::Wasmtime::MemoryType->new([1,2]),
+  ),
+  object {
+    call [ isa => 'Wasm::Wasmtime::Memory' ] => T();
+  },
+  'standalone',
 );
 
 done_testing;

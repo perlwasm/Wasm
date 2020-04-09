@@ -93,4 +93,10 @@ assert(!$memory->grow(1));
 assert($memory->grow(0));
 
 print "Creating stand-alone memory...\n";
-# TODO
+my $memory2 = Wasm::Wasmtime::Memory->new(
+  Wasm::Wasmtime::Store->new,
+  Wasm::Wasmtime::MemoryType->new([5,5]),
+);
+assert($memory2->size() == 5);
+assert(!$memory2->grow(1));
+assert($memory2->grow(0));
