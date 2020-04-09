@@ -1,4 +1,6 @@
 use Test2::V0 -no_srand => 1;
+use lib 't/lib';
+use Test2::Tools::Wasm;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Instance;
 
@@ -94,5 +96,7 @@ is(
   },
   'created exports'
 );
+
+wasm_instance_ok '(module)';
 
 done_testing;
