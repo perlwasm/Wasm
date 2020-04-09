@@ -65,9 +65,21 @@ is(
 );
 
 is(
+  Wasm::Wasmtime::Module->validate( wat => '(module)' ),
+  T(),
+  'validate good, key wat',
+);
+
+is(
   Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat2wasm('(module)')),
   T(),
   'validate good with store',
+);
+
+is(
+  Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat => '(module)'),
+  T(),
+  'validate good with store, key wat',
 );
 
 is(

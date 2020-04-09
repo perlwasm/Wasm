@@ -12,15 +12,15 @@ use Wasm::Wasmtime::ExportType;
 $ffi_prefix = 'wasm_module_';
 $ffi->type('opaque' => 'wasm_module_t');
 
-$ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => sub {
-  my $xsub = shift;
-  my $class = shift;
+sub _args
+{
   my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
   my $wasm;
   my $data;
   if(@_ == 1)
   {
-    $wasm = Wasm::Wasmtime::ByteVec->new(shift);
+    $data = shift;
+    $wasm = Wasm::Wasmtime::ByteVec->new($data);
   }
   else
   {
@@ -33,7 +33,8 @@ $ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => s
     }
     elsif($key eq 'wasm')
     {
-      $wasm = Wasm::Wasmtime::ByteVec->new(shift);
+      $data = shift;
+      $wasm = Wasm::Wasmtime::ByteVec->new($data);
     }
     elsif($key eq 'file')
     {
@@ -43,7 +44,14 @@ $ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => s
       $wasm = Wasm::Wasmtime::ByteVec->new($data);
     }
   }
-  my $ptr = $xsub->($store->{ptr}, $wasm);
+  ($store, \$wasm, \$data);
+}
+
+$ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => sub {
+  my $xsub = shift;
+  my $class = shift;
+  my($store, $wasm, $data) = _args(@_);
+  my $ptr = $xsub->($store->{ptr}, $$wasm);
   Carp::croak("error creating module") unless $ptr;
   bless {
     ptr   => $ptr,
@@ -54,9 +62,8 @@ $ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => s
 $ffi->attach( validate => ['wasm_store_t','wasm_byte_vec_t*'] => 'bool' => sub {
   my $xsub = shift;
   my $class = shift;
-  my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
-  my $wasm = Wasm::Wasmtime::ByteVec->new($_[0]);
-  $xsub->($store->{ptr}, $wasm);
+  my($store, $wasm, $data) = _args(@_);
+  $xsub->($store->{ptr}, $$wasm);
 });
 
 $ffi->attach( exports => [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
