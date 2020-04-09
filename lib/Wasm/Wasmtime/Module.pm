@@ -72,6 +72,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
       ? $error ? (0, $error->message) : (1, '')
       : $error ? 0 : 1;
   });
+
 }
 else
 {
@@ -119,5 +120,24 @@ $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
 =cut
 
 sub store { shift->{store} }
+
+=head2 get_export
+
+=cut
+
+sub get_export
+{
+  my($self, $name) = @_;
+  $self->{exports} ||= do {
+    my @exports = $self->exports;
+    my %exports;
+    foreach my $export (@exports)
+    {
+      $exports{$export->name} = $export->type;
+    }
+    \%exports;
+  };
+  $self->{exports}->{$name};
+}
 
 1;
