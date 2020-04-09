@@ -9,7 +9,7 @@ use Wasm::Wasmtime::Extern;
 # ABSTRACT: Wasmtime instance class
 # VERSION
 
-$ffi->mangler(sub { "wasm_instance_$_[0]" });
+$ffi_prefix = 'wasm_instance_';
 $ffi->type('opaque' => 'wasm_instance_t');
 
 $ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque','opaque*'] => 'wasm_engine_t' => sub {

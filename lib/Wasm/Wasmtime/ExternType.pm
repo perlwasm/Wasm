@@ -8,7 +8,7 @@ use Wasm::Wasmtime::FuncType;
 # ABSTRACT: Wasmtime extern type class
 # VERSION
 
-$ffi->mangler(sub { "wasm_externtype_$_[0]" });
+$ffi_prefix = 'wasm_externtype_';
 $ffi->type('opaque' => 'wasm_externtype_t');
 
 =head1 CONSTRUCTORS

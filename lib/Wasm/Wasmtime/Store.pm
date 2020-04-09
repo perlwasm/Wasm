@@ -8,7 +8,7 @@ use Wasm::Wasmtime::Engine;
 # ABSTRACT: Wasmtime store class
 # VERSION
 
-$ffi->mangler(sub { "wasm_store_$_[0]" });
+$ffi_prefix = 'wasm_store_';
 $ffi->type('opaque' => 'wasm_store_t');
 
 $ffi->attach( new => ['wasm_engine_t'] => 'wasm_store_t' => sub {

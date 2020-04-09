@@ -9,7 +9,7 @@ use Wasm::Wasmtime::ExportType;
 # ABSTRACT: Wasmtime module class
 # VERSION
 
-$ffi->mangler(sub { "wasm_module_$_[0]" });
+$ffi_prefix = 'wasm_module_';
 $ffi->type('opaque' => 'wasm_module_t');
 
 $ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => sub {

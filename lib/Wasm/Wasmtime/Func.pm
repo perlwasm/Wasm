@@ -16,7 +16,7 @@ use overload
 # ABSTRACT: Wasmtime function class
 # VERSION
 
-$ffi->mangler(sub { "wasm_func_$_[0]" });
+$ffi_prefix = 'wasm_func_';
 $ffi->type('opaque' => 'wasm_func_t');
 
 =head1 CONSTRUCTORS

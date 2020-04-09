@@ -10,15 +10,21 @@ use base qw( Exporter );
 # ABSTRACT: Private class for Wasm::Wasmtime
 # VERSION
 
-our @EXPORT = qw( $ffi _generate_vec_class );
+our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class );
 
 sub _lib
 {
   find_lib lib => 'wasmtime', alien => 'Alien::wasmtime';
 }
 
+our $ffi_prefix = 'wasm_';
 our $ffi = FFI::Platypus->new( api => 1 );
 $ffi->lib(__PACKAGE__->_lib);
+$ffi->mangler(sub {
+  my $name = shift;
+  return $name if $name =~ /^(wasm|wasmtime)_/;
+  return $ffi_prefix . $name;
+});
 
 { package Wasm::Wasmtime::Vec;
   use FFI::Platypus::Record;
@@ -33,7 +39,7 @@ $ffi->lib(__PACKAGE__->_lib);
   use base qw( Wasm::Wasmtime::Vec );
 
   $ffi->type('record(Wasm::Wasmtime::ByteVec)' => 'wasm_byte_vec_t');
-  $ffi->mangler(sub { "wasm_byte_vec_$_[0]" });
+  $ffi_prefix = 'wasm_byte_vec_';
 
   sub new
   {
@@ -93,7 +99,7 @@ sub _generate_vec_class
     @{join '::', $vclass, 'ISA'} = ('Wasm::Wasmtime::Vec');
     *{join '::', $vclass, 'to_list'} = $to_list;
   }
-  $ffi->mangler(sub { join '_', $prefix, $_[0] });
+  $ffi_prefix = "${prefix}_";
   $ffi->type("record($vclass)" => $v_type);
   $ffi->attach( [ delete => join('::', $vclass, 'DESTROY') ] => ["$v_type*"] => \&_generic_vec_delete)
     if !defined($opts{delete}) || $opts{delete};

@@ -10,7 +10,7 @@ use base qw( Exporter );
 
 our @EXPORT = qw( wat2wasm );
 
-$ffi->mangler(sub { "wasmtime_$_[0]" });
+$ffi_prefix = 'wasmtime_';
 
 $ffi->attach( wat2wasm => ['wasm_byte_vec_t*','wasm_byte_vec_t*','wasm_byte_vec_t*'] => 'bool' => sub {
   my $xsub = shift;
