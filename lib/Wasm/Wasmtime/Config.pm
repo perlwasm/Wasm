@@ -18,7 +18,6 @@ $ffi->attach( new => [] => 'wasm_config_t' => sub {
   }, $class;
 });
 
-
 $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_config_t'] => sub {
   my($xsub, $self) = @_;
   $xsub->($self->{ptr}) if $self->{ptr};
