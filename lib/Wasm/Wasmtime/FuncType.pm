@@ -8,7 +8,7 @@ use Wasm::Wasmtime::ValType;
 # ABSTRACT: Wasmtime function type class
 # VERSION
 
-$ffi->mangler(sub { "wasm_functype_$_[0]" });
+$ffi_prefix = 'wasm_functype_';
 $ffi->type('opaque' => 'wasm_functype_t');
 
 =head1 CONSTRUCTORS

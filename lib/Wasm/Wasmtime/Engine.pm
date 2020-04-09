@@ -8,7 +8,7 @@ use Wasm::Wasmtime::Config;
 # ABSTRACT: Wasmtime engine class
 # VERSION
 
-$ffi->mangler(sub { "wasm_engine_$_[0]" });
+$ffi_prefix = 'wasm_engine_';
 $ffi->type('opaque' => 'wasm_engine_t');
 
 $ffi->attach( [ 'new_with_config' => 'new' ] => ['wasm_config_t'] => 'wasm_engine_t' => sub {

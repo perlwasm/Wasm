@@ -8,7 +8,7 @@ use Wasm::Wasmtime::Store;
 # ABSTRACT: Wasmtime trap class
 # VERSION
 
-$ffi->mangler(sub { "wasm_trap_$_[0]" });
+$ffi_prefix = 'wasm_trap_';
 $ffi->type('opaque' => 'wasm_trap_t');
 
 $ffi->attach( new => [ 'wasm_store_t', 'wasm_byte_vec_t*' ] => 'wasm_trap_t' => sub {

@@ -7,7 +7,7 @@ use Wasm::Wasmtime::FFI;
 # ABSTRACT: Wasmtime value type class
 # VERSION
 
-$ffi->mangler(sub { "wasm_valtype_$_[0]" });
+$ffi_prefix = 'wasm_valtype_';
 $ffi->type('opaque' => 'wasm_valtype_t');
 
 =head1 CONSTRUCTORS

@@ -8,7 +8,7 @@ use Wasm::Wasmtime::ExternType;
 # ABSTRACT: Wasmtime export type class
 # VERSION
 
-$ffi->mangler(sub { "wasm_exporttype_$_[0]" });
+$ffi_prefix = 'wasm_exporttype_';
 $ffi->type('opaque' => 'wasm_exporttype_t');
 
 =head1 CONSTRUCTORS

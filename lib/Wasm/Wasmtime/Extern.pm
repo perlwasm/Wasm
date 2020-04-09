@@ -13,7 +13,7 @@ use overload
 # ABSTRACT: Wasmtime extern class
 # VERSION
 
-$ffi->mangler(sub { "wasm_extern_$_[0]" });
+$ffi_prefix = 'wasm_extern_';
 $ffi->type('opaque' => 'wasm_extern_t');
 
 =head1 CONSTRUCTORS

@@ -7,7 +7,7 @@ use Wasm::Wasmtime::FFI;
 # ABSTRACT: Global configuration for Wasm::Wasmtime::Engine
 # VERSION
 
-$ffi->mangler(sub { "wasm_config_$_[0]" });
+$ffi_prefix = 'wasm_config_';
 $ffi->type('opaque' => 'wasm_config_t');
 
 $ffi->attach( new => [] => 'wasm_config_t' => sub {
@@ -23,13 +23,11 @@ $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_config_t'] => sub {
   $xsub->($self->{ptr}) if $self->{ptr};
 });
 
-$ffi->mangler(sub { "wasmtime_config_$_[0]" });
-
 foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
                       wasm_simd wasm_bulk_memory wasm_multi_value
                       cranelift_debug_verifier ))
 {
-  $ffi->attach( [ "${prop}_set" => $prop ] => [ 'opaque', 'bool' ] => sub {
+  $ffi->attach( [ "wasmtime_config_${prop}_set" => $prop ] => [ 'opaque', 'bool' ] => sub {
     my($xsub, $self, $value) = @_;
     $xsub->($self->{ptr}, $value);
     $self;
@@ -42,7 +40,7 @@ my %strategy = (
   lightbeam => 2,
 );
 
-$ffi->attach( [ 'strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'bool' => sub {
+$ffi->attach( [ 'wasmtime_config_strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'bool' => sub {
   my($xsub, $self, $value) = @_;
   if(defined $strategy{$value})
   {
@@ -66,7 +64,7 @@ my %cranelift_opt_level = (
   speed_and_size => 2,
 );
 
-$ffi->attach( ['cranelift_opt_level_set' => 'cranelift_opt_level' ] => ['wasm_config_t', 'uint8' ] => sub {
+$ffi->attach( ['wasmtime_config_cranelift_opt_level_set' => 'cranelift_opt_level' ] => ['wasm_config_t', 'uint8' ] => sub {
   my($xsub, $self, $value) = @_;
   if(defined $cranelift_opt_level{$value})
   {
@@ -84,7 +82,7 @@ my %profiler = (
   jitdump => 1,
 );
 
-$ffi->attach( ['profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'bool' => sub {
+$ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'bool' => sub {
   my($xsub, $self, $value) = @_;
   if(defined $profiler{$value})
   {
