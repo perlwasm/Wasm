@@ -3,6 +3,7 @@ package Wasm::Wasmtime::Config;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::Error;
 
 # ABSTRACT: Global configuration for Wasm::Wasmtime::Engine
 # VERSION
@@ -40,23 +41,43 @@ my %strategy = (
   lightbeam => 2,
 );
 
-$ffi->attach( [ 'wasmtime_config_strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'bool' => sub {
-  my($xsub, $self, $value) = @_;
-  if(defined $strategy{$value})
-  {
-    unless(my $ret = $xsub->($self->{ptr}, $strategy{$value}))
+if($ffi->find_symbol('wasmtime_error_message'))
+{
+  $ffi->attach( [ 'wasmtime_config_strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'wasmtime_error_t' => sub {
+    my($xsub, $self, $value) = @_;
+    if(defined $strategy{$value})
     {
-      # TODO: confusing meaning of this: header says bool, python is using as a pointer
-      # https://github.com/perlwasm/wasmtime-py/blob/2221d912171feaf42b331e9ec35e9f128515b27d/wasmtime/_config.py#L105
-      Carp::croak("error setting strategy $value");
+      if(my $error = $xsub->($self->{ptr}, $strategy{$value}))
+      {
+        $error = Wasm::Wasmtime::Error->new($error)->message;
+        Carp::croak($error);
+      }
     }
-  }
-  else
-  {
-    Carp::croak("unknown strategy: $value");
-  }
-  $self;
-});
+    else
+    {
+      Carp::croak("unknown strategy: $value");
+    }
+    $self;
+  });
+}
+else
+{
+  $ffi->attach( [ 'wasmtime_config_strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'bool' => sub {
+    my($xsub, $self, $value) = @_;
+    if(defined $strategy{$value})
+    {
+      unless(my $ret = $xsub->($self->{ptr}, $strategy{$value}))
+      {
+        Carp::croak("error setting strategy $value");
+      }
+    }
+    else
+    {
+      Carp::croak("unknown strategy: $value");
+    }
+    $self;
+  });
+}
 
 my %cranelift_opt_level = (
   none => 0,
@@ -82,22 +103,42 @@ my %profiler = (
   jitdump => 1,
 );
 
-$ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'bool' => sub {
-  my($xsub, $self, $value) = @_;
-  if(defined $profiler{$value})
-  {
-    unless(my $ret = $xsub->($self->{ptr}, $profiler{$value}))
+if($ffi->find_symbol('wasmtime_error_message'))
+{
+  $ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'wasmtime_error_t' => sub {
+    my($xsub, $self, $value) = @_;
+    if(defined $profiler{$value})
     {
-      # TODO: confusing meaning of this: header says bool, python is using as a pointer
-      # https://github.com/perlwasm/wasmtime-py/blob/2221d912171feaf42b331e9ec35e9f128515b27d/wasmtime/_config.py#L131
-      Carp::croak("error setting profiler $value");
+      if(my $error = $xsub->($self->{ptr}, $profiler{$value}))
+      {
+        $error = Wasm::Wasmtime::Error->new($error)->message;
+        Carp::croak($error);
+      }
     }
-  }
-  else
-  {
-    Carp::croak("unknown profiler: $value");
-  }
-  $self;
-});
+    else
+    {
+      Carp::croak("unknown profiler: $value");
+    }
+    $self;
+  });
+}
+else
+{
+  $ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'bool' => sub {
+    my($xsub, $self, $value) = @_;
+    if(defined $profiler{$value})
+    {
+      unless(my $ret = $xsub->($self->{ptr}, $profiler{$value}))
+      {
+        Carp::croak("error setting profiler $value");
+      }
+    }
+    else
+    {
+      Carp::croak("unknown profiler: $value");
+    }
+    $self;
+  });
+}
 
 1;

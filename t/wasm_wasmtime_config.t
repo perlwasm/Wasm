@@ -34,9 +34,10 @@ foreach my $strategy (qw( auto cranelift lightbeam ))
   {
     is(
       $e,
-      match qr/error setting strategy $strategy/,
+      mismatch qr/unknown strategy:/,
       "strategy($strategy) = fail",
     );
+    note "exception: $e";
   }
   else
   {
@@ -72,9 +73,10 @@ foreach my $profiler (qw( none jitdump ))
   {
     is(
       $e,
-      match qr/error setting profiler $profiler/,
+      mismatch qr/unknown profiler:/,
       "profiler($profiler) = fail",
     );
+    note "exception: $e";
   }
   else
   {

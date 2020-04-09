@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Wasm::Wasmtime::Config;
 use Wasm::Wasmtime::Engine;
+use Wasm::Wasmtime::Error;
 use Wasm::Wasmtime::ExportType;
 use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::ExternType;
