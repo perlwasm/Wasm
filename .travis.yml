@@ -14,6 +14,7 @@ jobs:
   include:
     - env: CIP_TAG=static
     - env: CIP_TAG=5.31
+    - env: CIP_TAG=5.30 CIP_ENV=ALIEN_WASMTIME_VERSION=dev
     - env: CIP_TAG=5.30
     - env: CIP_TAG=5.28
     - env: CIP_TAG=5.26
@@ -26,6 +27,8 @@ jobs:
     - env: CIP_TAG=5.12
     - env: CIP_TAG=5.10
     - env: CIP_TAG=5.8
+  allow_failures:
+    - env: CIP_TAG=5.30 CIP_ENV=ALIEN_WASMTIME_VERSION=dev
 cache:
   directories:
     - "$HOME/.cip"
