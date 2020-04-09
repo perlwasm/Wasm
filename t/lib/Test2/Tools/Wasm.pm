@@ -5,7 +5,7 @@ use warnings;
 use Test2::API qw( context );
 use base qw( Exporter );
 
-our @EXPORT = qw( wasm_func_ok );
+our @EXPORT = qw( wasm_module_ok wasm_instance_ok wasm_func_ok );
 
 sub _module
 {
@@ -50,15 +50,57 @@ sub _instance
   $instance;
 }
 
-sub wasm_func_ok ($$)
+sub wasm_module_ok ($;$)
+{
+  my($wat,$name) = @_;
+
+  $name ||= "module ok";
+
+  my $ctx = context();
+  my $module = _module($name, $wat);
+
+  if($module)
+  {
+    $ctx->pass_and_release($name);
+    return $module;
+  }
+  else
+  {
+    $ctx->release;
+    return 0;
+  }
+}
+
+sub wasm_instance_ok ($;$)
+{
+  my($wat, $name) = @_;
+
+  $name ||= "instance ok";
+
+  my $ctx = context();
+  my $instance = _instance($name, $wat);
+
+  if($instance)
+  {
+    $ctx->pass_and_release($name);
+    return $instance;
+  }
+  else
+  {
+    $ctx->release;
+  }
+}
+
+sub wasm_func_ok ($$;$)
 {
   my $f = shift;
   my $wat = shift;
+  my $name = shift;
 
   require Wasm::Wasmtime::Func;
 
   my $ctx = context();
-  my $name = "function $f";
+  $name ||= "function $f";
   my $instance = _instance($name, $wat);
 
   unless($instance)

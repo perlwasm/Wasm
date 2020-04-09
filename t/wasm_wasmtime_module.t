@@ -1,4 +1,6 @@
 use Test2::V0 -no_srand => 1;
+use lib 't/lib';
+use Test2::Tools::Wasm;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Wat2Wasm;
@@ -208,5 +210,7 @@ is(
   },
   'exports',
 );
+
+wasm_module_ok '(module)';
 
 done_testing;
