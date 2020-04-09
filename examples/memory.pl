@@ -3,7 +3,8 @@ use warnings;
 use Carp::Assert;
 use Path::Tiny qw( path );
 use Wasm::Wasmtime;
-use FFI::Platypus;
+use PeekPoke::FFI qw( peek poke );
+
 
 my $module = Wasm::Wasmtime::Module->new( file => path(__FILE__)->parent->child('memory.wat') );
 my $instance = Wasm::Wasmtime::Instance->new($module);
@@ -17,29 +18,12 @@ print "Checking memory...\n";
 assert($memory->size == 2);
 assert($memory->data_size == 0x20000);
 
-{
-  my $ffi = FFI::Platypus->new( api => 1, lib => [undef]);
-
-  sub peek
-  {
-    my($ptr, $offset) = @_;
-    $ffi->cast('opaque' => 'uint8[1]', $ptr + $offset)->[0];
-  }
-
-  sub poke
-  {
-    my($ptr, $offset, $value) = @_;
-    my $f = $ffi->function( memcpy => ['opaque', 'uint[1]', 'size_t'] => 'opaque' );
-    $f->call($ptr+$offset, [$value], 1);
-  }
-}
-
 # Note that usage of `data` is unsafe! This is a raw C pointer which is not
 # bounds checked at all. We checked our `data_size` above but you'll want to be
 # very careful when accessing data through `data()`
-assert(peek($memory->data, 0x0000) == 0);
-assert(peek($memory->data, 0x1000) == 1);
-assert(peek($memory->data, 0x1003) == 4);
+assert(peek($memory->data + 0x0000) == 0);
+assert(peek($memory->data + 0x1000) == 1);
+assert(peek($memory->data + 0x1003) == 4);
 
 assert($size->() == 2);
 assert($load->(0) == 0);
@@ -55,7 +39,7 @@ assert($load->(0x1ffff) == 0);
 }
 
 print "Mutating memory...\n";
-poke($memory->data, 0x1003, 5);
+poke($memory->data + 0x1003, 5);
 $store->(0x1002, 6);
 
 #out of bounds trap
@@ -65,10 +49,10 @@ $store->(0x1002, 6);
   assert($@ =~ /wasm trap: out of bounds memory access/);
 }
 
-assert(peek($memory->data, 0x1002) == 6);
-assert(peek($memory->data, 0x1003) == 5);
+assert(peek($memory->data + 0x1002) == 6);
+assert(peek($memory->data + 0x1003) == 5);
 assert($load->(0x1002) == 6);
-assert(peek($memory->data, 0x1003) == 5);
+assert(peek($memory->data + 0x1003) == 5);
 
 # Grow memory
 assert($memory->grow(1));
