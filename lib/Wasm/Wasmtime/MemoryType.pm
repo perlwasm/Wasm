@@ -10,25 +10,29 @@ use Wasm::Wasmtime::FFI;
 $ffi_prefix = 'wasm_memorytype_';
 $ffi->type('opaque' => 'wasm_memorytype_t');
 
-=head1 CONSTRUCTORS
-
-=head2 new
-
-=cut
-
-sub new
-{
-  my($class, $ptr, $owner) = @_;
+$ffi->attach( new => ['uint32[2]'] => 'wasm_memorytype_t' => sub {
+  my $xsub = shift;
+  my $class = shift;
+  my $ptr;
+  my $owner;
+  if(ref $_[0])
+  {
+    $ptr = $xsub->(shift);
+  }
+  else
+  {
+    ($ptr, $owner) = @_;
+  }
   bless {
-    ptr   => $ptr,
+    ptr => $ptr,
     owner => $owner,
   }, $class;
-}
+});
 
 $ffi->attach( limits => ['wasm_memorytype_t'] => 'uint32[2]' => sub {
   my($xsub, $self) = @_;
   my $limits = $xsub->($self->{ptr});
-  @$limits;
+  $limits;
 });
 
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_memorytype_t'] => sub {
