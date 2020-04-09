@@ -22,8 +22,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
     my $error = $xsub->($wat, $ret);
     if($error)
     {
-      $error = Wasm::Wasmtime::Error->new($error)->message;
-      Carp::croak("$error\nwat2wasm error");
+      Carp::croak($error->message . "\nwat2wasm error");
     }
     else
     {

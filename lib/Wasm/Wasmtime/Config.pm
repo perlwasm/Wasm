@@ -49,8 +49,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
     {
       if(my $error = $xsub->($self->{ptr}, $strategy{$value}))
       {
-        $error = Wasm::Wasmtime::Error->new($error)->message;
-        Carp::croak($error);
+        Carp::croak($error->message);
       }
     }
     else
@@ -111,8 +110,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
     {
       if(my $error = $xsub->($self->{ptr}, $profiler{$value}))
       {
-        $error = Wasm::Wasmtime::Error->new($error)->message;
-        Carp::croak($error);
+        Carp::croak($error->message);
       }
     }
     else
