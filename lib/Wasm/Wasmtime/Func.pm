@@ -72,7 +72,6 @@ typedef wasm_val_t wasm_val_vec_t[];
 END
 
 $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => sub {
-  $DB::single = 1;
   my $xsub = shift;
   my $self = shift;
   my @args = @_;
