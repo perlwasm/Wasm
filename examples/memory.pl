@@ -17,11 +17,21 @@ print "Checking memory...\n";
 assert($memory->size == 2);
 assert($memory->data_size == 0x20000);
 
-sub peek
 {
-  my($ptr, $offset) = @_;
-  my $ffi = FFI::Platypus->new( api => 1 );
-  $ffi->cast('opaque' => 'uint8[1]', $ptr + $offset)->[0];
+  my $ffi = FFI::Platypus->new( api => 1, lib => [undef]);
+
+  sub peek
+  {
+    my($ptr, $offset) = @_;
+    $ffi->cast('opaque' => 'uint8[1]', $ptr + $offset)->[0];
+  }
+
+  sub poke
+  {
+    my($ptr, $offset, $value) = @_;
+    my $f = $ffi->function( memcpy => ['opaque', 'uint[1]', 'size_t'] => 'opaque' );
+    $f->call($ptr+$offset, [$value], 1);
+  }
 }
 
 # Note that usage of `data` is unsafe! This is a raw C pointer which is not
@@ -45,7 +55,7 @@ assert($load->(0x1ffff) == 0);
 }
 
 print "Mutating memory...\n";
-#poke($memory->data, 0x1003, 5); ## TODO
+poke($memory->data, 0x1003, 5);
 $store->(0x1002, 6);
 
 #out of bounds trap
@@ -56,9 +66,9 @@ $store->(0x1002, 6);
 }
 
 assert(peek($memory->data, 0x1002) == 6);
-#assert(peek($memory->data, 0x1003) == 5); ## TODO
+assert(peek($memory->data, 0x1003) == 5);
 assert($load->(0x1002) == 6);
-#assert(peek($memory->data, 0x1003) == 5);
+assert(peek($memory->data, 0x1003) == 5);
 
 # Grow memory
 assert($memory->grow(1));
@@ -82,5 +92,5 @@ $store->(0x20000, 0);
 assert(!$memory->grow(1));
 assert($memory->grow(0));
 
-print "Creating stand-alone memory...";
+print "Creating stand-alone memory...\n";
 # TODO
