@@ -12,6 +12,7 @@ pod_spelling_system:
     - wasm
     - wat
     - extern
+    - Wasi
 
 pod_coverage:
   skip: 0

@@ -22,7 +22,7 @@ our $ffi = FFI::Platypus->new( api => 1 );
 $ffi->lib(__PACKAGE__->_lib);
 $ffi->mangler(sub {
   my $name = shift;
-  return $name if $name =~ /^(wasm|wasmtime)_/;
+  return $name if $name =~ /^(wasm|wasmtime|wasi)_/;
   return $ffi_prefix . $name;
 });
 
