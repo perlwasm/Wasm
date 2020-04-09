@@ -23,7 +23,13 @@ $modules{$_} = $_ for qw(
   Test::Script
 );
 
-
+$post_diag = sub {
+  eval {
+    require Wasm::Wasmtime::FFI;
+    diag "Wasm::Wasmtime::FFI->_lib = $_" for Wasm::Wasmtime::FFI->_lib;
+  };
+  diag "error requiring Wasm::Wasmtime::FFI: $@" if $@;
+};
 
 my @modules = sort keys %modules;
 
