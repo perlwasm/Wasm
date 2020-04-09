@@ -67,4 +67,10 @@ $ffi->attach( [ delete => "DESTROY" ] => ['wasm_valtype_t'] => sub {
 
 _generate_vec_class( delete => 0 );
 
+$ffi->attach( [ wasm_valtype_vec_new => 'Wasm::Wasmtime::ValTypeVec::set' ] => ['wasm_valtype_vec_t*','size_t','opaque[]'] => sub {
+  my($xsub, $self, $valtypes) = @_;
+  $xsub->($self, scalar(@$valtypes), $valtypes);
+  $self;
+});
+
 1;
