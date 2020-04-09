@@ -10,16 +10,11 @@ is(
     )
   }),
   object {
-    call_list exports => array {
-      item object {
-        call type => object {
-          call as_memorytype => object {
-            call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
-            call_list limits => [2,6];
-          };
-        };
+    call [ get_export => 'frooble' ] => object {
+      call as_memorytype => object {
+        call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
+        call_list limits => [2,6];
       };
-      end;
     };
   },
   'memorytype class basics',
