@@ -17,7 +17,15 @@ sub wasm_func_ok ($$)
   my $name = "function $f";
 
   local $@ = '';
-  my $module = eval { Wasm::Wasmtime::Module->new(wat => $wat) };
+  my $store = eval {
+    my $config = Wasm::Wasmtime::Config->new;
+    $config->wasm_multi_value(1);
+    my $engine = Wasm::Wasmtime::Engine->new($config);
+    Wasm::Wasmtime::Store->new($engine);
+  };
+  return $ctx->fail_and_release($name, "error creating store object", "$@") if $@;
+
+  my $module = eval { Wasm::Wasmtime::Module->new($store, wat => $wat) };
   return $ctx->fail_and_release($name, "error loading module", "$@") if $@;
 
   my $instance = eval { Wasm::Wasmtime::Instance->new($module) };
