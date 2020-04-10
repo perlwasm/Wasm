@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Wasm::Wasmtime;
+use PeekPoke::FFI qw( poke );
 
 my $store = Wasm::Wasmtime::Store->new;
 
@@ -36,6 +37,14 @@ my $module = Wasm::Wasmtime::Module->new($store, wat => q{
       end
       local.get 2
     )
+
+    ;; memory region that can be accessed from
+    ;; either Perl or WebAssembly
+    (memory (export "memory") 2 3)
+    (func (export "load") (param i32) (result i32)
+      (i32.load8_s (local.get 0))
+    )
+
   )
 });
 
@@ -52,5 +61,12 @@ $instance->get_export('call_hello')->();
 
 # call plain WebAssembly function
 my $gcd = $instance->get_export('gcd');
-print "gcd(6,27) = @{[ $gcd->(6,27) ]}\n";
+print $gcd->(6,27), "\n";      # 3
 
+# write to memory from Perl and read it from WebAssembly
+my $memory = $instance->get_export('memory')->as_memory;
+poke($memory->data + 10, 42);  # set offset 10 to 42
+my $load = $instance->get_export('load');
+print $load->(10), "\n";       # 42
+poke($memory->data + 10, 52);  # set offset 10 to 52
+print $load->(10), "\n";       # 52
