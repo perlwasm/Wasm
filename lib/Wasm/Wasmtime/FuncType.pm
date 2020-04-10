@@ -8,8 +8,31 @@ use Wasm::Wasmtime::ValType;
 # ABSTRACT: Wasmtime function type class
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/functype.pl
+
+=head1 DESCRIPTION
+
+The function type class represents a function signature, that is the parameter and return
+types that a function will take.
+
+=cut
+
 $ffi_prefix = 'wasm_functype_';
 $ffi->type('opaque' => 'wasm_functype_t');
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+ my $functype = Wasm::Wasmtime::FuncType->new(\@params, \@results);
+
+Creates a new function type instance.  C<@params> and C<@results> should be a list of
+either L<Wasm::Wasmtime::ValType> objects, or the string representation of those types
+(C<i32>, C<f64>, etc).
+
+=cut
 
 $ffi->attach( new => ['wasm_valtype_vec_t*', 'wasm_valtype_vec_t*'] => 'wasm_functype_t' => sub {
   my $xsub = shift;
@@ -32,10 +55,28 @@ $ffi->attach( new => ['wasm_valtype_vec_t*', 'wasm_valtype_vec_t*'] => 'wasm_fun
   }, $class;
 });
 
+=head1 METHODS
+
+=head2 params
+
+ my @params = $functype->params;
+
+Returns a list of the parameter types for the function type, as L<Wasm::Wasmtime::ValType> objects.
+
+=cut
+
 $ffi->attach( params => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
   my($xsub, $self) = @_;
   $xsub->($self->{ptr})->to_list;
 });
+
+=head2 results
+
+ my @params = $functype->results;
+
+Returns a list of the result types for the function type, as L<Wasm::Wasmtime::ValType> objects.
+
+=cut
 
 $ffi->attach( results => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
   my($xsub, $self) = @_;
