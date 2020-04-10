@@ -97,6 +97,29 @@ is(
   'created exports'
 );
 
-wasm_instance_ok '(module)';
+wasm_instance_ok [], '(module)';
+
+{
+  my $it_works;
+
+  my $store = Wasm::Wasmtime::Store->new;
+  my $module = Wasm::Wasmtime::Module->new( $store, wat => q{
+    (module
+      (func $hello (import "" "hello"))
+      (func (export "run") (call $hello))
+    )
+  });
+
+  my $hello = Wasm::Wasmtime::Func->new(
+    $store,
+    Wasm::Wasmtime::FuncType->new([],[]),
+    sub { $it_works = 1 },
+  );
+
+  my $instance = Wasm::Wasmtime::Instance->new($module, [$hello]);
+  $instance->get_export("run")->();
+
+  is $it_works, T(), 'callback called';
+}
 
 done_testing;

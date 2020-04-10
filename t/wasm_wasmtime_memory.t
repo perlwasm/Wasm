@@ -6,7 +6,7 @@ use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::MemoryType;
 
 is(
-  wasm_instance_ok(q{
+  wasm_instance_ok([], q{
     (module
       (memory (export "frooble") 2 6)
     )
