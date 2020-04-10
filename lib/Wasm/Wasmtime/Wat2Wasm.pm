@@ -8,9 +8,30 @@ use base qw( Exporter );
 # ABSTRACT: Convert WebAssembly Text to Wasm
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/wat2wasm.pl
+
+=head1 DESCRIPTION
+
+This module provides C<wat2wasm>, a function for converting WebAssembly Text to WebAssembly binary format (Wasm).
+It is exported by default.
+
+=cut
+
 our @EXPORT = qw( wat2wasm );
 
 $ffi_prefix = 'wasmtime_';
+
+=head1 FUNCTIONS
+
+=head2 wat2wasm
+
+ my $wasm = wat2wasm($wat);
+
+Takes WebAssembly Text C<$wat> and converts it into the WebAssembly binary C<$wasm>.
+
+=cut
 
 if(Wasm::Wasmtime::Error->can('new'))
 {
