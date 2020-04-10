@@ -14,6 +14,9 @@ use base qw( Exporter );
 
 =head1 DESCRIPTION
 
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the interface for these modules
+is under active development.  Use with caution.
+
 This module provides C<wat2wasm>, a function for converting WebAssembly Text to WebAssembly binary format (Wasm).
 It is exported by default.
 

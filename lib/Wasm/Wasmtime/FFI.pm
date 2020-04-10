@@ -18,6 +18,9 @@ use base qw( Exporter );
 
 =head1 DESCRIPTION
 
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the interface for these modules
+is under active development.  Use with caution.
+
 This is a private class used internally by L<Wasm::Wasmtime> classes.
 
 =head1 SEE ALSO
