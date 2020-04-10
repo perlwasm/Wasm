@@ -7,6 +7,16 @@ use Wasm::Wasmtime::FFI;
 # ABSTRACT: Wasmtime value type class
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/valtype.pl
+
+=head1 DESCRIPTION
+
+This class represents a Wasm type.
+
+=cut
+
 $ffi_prefix = 'wasm_valtype_';
 $ffi->type('opaque' => 'wasm_valtype_t');
 
@@ -25,6 +35,44 @@ foreach my $key (keys %kind)
   my $value = $kind{$key};
   $rkind{$value} = $key;
 }
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+ my $valtype = Wasm::Wasmtime::ValType->new($type);
+
+Creates a new value type instance.  Acceptable values for C<$type> are:
+
+=over 4
+
+=item C<i32>
+
+Signed 32 bit integer.
+
+=item C<i64>
+
+Signed 64 bit integer.
+
+=item C<f32>
+
+Floating point.
+
+=item C<f64>
+
+Double precision floating point.
+
+=item C<anyref>
+
+A pointer.
+
+=item C<funcref>
+
+A function pointer.
+
+=back
+
+=cut
 
 $ffi->attach( new => ['uint8'] => 'wasm_valtype_t' => sub {
   my $xsub = shift;
@@ -47,10 +95,28 @@ $ffi->attach( new => ['uint8'] => 'wasm_valtype_t' => sub {
   }, $class;
 });
 
+=head1 METHODS
+
+=head2 kind
+
+ my $kind = $valtype->kind;
+
+Returns the value type as a string (ie C<i32>).
+
+=cut
+
 $ffi->attach( kind => ['wasm_valtype_t'] => 'uint8' => sub {
   my($xsub, $self) = @_;
   $kind{$xsub->($self->{ptr})};
 });
+
+=head2 kind_num
+
+ my $kind = $valtype->kind_num;
+
+Returns the number used internally to represent the type.
+
+=cut
 
 $ffi->attach( [kind => 'kind_num'] => ['wasm_valtype_t'] => 'uint8' => sub {
   my($xsub, $self) = @_;
