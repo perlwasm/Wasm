@@ -20,6 +20,8 @@ pod_spelling_system:
     - profiler
     - params
     - ie
+    - libc
+    - WASI
 
 pod_coverage:
   skip: 0
