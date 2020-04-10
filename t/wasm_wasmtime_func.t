@@ -5,8 +5,10 @@ use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::FuncType;
 
+my $add;
+
 is(
-  wasm_func_ok( add => q{
+  $add = wasm_func_ok( add => q{
     (module
       (func (export "add") (param i32 i32) (result i32)
         local.get 0
@@ -20,6 +22,22 @@ is(
   },
   'call add',
 );
+
+if($add)
+{
+  { package Foo::Bar;
+    $add->attach('baz');
+  }
+  ok(Foo::Bar->can('baz'), 'attached using caller');
+  is(Foo::Bar::baz(9,9), 18, 'calling attached Foo::Bar::baz');
+  { package Foo;
+    $add->attach('Bar', 'baz');
+  }
+  undef $add;
+  ok(!Foo->can('baz'), 'attach using explicit package does not install in caller');
+  ok(Bar->can('baz'), 'attach using explicit package');
+  is(Bar::baz(9,9), 18, 'calling attached Bar::baz');
+}
 
 is(
   wasm_func_ok( round_trip_many => q{
