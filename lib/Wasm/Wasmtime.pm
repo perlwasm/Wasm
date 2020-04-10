@@ -42,13 +42,31 @@ from Wasm space into Perl space.
 
 =item L<Wasm>
 
+Simplified interface to WebAssembly that imports WebAssembly functions into Perl space.
+
 =item L<Wasm::Wasmtime::Module>
+
+Interface to WebAssembly module.
 
 =item L<Wasm::Wasmtime::Instance>
 
+Interface to a WebAssembly module instance.
+
 =item L<Wasm::Wasmtime::Func>
 
+Interface to WebAssembly function.
+
 =item L<Wasm::Wasmtime::Wat2Wasm>
+
+Tool to convert WebAssembly Text (WAT) to WebAssembly binary (Wasm).
+
+=item L<Wasm::Wasmtime::WasiInstance>
+
+WebAssembly System Interface (WASI).
+
+=item L<Wasm::Wasmtime::WasiConfig>
+
+Configuration and access control for WebAssembly System Interface (WASI).
 
 =back
 
