@@ -16,6 +16,22 @@ use overload
 # ABSTRACT: Wasmtime function class
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/func1.pl
+
+# EXAMPLE: examples/synopsis/func2.pl
+
+=head1 DESCRIPTION
+
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the interface for these modules
+is under active development.  Use with caution.
+
+This class represents a function, and can be used to either call a WebAssembly function from
+Perl, or to create a callback for calling a Perl function from WebAssembly.
+
+=cut
+
 $ffi_prefix = 'wasm_func_';
 $ffi->type('opaque' => 'wasm_func_t');
 
@@ -40,6 +56,21 @@ typedef struct wasm_val_t {
 typedef
 typedef wasm_val_t wasm_val_vec_t[];
 END
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+ my $func = Wasm::Wasmtime::Func->new(
+   $functype,   # Wasm::Wasmtime::FuncType
+   \&callback,  # code reference
+ );
+
+Creates a function instance, which can be used to call Perl from WebAssembly.
+See L<Wasm::Wasmtime::FuncType> for details on how to specify the function
+signature.
+
+=cut
 
 $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaque'] => 'wasm_func_t' => sub {
   my $xsub = shift;
@@ -84,20 +115,22 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
   }, $class;
 });
 
-$ffi->attach( type => ['wasm_func_t'] => 'wasm_functype_t' => sub {
-  my($xsub, $self) = @_;
-  Wasm::Wasmtime::FuncType->new($xsub->($self->{ptr}), $self->{owner} || $self);
-});
+=head1 METHODS
 
-$ffi->attach( param_arity => ['wasm_func_t'] => 'size_t' => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
-});
+=head2 call
 
-$ffi->attach( result_arity => ['wasm_func_t'] => 'size_t' => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
-});
+ my @results = $func->call(@params);
+ my @results = $func->(@params);
+
+Calls the function instance.  This can be used to call either Perl functions created
+with C<new> as above, or call WebAssembly functions from Perl.  As a convenience you
+can call the function by using the function instance like a code reference.
+
+If there is a trap during the call it will throw an exception.  In list context all
+of the results are returned as a list.  In scalar context just the first result (if
+any) is returned.
+
+=cut
 
 $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => sub {
   my $xsub = shift;
@@ -129,6 +162,45 @@ $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => su
   wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
 });
 
+=head2 type
+
+ my $functype = $func->type;
+
+Returns the L<Wasm::Wasmtime::FuncType> instance which includes the function signature.
+
+=cut
+
+$ffi->attach( type => ['wasm_func_t'] => 'wasm_functype_t' => sub {
+  my($xsub, $self) = @_;
+  Wasm::Wasmtime::FuncType->new($xsub->($self->{ptr}), $self->{owner} || $self);
+});
+
+=head2 param_arity
+
+ my $num = $func->param_arity;
+
+Returns the number of arguments the function takes.
+
+=cut
+
+$ffi->attach( param_arity => ['wasm_func_t'] => 'size_t' => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->{ptr});
+});
+
+=head2 result_arity
+
+ my $num = $func->param_arity;
+
+Returns the number of results the function returns.
+
+=cut
+
+$ffi->attach( result_arity => ['wasm_func_t'] => 'size_t' => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->{ptr});
+});
+
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_func_t'] => sub {
   my($xsub, $self) = @_;
   if(defined $self->{ptr} && !defined $self->{owner})
@@ -138,3 +210,15 @@ $ffi->attach( [ delete => "DESTROY" ] => ['wasm_func_t'] => sub {
 });
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=item L<Wasm::Wasmtime>
+
+=back
+
+=cut
