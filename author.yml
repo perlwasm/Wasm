@@ -15,6 +15,9 @@ pod_spelling_system:
     - Wasi
     - api
     - mathstuff
+    - SIMD
+    - cranelift
+    - profiler
 
 pod_coverage:
   skip: 0
