@@ -5,6 +5,7 @@ use warnings;
 use FFI::Platypus 1.00;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
+use Sub::Install;
 use base qw( Exporter );
 
 # ABSTRACT: Private class for Wasm::Wasmtime
@@ -87,18 +88,21 @@ sub _generate_vec_class
   my $vclass  = "Wasm::Wasmtime::${type}Vec";
   my $prefix = "wasm_@{[ lc $type ]}_vec";
 
-  my $to_list = sub {
-    my($self) = @_;
-    my $size = $self->size;
-    return () if $size == 0;
-    my $ptrs = $ffi->cast('opaque', "${c_type}[$size]", $self->data);
-    map { $class->new($_, $self) } @$ptrs;
-  };
+  Sub::Install::install_sub({
+    code => sub {
+      my($self) = @_;
+      my $size = $self->size;
+      return () if $size == 0;
+      my $ptrs = $ffi->cast('opaque', "${c_type}[$size]", $self->data);
+      map { $class->new($_, $self) } @$ptrs;
+    },
+    into => $vclass,
+    as   => 'to_list',
+  });
 
   {
     no strict 'refs';
     @{join '::', $vclass, 'ISA'} = ('Wasm::Wasmtime::Vec');
-    *{join '::', $vclass, 'to_list'} = $to_list;
   }
   $ffi_prefix = "${prefix}_";
   $ffi->type("record($vclass)" => $v_type);
