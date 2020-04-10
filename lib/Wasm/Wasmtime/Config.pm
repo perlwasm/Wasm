@@ -13,6 +13,9 @@ use Wasm::Wasmtime::FFI;
 
 =head1 DESCRIPTION
 
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the interface for these modules
+is under active development.  Use with caution.
+
 This class contains the configuration for L<Wasm::Wasmtime::Engine>
 class.  Each instance of the config class should only be used once.
 
