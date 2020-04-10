@@ -173,6 +173,14 @@ else
 
 }
 
+=head2 exports
+
+ my @exporttypes = $module->exports;
+
+Returns a list of L<Wasm::Wasmtime::ExportType> objects for the objects exported by the WebAssembly module.
+
+=cut
+
 $ffi->attach( exports => [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
   my($xsub, $self) = @_;
   my $exports = Wasm::Wasmtime::ExportTypeVec->new;
@@ -185,15 +193,22 @@ $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
   $xsub->($self->{ptr}) if $self->{ptr};
 });
 
-=head1 METHODS
-
 =head2 store
+
+ my $store = $module->store;
+
+Returns the L<Wasm::Wasmtime::Store> object used by this module.
 
 =cut
 
 sub store { shift->{store} }
 
 =head2 get_export
+
+ my $exporttype = $module->get_export($name);
+
+Returns the L<Wasm::Wasmtime::ExportType> with the given C<$name> as exported by the WebAssembly module.
+If no such export exists, then C<undef> is returned.
 
 =cut
 
