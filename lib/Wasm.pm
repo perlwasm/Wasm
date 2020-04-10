@@ -10,7 +10,16 @@ use Carp ();
 
 =head1 SYNOPSIS
 
+lib/MathStuff.pm:
+
 # EXAMPLE: examples/synopsis/wasm.pl
+
+mathstuff.pl:
+
+ use MathStuff qw( add subtract );
+ 
+ print add(1,2), "\n"; # 3
+ print subtract(3,2), "\n", # 1
 
 =head1 DESCRIPTION
 
@@ -18,6 +27,20 @@ B<WARNING>: WebAssembly and Wasmtime are a moving target and the interface for t
 is under active development.  Use with caution.
 
 The C<Wasm> Perl dist provides tools for writing Perl bindings using WebAssembly (Wasm).
+
+=head1 OPTIONS
+
+=head2 -api
+
+ use Wasm -api => 0;
+
+As of this writing, since the API is subject to change, this must be provided and set to C<0>.
+
+=head2 -wat
+
+ use Wasm -api => 0, -wat => $wat;
+
+String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
 =head1 SEE ALSO
 
@@ -44,7 +67,8 @@ sub import
   }
 
   my $api;
-  my $wat;
+  my @module;
+  my $package = $caller;
 
   while(@_)
   {
@@ -63,7 +87,9 @@ sub import
     }
     elsif($key eq '-wat')
     {
-      $wat = shift;
+      my $wat = shift;
+      Carp::croak("-wat undefined") unless defined $wat;
+      @module = (wat => $wat);
     }
     else
     {
@@ -71,29 +97,31 @@ sub import
     }
   }
 
-  unless(defined $wat)
-  {
-    $wat = '(module)';
-  }
+  @module = (wat => '(module)') unless @module;
 
   require Wasm::Wasmtime;
   my $config = Wasm::Wasmtime::Config->new;
   $config->wasm_multi_value(1);
   my $engine = Wasm::Wasmtime::Engine->new($config);
   my $store = Wasm::Wasmtime::Store->new($engine);
-
-  my $module;
-  if($wat)
-  {
-    $module = Wasm::Wasmtime::Module->new($store, wat => $wat)
-  }
-  else
-  {
-    die 'earm';
-  }
-
+  my $module = Wasm::Wasmtime::Module->new($store, @module);
   my $instance = Wasm::Wasmtime::Instance->new($module, []);
 
+  my @me = $module->exports;
+  my @ie = $instance->exports;
+
+  for my $i (0..$#ie)
+  {
+    my $exporttype = $me[$i];
+    my $name = $me[$i]->name;
+    my $externtype = $exporttype->type;
+    my $extern = $ie[$i];
+    if($externtype->kind eq 'func')
+    {
+      my $func = $extern->as_func;
+      $func->attach($package, $name);
+    }
+  }
 }
 
 1;

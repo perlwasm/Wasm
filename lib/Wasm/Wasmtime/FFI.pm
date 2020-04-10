@@ -6,12 +6,13 @@ use FFI::Platypus 1.00;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
 use Sub::Install;
+use Devel::GlobalDestruction ();
 use base qw( Exporter );
 
 # ABSTRACT: Private class for Wasm::Wasmtime
 # VERSION
 
-our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class );
+our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
 
 sub _lib
 {
@@ -109,6 +110,25 @@ sub _generate_vec_class
   $ffi->attach( [ delete => join('::', $vclass, 'DESTROY') ] => ["$v_type*"] => \&_generic_vec_delete)
     if !defined($opts{delete}) || $opts{delete};
 
+}
+
+sub _wrapper_destroy
+{
+  my($xsub, $self) = @_;
+  return if Devel::GlobalDestruction::in_global_destruction();
+  if(defined $self->{ptr} && !defined $self->{owner})
+  {
+    $xsub->($self->{ptr});
+  }
+}
+
+sub _generate_destroy
+{
+  my $caller = caller;
+  my $type = lc $caller;
+  $type =~ s/^.*:://;
+  $type = "wasm_${type}_t";
+  $ffi->attach( [ delete => join('::', $caller, 'DESTROY') ] => [ $type ] => \&_wrapper_destroy);
 }
 
 1;
