@@ -19,6 +19,28 @@ use overload
 $ffi_prefix = 'wasm_func_';
 $ffi->type('opaque' => 'wasm_func_t');
 
+# CBC is probably not how we want to do this long term, but atm
+# Platypus does not support Unions or arrays of records so.
+my $c = Convert::Binary::C->new(
+  Alignment => 8,
+  LongSize => 8, # CBC does not apparently use the native alignment by default *sigh*
+);
+$c->parse(<<'END');
+typedef struct wasm_val_t {
+  unsigned char kind;
+  union {
+    signed int i32;
+    signed long i64;
+    float f32;
+    double f64;
+    void *anyref;
+    void *funcref;
+  } of;
+} wasm_val_t;
+typedef
+typedef wasm_val_t wasm_val_vec_t[];
+END
+
 $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaque'] => 'wasm_func_t' => sub {
   my $xsub = shift;
   my $class = shift;
@@ -27,7 +49,10 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
   {
     $store = shift;
     my($functype, $cb) = @_;
+
     $wrapper = $ffi->closure(sub {
+      my($params, $results) = @_;
+
       local $@ = '';
       eval {
         $cb->();
@@ -42,7 +67,6 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
         return undef;
       }
     });
-    $wrapper->sticky;
     $ptr = $xsub->($store->{ptr}, $functype->{ptr}, $wrapper);
   }
   else
@@ -71,28 +95,6 @@ $ffi->attach( result_arity => ['wasm_func_t'] => 'size_t' => sub {
   my($xsub, $self) = @_;
   $xsub->($self->{ptr});
 });
-
-# CBC is probably not how we want to do this long term, but atm
-# Platypus does not support Unions or arrays of records so.
-my $c = Convert::Binary::C->new(
-  Alignment => 8,
-  LongSize => 8, # CBC does not apparently use the native alignment by default *sigh*
-);
-$c->parse(<<'END');
-typedef struct wasm_val_t {
-  unsigned char kind;
-  union {
-    signed int i32;
-    signed long i64;
-    float f32;
-    double f64;
-    void *anyref;
-    void *funcref;
-  } of;
-} wasm_val_t;
-typedef
-typedef wasm_val_t wasm_val_vec_t[];
-END
 
 $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => sub {
   my $xsub = shift;
