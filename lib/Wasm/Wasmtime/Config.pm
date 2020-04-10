@@ -7,8 +7,29 @@ use Wasm::Wasmtime::FFI;
 # ABSTRACT: Global configuration for Wasm::Wasmtime::Engine
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/config.pl
+
+=head1 DESCRIPTION
+
+This class contains the configuration for L<Wasm::Wasmtime::Engine>
+class.  Each instance of the config class should only be used once.
+
+=cut
+
 $ffi_prefix = 'wasm_config_';
 $ffi->type('opaque' => 'wasm_config_t');
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+ my $config = Wasm::Wasmtime::Config->new;
+
+Create a new instance of the config class.
+
+=cut
 
 $ffi->attach( new => [] => 'wasm_config_t' => sub {
   my($xsub, $class) = @_;
@@ -21,6 +42,33 @@ $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_config_t'] => sub {
   my($xsub, $self) = @_;
   $xsub->($self->{ptr}) if $self->{ptr};
 });
+
+=head1 METHODS
+
+=head2 debug_info
+
+ $config->debug_info($bool);
+
+Configures whether DWARF debug information is emitted for the generated
+code. This can improve profiling and the debugging experience.
+
+=head2 wasm_threads
+
+ $config->wasm_threads($bool);
+
+Configures whether the wasm threads proposal is enabled
+
+L<https://github.com/webassembly/threads>
+
+=head2 wasm_reference_types
+
+ $config->wasm_reference_types($bool);
+
+Configures whether the wasm reference types proposal is enabled.
+
+L<https://github.com/webassembly/reference-types>
+
+=cut
 
 foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
                       wasm_simd wasm_bulk_memory wasm_multi_value

@@ -12,6 +12,26 @@ use base qw( Exporter );
 # ABSTRACT: Private class for Wasm::Wasmtime
 # VERSION
 
+=head1 SYNOPSIS
+
+ $ perldoc Wasm
+
+=head1 DESCRIPTION
+
+This is a private class used internally by L<Wasm::Wasmtime> classes.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=item L<Wasm::Wasmtime>
+
+=back
+
+=cut
+
 our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
 
 sub _lib
