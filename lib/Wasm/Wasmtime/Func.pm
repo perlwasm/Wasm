@@ -181,41 +181,16 @@ caller's package will be used.
 
 =cut
 
-my %unattach;
-
 sub attach
 {
   my $self    = shift;
   my $package = @_ == 2 ? shift : caller;
   my $name    = shift;
-  $unattach{$package}->{$name} = 1;
   Sub::Install::install_sub({
     code => sub { $self->call(@_) },
     into => $package,
     as   => $name,
   });
-}
-
-sub _removed {
-  Carp::croak("WebAssembly function removed in global destruction");
-}
-
-END {
-  # FIXME: we need to figure out how to handle global destruction better
-  # than this.  Right now we are unattaching any attached subroutines
-  # which means that can't be used during global destruction, which isn't
-  # really viable long term.
-  foreach my $package (keys %unattach)
-  {
-    foreach my $name (keys %{ $unattach{$package} })
-    {
-      Sub::Install::reinstall_sub({
-        code => \&_removed,
-        into => $package,
-        as   => $name,
-      });
-    }
-  }
 }
 
 =head2 type
@@ -257,13 +232,7 @@ $ffi->attach( result_arity => ['wasm_func_t'] => 'size_t' => sub {
   $xsub->($self->{ptr});
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_func_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
+_generate_destroy();
 
 1;
 
@@ -278,3 +247,4 @@ $ffi->attach( [ delete => "DESTROY" ] => ['wasm_func_t'] => sub {
 =back
 
 =cut
+

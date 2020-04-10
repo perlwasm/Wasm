@@ -13,6 +13,7 @@ $modules{$_} = $_ for qw(
   Alien::wasmtime
   Carp::Assert
   Convert::Binary::C
+  Devel::GlobalDestruction
   ExtUtils::MakeMaker
   FFI::CheckLib
   FFI::Platypus

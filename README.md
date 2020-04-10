@@ -4,10 +4,42 @@ Write Perl extensions using Wasm
 
 # SYNOPSIS
 
+lib/MathStuff.pm:
+
 ```perl
+package MathStuff;
+
+use strict;
+use warnings;
+use base qw( Exporter );
 use Wasm
   -api => 0,
-  -wat => '(module)';
+  -wat => q{
+    (module
+      (func (export "add") (param i32 i32) (result i32)
+        local.get 0
+        local.get 1
+        i32.add)
+      (func (export "subtract") (param i32 i32) (result i32)
+        local.get 0
+        local.get 1
+        i32.sub)
+      (memory (export "frooble") 2 3)
+    )
+  };
+
+our @EXPORT_OK = qw( add subtract );
+
+1;
+```
+
+mathstuff.pl:
+
+```perl
+use MathStuff qw( add subtract );
+
+print add(1,2), "\n"; # 3
+print subtract(3,2), "\n", # 1
 ```
 
 # DESCRIPTION
@@ -16,6 +48,24 @@ use Wasm
 is under active development.  Use with caution.
 
 The `Wasm` Perl dist provides tools for writing Perl bindings using WebAssembly (Wasm).
+
+# OPTIONS
+
+## -api
+
+```perl
+use Wasm -api => 0;
+```
+
+As of this writing, since the API is subject to change, this must be provided and set to `0`.
+
+## -wat
+
+```perl
+use Wasm -api => 0, -wat => $wat;
+```
+
+String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
 # SEE ALSO
 

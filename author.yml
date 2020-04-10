@@ -13,6 +13,8 @@ pod_spelling_system:
     - wat
     - extern
     - Wasi
+    - api
+    - mathstuff
 
 pod_coverage:
   skip: 0
