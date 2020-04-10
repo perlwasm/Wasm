@@ -58,6 +58,12 @@ the Perl source this is called from.
 For example if you are calling this from C<lib/Foo/Bar.pm>, it will look for C<lib/Foo/Bar.wat> and
 C<lib/Foo/Bar.wasm>.  If both exist, then it will use the newer of the two.
 
+=head2 -package
+
+ use Wasm -api => 0, -package => $package;
+
+Install subroutines in to C<$package> namespace instead of the calling namespace.
+
 =head1 SEE ALSO
 
 =over 4
@@ -135,6 +141,10 @@ sub import
       {
         @module = (file => shift @maybe);
       }
+    }
+    elsif($key eq '-package')
+    {
+      $package = shift;
     }
     else
     {
