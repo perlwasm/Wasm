@@ -10,6 +10,16 @@ use Carp ();
 # ABSTRACT: Wasmtime module class
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/module.pl
+
+=head1 DESCRIPTION
+
+This class represents a WebAssembly module.
+
+=cut
+
 $ffi_prefix = 'wasm_module_';
 $ffi->type('opaque' => 'wasm_module_t');
 
@@ -47,6 +57,68 @@ sub _args
   }
   ($store, \$wasm, \$data);
 }
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+ my $module = Wasm::Wasmtime::Module->new(
+   $store,        # Wasm::Wasmtime::Store
+   wat => $wat,   # WebAssembly Text
+ );
+ my $module = Wasm::Wasmtime::Module->new(
+   $store,        # Wasm::Wasmtime::Store
+   wasm => $wasm, # WebAssembly binary
+ );
+ my $module = Wasm::Wasmtime::Module->new(
+   $store,        # Wasm::Wasmtime::Store
+   file => $path, # Filename containing WebAssembly binary (.wasm)
+ );
+ my $module = Wasm::Wasmtime::Module->new(
+   wat => $wat,   # WebAssembly Text
+ );
+ my $module = Wasm::Wasmtime::Module->new(
+   wasm => $wasm, # WebAssembly binary
+ );
+ my $module = Wasm::Wasmtime::Module->new(
+   file => $path, # Filename containing WebAssembly binary (.wasm)
+ );
+
+Create a new WebAssembly module object.  You must provide either WebAssembly Text (WAT), WebAssembly binary (Wasm), or a
+filename of a file that contains WebAssembly binary (Wasm).  If the optional L<Wasm::Wasmtime::Store> object is not provided
+one will be created for you.
+
+=head1 METHODS
+
+=head2 validate
+
+ my($ok, $mssage) = Wasm::Wasmtime::Module->validate(
+   $store,        # Wasm::Wasmtime::Store
+   wat => $wat,   # WebAssembly Text
+ );
+ my($ok, $mssage) = Wasm::Wasmtime::Module->validate(
+   $store,        # Wasm::Wasmtime::Store
+   wasm => $wasm, # WebAssembly binary
+ );
+ my($ok, $mssage) = Wasm::Wasmtime::Module->validate(
+   $store,        # Wasm::Wasmtime::Store
+   file => $path, # Filename containing WebAssembly binary (.wasm)
+ );
+ my($ok, $mssage) = Wasm::Wasmtime::Module->validate(
+   wat => $wat,   # WebAssembly Text
+ );
+ my($ok, $mssage) = Wasm::Wasmtime::Module->validate(
+   wasm => $wasm, # WebAssembly binary
+ );
+ my($ok, $mssage) = Wasm::Wasmtime::Module->validate(
+   file => $path, # Filename containing WebAssembly binary (.wasm)
+ );
+
+Takes the same arguments as C<new>, but validates the module without creating a module object.  Returns C<$ok>,
+which is true if the WebAssembly is valid, and false otherwise.  For invalid WebAssembly C<$message> may contain
+a useful diagnostic for why it was invalid.
+
+=cut
 
 if(Wasm::Wasmtime::Error->can('new'))
 {
