@@ -20,7 +20,7 @@ $ffi->custom_type('wasi_instance_t' => {
 $ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'wasm_trap_t*'] => 'wasi_instance_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
+  my $store = shift;
   my $name = shift;
   my $config = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::WasiConfig' ? shift : Wasm::Wasmtime::WasiConfig->new;
   my $trap;
@@ -40,7 +40,7 @@ $ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'wasm_trap_t*']
 
 $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasi_instance_t'] => sub {
   my($xsub, $self) = @_;
-  $xsub->($self->{ptr}) if $self->{ptr};
+  $xsub->($self) if $self->{ptr};
 });
 
 1;
