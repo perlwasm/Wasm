@@ -18,6 +18,7 @@ pod_spelling_system:
     - SIMD
     - cranelift
     - profiler
+    - params
 
 pod_coverage:
   skip: 0
