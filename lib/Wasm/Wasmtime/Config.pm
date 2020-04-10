@@ -68,6 +68,28 @@ Configures whether the wasm reference types proposal is enabled.
 
 L<https://github.com/webassembly/reference-types>
 
+=head2 wasm_simd
+
+ $config->wasm_simd($bool);
+
+Configures whether the wasm SIMD proposal is enabled.
+
+L<https://github.com/webassembly/simd>
+
+=head2 wasm_bulk_memory
+
+ $config->wasm_bulk_memory($bool);
+
+Configures whether the wasm bulk memory proposal is enabled.
+
+L<https://github.com/webassembly/bulk-memory>
+
+=head2 wasm_multi_value
+
+Configures whether the wasm multi value proposal is enabled.
+
+L<https://github.com/webassembly/multi-value>
+
 =cut
 
 foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
@@ -80,6 +102,28 @@ foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
     $self;
   });
 }
+
+=head2 strategy
+
+ $config->strategy($strategy);
+
+Configures the compilation strategy used for wasm code.
+
+Will throw an exception if the selected strategy is not supported on your platform.
+
+Acceptable values for C<$strategy> are:
+
+=over 4
+
+=item C<auto>
+
+=item C<cranelift>
+
+=item C<lightbeam>
+
+=back
+
+=cut
 
 my %strategy = (
   auto      => 0,
@@ -124,6 +168,26 @@ else
   });
 }
 
+=head2 cranelift_opt_level
+
+ $config->cranelift_opt_level($level);
+
+Configure the cranelift optimization level:
+
+Acceptable values for C<$level> are:
+
+=over 4
+
+=item C<none>
+
+=item C<speed>
+
+=item C<speed_and_size>
+
+=back
+
+=cut
+
 my %cranelift_opt_level = (
   none => 0,
   speed => 1,
@@ -142,6 +206,27 @@ $ffi->attach( ['wasmtime_config_cranelift_opt_level_set' => 'cranelift_opt_level
   }
   $self;
 });
+
+=head2 profiler
+
+ $config->profiler($profiler);
+
+Configure the profiler.
+
+Will throw an exception if the selected profiler is not supported on your platform.
+
+Acceptable values for C<$profiler> are:
+
+=over 4
+
+=item C<none>
+
+=item C<jitdump>
+
+=back
+
+=cut
+
 
 my %profiler = (
   none    => 0,
