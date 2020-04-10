@@ -112,7 +112,7 @@ $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => su
       },
     }
   } $self->type->params]);
-  my $results = $c->pack('wasm_val_vec_t', [map { { kind => $_->kind_num } } $self->type->results]);
+  my $results = $c->pack('wasm_val_vec_t', [map { { } } $self->type->results]);
   my $trap = $xsub->($self->{ptr}, $args, $results);
   if($trap)
   {
