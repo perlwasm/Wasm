@@ -6,6 +6,7 @@ use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
 use Convert::Binary::C;
+use Sub::Install;
 use Carp ();
 use overload
   '&{}' => sub { my $self = shift; sub { $self->call(@_) } },
@@ -169,6 +170,53 @@ $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => su
   } @{ $c->unpack('wasm_val_vec_t', $results) };
   wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
 });
+
+=head2 attach
+
+ $func->attach($name);
+ $func->attach($package, $name);
+
+Attach the function as a Perl subroutine.  If C<$package> is not specified, then the
+caller's package will be used.
+
+=cut
+
+my %unattach;
+
+sub attach
+{
+  my $self    = shift;
+  my $package = @_ == 2 ? shift : caller;
+  my $name    = shift;
+  $unattach{$package}->{$name} = 1;
+  Sub::Install::install_sub({
+    code => sub { $self->call(@_) },
+    into => $package,
+    as   => $name,
+  });
+}
+
+sub _removed {
+  Carp::croak("WebAssembly function removed in global destruction");
+}
+
+END {
+  # FIXME: we need to figure out how to handle global destruction better
+  # than this.  Right now we are unattaching any attached subroutines
+  # which means that can't be used during global destruction, which isn't
+  # really viable long term.
+  foreach my $package (keys %unattach)
+  {
+    foreach my $name (keys %{ $unattach{$package} })
+    {
+      Sub::Install::reinstall_sub({
+        code => \&_removed,
+        into => $package,
+        as   => $name,
+      });
+    }
+  }
+}
 
 =head2 type
 
