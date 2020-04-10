@@ -33,7 +33,7 @@ $ffi->type('opaque' => 'wasm_memorytype_t');
    $max   # maximum number of pages
  ]);
 
-Creates a new memory type object.  
+Creates a new memory type object.
 
 =cut
 

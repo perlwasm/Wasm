@@ -46,6 +46,11 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
   my($xsub, $class, $module, $imports) = @_;
   my @imports = defined $imports ? map { $_->{ptr} } @$imports : ();
   my $trap;
+
+  # TODO: we don't have an interface to module imports yet, but when
+  # we do we should validate that the module and instance imports match
+  # otherwise SEGV
+
   my $ptr = $xsub->($module->store->{ptr}, $module->{ptr}, \@imports, \$trap);
   if($ptr)
   {
