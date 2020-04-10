@@ -62,6 +62,12 @@ END
 =head2 new
 
  my $func = Wasm::Wasmtime::Func->new(
+   $store,               # Wasm::Wasmtime::Store
+   \@params, \@results,  # array reference for function signature
+   \&callback,           # code reference
+ );
+ my $func = Wasm::Wasmtime::Func->new(
+   $store,      # Wasm::Wasmtime::Store
    $functype,   # Wasm::Wasmtime::FuncType
    \&callback,  # code reference
  );
@@ -79,7 +85,9 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
   if(ref $_[0])
   {
     $store = shift;
-    my($functype, $cb) = @_;
+    my($functype, $cb) = ref($_[0]) eq 'ARRAY'
+       ? (Wasm::Wasmtime::FuncType->new($_[0], $_[1]), $_[2])
+       : @_;
 
     Carp::croak("FIXME: function with parameters") if scalar $functype->params;
     Carp::croak("FIXME: function with results")    if scalar $functype->results;

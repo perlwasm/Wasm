@@ -73,6 +73,32 @@ is(
   );
 }
 
+{
+  my $it_worked;
+
+  my $f = Wasm::Wasmtime::Func->new(
+    Wasm::Wasmtime::Store->new,
+    [],[],
+    sub { $it_worked = 1 },
+  );
+
+  is(
+    $f,
+    object {
+      call [ isa => 'Wasm::Wasmtime::Func' ] => T();
+    },
+    'create functon with no arguments/results',
+  );
+
+  try_ok { $f->call } 'call function';
+
+  is(
+    $it_worked,
+    T(),
+    'it worked',
+  );
+}
+
 if(0) {
   my @it_worked;
 
