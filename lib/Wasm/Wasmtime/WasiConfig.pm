@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
 
-# ABSTRACT: Wasi Configuration
+# ABSTRACT: WASI Configuration
 # VERSION
 
 =head1 SYNOPSIS

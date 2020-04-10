@@ -7,7 +7,7 @@ use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Trap;
 use Wasm::Wasmtime::WasiConfig;
 
-# ABSTRACT: Wasi instance class
+# ABSTRACT: WASI instance class
 # VERSION
 
 $ffi_prefix = 'wasi_instance_';
