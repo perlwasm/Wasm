@@ -18,7 +18,7 @@ is under active development.  Use with caution.
 
 This class represents the WebAssembly System Interface (WASI) configuration.  For WebAssembly WASI
 is the equivalent to the part of libc that interfaces with the system.  As such it allows you to
-configure if and how the WebAssembly program has access to program arguments, environment, 
+configure if and how the WebAssembly program has access to program arguments, environment,
 standard streams and file system directories.
 
 =cut
