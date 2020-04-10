@@ -19,20 +19,43 @@ use overload
 $ffi_prefix = 'wasm_func_';
 $ffi->type('opaque' => 'wasm_func_t');
 
-=head1 CONSTRUCTORS
-
-=head2 new
-
-=cut
-
-sub new
-{
-  my($class, $ptr, $owner) = @_;
+$ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaque'] => 'wasm_func_t' => sub {
+  my $xsub = shift;
+  my $class = shift;
+  my($ptr, $owner, $wrapper, $store);
+  if(ref $_[0])
+  {
+    $store = shift;
+    my($functype, $cb) = @_;
+    $wrapper = $ffi->closure(sub {
+      local $@ = '';
+      eval {
+        $cb->();
+      };
+      if(my $error = $@)
+      {
+        my $trap = Wasm::Wasmtime::Trap->new("$error");
+        return delete $trap->{ptr};
+      }
+      else
+      {
+        return undef;
+      }
+    });
+    $wrapper->sticky;
+    $ptr = $xsub->($store->{ptr}, $functype->{ptr}, $wrapper);
+  }
+  else
+  {
+    ($ptr, $owner) = @_;
+  }
   bless {
-    ptr   => $ptr,
-    owner => $owner,
+    ptr     => $ptr,
+    owner   => $owner,
+    wrapper => $wrapper,
+    store   => $store,
   }, $class;
-}
+});
 
 $ffi->attach( type => ['wasm_func_t'] => 'wasm_functype_t' => sub {
   my($xsub, $self) = @_;

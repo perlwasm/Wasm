@@ -1,7 +1,9 @@
 use Test2::V0 -no_srand => 1;
 use lib 't/lib';
 use Test2::Tools::Wasm;
+use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Func;
+use Wasm::Wasmtime::FuncType;
 
 is(
   wasm_func_ok( add => q{
@@ -44,5 +46,31 @@ is(
   },
   'call round_trip_many',
 );
+
+{
+  my $it_worked;
+
+  my $f = Wasm::Wasmtime::Func->new(
+    Wasm::Wasmtime::Store->new,
+    Wasm::Wasmtime::FuncType->new([],[]),
+    sub { $it_worked = 1 },
+  );
+
+  is(
+    $f,
+    object {
+      call [ isa => 'Wasm::Wasmtime::Func' ] => T();
+    },
+    'create functon with no arguments/results',
+  );
+
+  try_ok { $f->call } 'call function';
+
+  is(
+    $it_worked,
+    T(),
+    'it worked',
+  );
+}
 
 done_testing;
