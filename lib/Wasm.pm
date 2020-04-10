@@ -42,6 +42,12 @@ As of this writing, since the API is subject to change, this must be provided an
 
 String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
+=head2 -file
+
+ use Wasm -api => 0, -file => $file;
+
+Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly binary (.wasm) format.
+
 =head1 SEE ALSO
 
 =over 4
@@ -90,6 +96,16 @@ sub import
       my $wat = shift;
       Carp::croak("-wat undefined") unless defined $wat;
       @module = (wat => $wat);
+    }
+    elsif($key eq '-file')
+    {
+      my $path = shift;
+      unless(defined $path && -f $path)
+      {
+        $path = 'undef' unless defined $path;
+        Carp::croak("no such file $path");
+      }
+      @module = (file => "$path");
     }
     else
     {

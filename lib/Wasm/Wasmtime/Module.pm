@@ -54,8 +54,17 @@ sub _args
     {
       require Wasm::Wasmtime::Wat2Wasm;
       require Path::Tiny;
-      $data = Wasm::Wasmtime::Wat2Wasm::wat2wasm(Path::Tiny->new(shift)->slurp_utf8);
-      $wasm = Wasm::Wasmtime::ByteVec->new($data);
+      my $path = Path::Tiny->new(shift);
+      if($path->basename =~ /\.wat/)
+      {
+        $data = Wasm::Wasmtime::Wat2Wasm::wat2wasm($path->slurp_utf8);
+        $wasm = Wasm::Wasmtime::ByteVec->new($data);
+      }
+      else
+      {
+        $data = $path->slurp_raw;
+        $wasm = Wasm::Wasmtime::ByteVec->new($data);
+      }
     }
   }
   ($store, \$wasm, \$data);
@@ -75,7 +84,7 @@ sub _args
  );
  my $module = Wasm::Wasmtime::Module->new(
    $store,        # Wasm::Wasmtime::Store
-   file => $path, # Filename containing WebAssembly binary (.wasm)
+   file => $path, # Filename containing WebAssembly binary (.wasm) or WebAssembly Text (.wat)
  );
  my $module = Wasm::Wasmtime::Module->new(
    wat => $wat,   # WebAssembly Text
@@ -84,7 +93,7 @@ sub _args
    wasm => $wasm, # WebAssembly binary
  );
  my $module = Wasm::Wasmtime::Module->new(
-   file => $path, # Filename containing WebAssembly binary (.wasm)
+   file => $path, # Filename containing WebAssembly binary (.wasm) or WebAssembly Text (.wat)
  );
 
 Create a new WebAssembly module object.  You must provide either WebAssembly Text (WAT), WebAssembly binary (Wasm), or a
