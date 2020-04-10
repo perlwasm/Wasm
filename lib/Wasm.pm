@@ -48,6 +48,16 @@ String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside
 
 Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly binary (.wasm) format.
 
+=head2 -self
+
+ use Wasm -api => 0, -self;
+
+Look for a WebAssembly Text (.wat) or WebAssembly binary (.wasm) file with the same base name as
+the Perl source this is called from.
+
+For example if you are calling this from C<lib/Foo/Bar.pm>, it will look for C<lib/Foo/Bar.wat> and
+C<lib/Foo/Bar.wasm>.  If both exist, then it will use the newer of the two.
+
 =head1 SEE ALSO
 
 =over 4
@@ -63,7 +73,7 @@ Low level interface to C<wasmtime>.
 sub import
 {
   my $class = shift;
-  my $caller = caller;
+  my($caller, $fn) = caller;
 
   return unless @_;
 
@@ -106,6 +116,25 @@ sub import
         Carp::croak("no such file $path");
       }
       @module = (file => "$path");
+    }
+    elsif($key eq '-self')
+    {
+      require Path::Tiny;
+      my $perl_path = Path::Tiny->new($fn);
+      my $basename = $perl_path->basename;
+      $basename =~ s/\.(pl|pm)$//;
+      my @maybe = sort { $b->stat->mtime <=> $a->stat->mtime } grep { -f $_ } (
+        $perl_path->parent->child($basename . ".wasm"),
+        $perl_path->parent->child($basename . ".wat"),
+      );
+      if(@maybe == 0)
+      {
+        Carp::croak("unable to find .wasm or .wat file relative to Perl source");
+      }
+      else
+      {
+        @module = (file => shift @maybe);
+      }
     }
     else
     {

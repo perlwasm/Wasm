@@ -2,3 +2,4 @@ Wasm-*
 /.build/
 *.swp
 /.tmp/
+*.wasm
