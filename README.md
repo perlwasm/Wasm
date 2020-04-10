@@ -67,6 +67,26 @@ use Wasm -api => 0, -wat => $wat;
 
 String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
+## -file
+
+```perl
+use Wasm -api => 0, -file => $file;
+```
+
+Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly binary (.wasm) format.
+
+## -self
+
+```perl
+use Wasm -api => 0, -self;
+```
+
+Look for a WebAssembly Text (.wat) or WebAssembly binary (.wasm) file with the same base name as
+the Perl source this is called from.
+
+For example if you are calling this from `lib/Foo/Bar.pm`, it will look for `lib/Foo/Bar.wat` and
+`lib/Foo/Bar.wasm`.  If both exist, then it will use the newer of the two.
+
 # SEE ALSO
 
 - [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime)

@@ -31,7 +31,7 @@ is( Foo0::subtract(3,2), 1, '3-2=1' );
 
 {
   package Foo1;
-  use Wasm -api => 0, -file => 'corpus/wasm/math.wat';
+  use Wasm -api => 0, -file => 'corpus/wasm/Math.wat';
 }
 
 is( Foo1::add(1,2), 3, '1+2=3' );
@@ -42,8 +42,9 @@ is( Foo1::subtract(3,2), 1, '3-2=1' );
   use File::Temp qw( tempdir );
   use Path::Tiny qw( path );
   use Wasm -api => 0, -file => do {
-    my $wat  = path('corpus/wasm/math.wat');
-    my $wasm = path(tempdir( CLEANUP => 1 ))->child('math.wasm');
+    my $wat  = path('corpus/wasm/Math.wat');
+    #my $wasm = path(tempdir( CLEANUP => 1 ))->child('math.wasm');
+    my $wasm = path('corpus/wasm/Math.wasm');
     require Wasm::Wasmtime::Wat2Wasm;
     $wasm->spew_raw(Wasm::Wasmtime::Wat2Wasm::wat2wasm($wat->slurp_utf8));
     $wasm->stringify;
@@ -52,5 +53,10 @@ is( Foo1::subtract(3,2), 1, '3-2=1' );
 
 is( Foo2::add(1,2), 3, '1+2=3' );
 is( Foo2::subtract(3,2), 1, '3-2=1' );
+
+require './corpus/wasm/Math.pm';
+
+is( Math::add(1,2), 3, '1+2=3' );
+is( Math::subtract(3,2), 1, '3-2=1' );
 
 done_testing;
