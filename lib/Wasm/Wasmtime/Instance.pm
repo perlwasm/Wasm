@@ -10,8 +10,34 @@ use Wasm::Wasmtime::Trap;
 # ABSTRACT: Wasmtime instance class
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/instance.pl
+
+=head1 DESCRIPTION
+
+This class represents an instance of a WebAssembly module L<Wasm::Wasmtime::Module>.
+
+=cut
+
 $ffi_prefix = 'wasm_instance_';
 $ffi->type('opaque' => 'wasm_instance_t');
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+ my $instance = Wasm::Wasmtime::Instance->new(
+   $module     # Wasm::Wasmtime::Module
+ );
+ my $instance = Wasm::Wasmtime::Instance->new(
+   $module,    # Wasm::Wasmtime::Module
+   \@imports,  # array reference of Wasm::Wasmtime::Extern
+ );
+
+Create a new instance of the instance class.
+
+=cut
 
 $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'] => 'wasm_engine_t' => sub {
   my($xsub, $class, $module, $imports) = @_;
@@ -40,6 +66,13 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
 
 =head2 get_export
 
+ my $extern = $instance->get_export($name);
+
+Returns a L<Wasm::Wasmtime::Extern> object with the given C<$name>.
+If no such object exists, then C<undef> will be returned.
+
+Extern objects represent functions, globals, tables or memory in WebAssembly.
+
 =cut
 
 sub get_export
@@ -60,9 +93,22 @@ sub get_export
 
 =head2 module
 
+ my $module = $instance->module;
+
+Returns the L<Wasm::Wasmtime::Module> for this instance.
+
 =cut
 
 sub module { shift->{module} }
+
+=head2 exports
+
+ my @externs = $instance->exports;
+
+Returns a list of L<Wasm::Wasmtime::Extern> objects for the functions,
+globals, tables and memory exported by the WebAssembly instance.
+
+=cut
 
 $ffi->attach( exports => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
   my($xsub, $self) = @_;
