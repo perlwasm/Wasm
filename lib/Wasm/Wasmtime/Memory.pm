@@ -9,8 +9,31 @@ use Wasm::Wasmtime::MemoryType;
 # ABSTRACT: Wasmtime memory class
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/memory.pl
+
+=head1 DESCRIPTION
+
+This class represents a WebAssembly memory object.
+
+=cut
+
 $ffi_prefix = 'wasm_memory_';
 $ffi->type('opaque' => 'wasm_memory_t');
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+ my $memory = Wasm::Wasmtime::Memory->new(
+   $store,      # Wasm::Wasmtime::Store
+   $memorytype, # Wasm::Wasmtime::MemoryType
+ );
+
+Creates a new memory object.
+
+=cut
 
 $ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' => sub {
   my $xsub = shift;
@@ -33,25 +56,67 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' =>
   }, $class;
 });
 
+=head1 METHODS
+
+=head2 type
+
+ my $memorytype = $memory->type;
+
+Returns the L<Wasm::Wasmtime::MemoryType> object for this memory object.
+
+=cut
+
 $ffi->attach( type => ['wasm_memory_t'] => 'wasm_memorytype_t' => sub {
   my($xsub, $self) = @_;
   Wasm::Wasmtime::MemoryType->new($xsub->($self->{ptr}), $self->{owner} || $self);
 });
+
+=head2 data
+
+ my $pointer = $memory->data;
+
+Returns a pointer to the start of the memory.
+
+=cut
 
 $ffi->attach( data => ['wasm_memory_t'] => 'opaque' => sub {
   my($xsub, $self) = @_;
   $xsub->($self->{ptr});
 });
 
+=head2 data_size
+
+ my $size = $memory->data_size;
+
+Returns the current size of the memory in bytes.
+
+=cut
+
 $ffi->attach( data_size => ['wasm_memory_t'] => 'size_t' => sub {
   my($xsub, $self) = @_;
   $xsub->($self->{ptr});
 });
 
+=head2 size
+
+ my $size = $memory->size;
+
+Returns the current size of the memory in pages.
+
+=cut
+
 $ffi->attach( size => ['wasm_memory_t'] => 'uint32' => sub {
   my($xsub, $self) = @_;
   $xsub->($self->{ptr});
 });
+
+=head2 grow
+
+ my $bool = $memory->grow($delta);
+
+Tries to increase the page size by the given C<$delta>.  Returns true on success, false otherwise.
+
+=cut
 
 $ffi->attach( grow => ['wasm_memory_t', 'uint32'] => 'bool' => sub {
   my($xsub, $self, $delta) = @_;
