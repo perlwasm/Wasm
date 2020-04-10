@@ -5,6 +5,7 @@ use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Extern;
+use Wasm::Wasmtime::Trap;
 
 # ABSTRACT: Wasmtime instance class
 # VERSION
@@ -12,10 +13,11 @@ use Wasm::Wasmtime::Extern;
 $ffi_prefix = 'wasm_instance_';
 $ffi->type('opaque' => 'wasm_instance_t');
 
-$ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque','opaque*'] => 'wasm_engine_t' => sub {
-  my($xsub, $class, $module) = @_;
+$ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'] => 'wasm_engine_t' => sub {
+  my($xsub, $class, $module, $imports) = @_;
+  my @imports = defined $imports ? map { $_->{ptr} } @$imports : ();
   my $trap;
-  my $ptr = $xsub->($module->store->{ptr}, $module->{ptr}, undef, \$trap);
+  my $ptr = $xsub->($module->store->{ptr}, $module->{ptr}, \@imports, \$trap);
   if($ptr)
   {
     return bless {
@@ -25,8 +27,12 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque','opaque*'] => 'was
   }
   else
   {
-    # TODO: totally untested! not sure how to force this for a unit test.
-    Carp::croak("error creating Wasm::Wasmtime::Instance " . $trap->message);
+    if($trap)
+    {
+      $trap = Wasm::Wasmtime::Trap->new($trap);
+      Carp::croak($trap->message);
+    }
+    Carp::croak("error creating Wasm::Wasmtime::Instance ");
   }
 });
 

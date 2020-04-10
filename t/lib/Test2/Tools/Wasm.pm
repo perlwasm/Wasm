@@ -36,6 +36,7 @@ sub _instance
 {
   my $module = _module(@_);
   my $name = shift;
+  my $imports = ref($_[-1]) eq 'ARRAY' ? pop : undef;
 
   return 0 unless $module;
 
@@ -43,7 +44,7 @@ sub _instance
 
   my $ctx = context();
 
-  my $instance = eval { Wasm::Wasmtime::Instance->new($module) };
+  my $instance = eval { Wasm::Wasmtime::Instance->new($module, $imports) };
   return $ctx->fail_and_release($name, "error creating instance", "$@") if $@;
 
   $ctx->release;
@@ -71,14 +72,14 @@ sub wasm_module_ok ($;$)
   }
 }
 
-sub wasm_instance_ok ($;$)
+sub wasm_instance_ok ($$;$)
 {
-  my($wat, $name) = @_;
+  my($imports, $wat, $name) = @_;
 
   $name ||= "instance ok";
 
   my $ctx = context();
-  my $instance = _instance($name, $wat);
+  my $instance = _instance($name, $wat, $imports);
 
   if($instance)
   {

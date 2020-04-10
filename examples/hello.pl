@@ -9,12 +9,12 @@ my $store = Wasm::Wasmtime::Store->new;
 
 # Here we can compile a `Module` which is then ready for instantiation
 # afterwards
-my $module = Wasm::Wasmtime::Module->new( file => path(__FILE__)->parent->child('hello.wat') );
+my $module = Wasm::Wasmtime::Module->new( $store, file => path(__FILE__)->parent->child('hello.wat') );
 
 # Our module needs one import, so we'll create that here.
 sub say_hello
 {
-  print "Hello from Perl!";
+  print "Hello from Perl!\n";
 }
 
 my $hello = Wasm::Wasmtime::Func->new(
@@ -24,5 +24,5 @@ my $hello = Wasm::Wasmtime::Func->new(
 );
 
 ## And with all that we can instantiate our module and call the export!
-#my $instance = Wasm::Wasmtime::Instance->new($module, [$hello]);
-#$instance->get_export("run")->();
+my $instance = Wasm::Wasmtime::Instance->new($module, [$hello]);
+$instance->get_export("run")->();
