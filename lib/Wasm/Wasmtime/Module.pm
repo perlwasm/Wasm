@@ -48,7 +48,7 @@ sub _args
   ($store, \$wasm, \$data);
 }
 
-if($ffi->find_symbol('wasmtime_error_message'))
+if(Wasm::Wasmtime::Error->can('new'))
 {
 
   $ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_store_t', 'wasm_byte_vec_t*', 'wasm_module_t*'] => 'wasmtime_error_t' => sub {

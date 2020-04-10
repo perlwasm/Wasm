@@ -3,7 +3,6 @@ package Wasm::Wasmtime::Wat2Wasm;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
-use Wasm::Wasmtime::Error;
 use base qw( Exporter );
 
 # ABSTRACT: Convert WebAssembly Text to Wasm
@@ -13,7 +12,7 @@ our @EXPORT = qw( wat2wasm );
 
 $ffi_prefix = 'wasmtime_';
 
-if($ffi->find_symbol('wasmtime_error_message'))
+if(Wasm::Wasmtime::Error->can('new'))
 {
   $ffi->attach( wat2wasm => ['wasm_byte_vec_t*','wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
     my $xsub = shift;

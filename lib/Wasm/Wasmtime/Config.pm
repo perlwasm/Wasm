@@ -3,7 +3,6 @@ package Wasm::Wasmtime::Config;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
-use Wasm::Wasmtime::Error;
 
 # ABSTRACT: Global configuration for Wasm::Wasmtime::Engine
 # VERSION
@@ -40,7 +39,7 @@ my %strategy = (
   lightbeam => 2,
 );
 
-if($ffi->find_symbol('wasmtime_error_message'))
+if(Wasm::Wasmtime::Error->can('new'))
 {
   $ffi->attach( [ 'wasmtime_config_strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'wasmtime_error_t' => sub {
     my($xsub, $self, $value) = @_;
@@ -101,7 +100,7 @@ my %profiler = (
   jitdump => 1,
 );
 
-if($ffi->find_symbol('wasmtime_error_message'))
+if(Wasm::Wasmtime::Error->can('new'))
 {
   $ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'wasmtime_error_t' => sub {
     my($xsub, $self, $value) = @_;
