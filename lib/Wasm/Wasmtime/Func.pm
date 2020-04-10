@@ -50,6 +50,9 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
     $store = shift;
     my($functype, $cb) = @_;
 
+    Carp::croak("FIXME: function with parameters") if scalar $functype->params;
+    Carp::croak("FIXME: function with results")    if scalar $functype->results;
+
     $wrapper = $ffi->closure(sub {
       my($params, $results) = @_;
 
