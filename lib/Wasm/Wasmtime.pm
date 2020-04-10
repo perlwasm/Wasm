@@ -15,6 +15,8 @@ use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Trap;
 use Wasm::Wasmtime::ValType;
+use Wasm::Wasmtime::WasiConfig;
+use Wasm::Wasmtime::WasiInstance;
 
 # ABSTRACT: Perl interface to Wasmtime
 # VERSION
