@@ -14,6 +14,9 @@ use Wasm::Wasmtime::ValType;
 
 =head1 DESCRIPTION
 
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the interface for these modules
+is under active development.  Use with caution.
+
 The function type class represents a function signature, that is the parameter and return
 types that a function will take.
 
