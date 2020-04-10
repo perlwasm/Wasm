@@ -73,4 +73,53 @@ is(
   );
 }
 
+if(0) {
+  my @it_worked;
+
+  my $f = Wasm::Wasmtime::Func->new(
+    Wasm::Wasmtime::Store->new,
+    Wasm::Wasmtime::FuncType->new(['i32','i32'],[]),
+    sub { @it_worked },
+  );
+
+  is(
+    $f,
+    object {
+      call [ isa => 'Wasm::Wasmtime::Func' ] => T();
+    },
+    'create functon with arguments',
+  );
+
+  try_ok { $f->call(1,2) } 'call function';
+
+  is(
+    \@it_worked,
+    [1,2],
+    'it worked',
+  );
+}
+
+if(0) {
+  my $f = Wasm::Wasmtime::Func->new(
+    Wasm::Wasmtime::Store->new,
+    Wasm::Wasmtime::FuncType->new([],[]),
+    sub { die 'it dies' },
+  );
+
+  is(
+    $f,
+    object {
+      call [ isa => 'Wasm::Wasmtime::Func' ] => T();
+    },
+    'create functon with an exception',
+  );
+
+  is(
+    dies { $f->call },
+    match qr/it dies/,
+    'it died',
+  );
+
+}
+
 done_testing;
