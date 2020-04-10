@@ -87,6 +87,14 @@ the Perl source this is called from.
 For example if you are calling this from `lib/Foo/Bar.pm`, it will look for `lib/Foo/Bar.wat` and
 `lib/Foo/Bar.wasm`.  If both exist, then it will use the newer of the two.
 
+## -package
+
+```perl
+use Wasm -api => 0, -package => $package;
+```
+
+Install subroutines in to `$package` namespace instead of the calling namespace.
+
 # SEE ALSO
 
 - [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime)

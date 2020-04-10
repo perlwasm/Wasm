@@ -59,4 +59,13 @@ require './corpus/wasm/Math.pm';
 is( Math::add(1,2), 3, '1+2=3' );
 is( Math::subtract(3,2), 1, '3-2=1' );
 
+{
+  package Foo3;
+  use Wasm -api => 0, -package => 'Foo4', -file => 'corpus/wasm/Math.wat';
+}
+
+ok( !Foo3->can('add'), 'did not import into Foo3' );
+is( Foo4::add(1,2), 3, '1+2=3' );
+is( Foo4::subtract(3,2), 1, '3-2=1' );
+
 done_testing;
