@@ -18,8 +18,8 @@ mathstuff.pl:
 
  use MathStuff qw( add subtract );
  
- print add(1,2), "\n"; # 3
- print subtract(3,2), "\n", # 1
+ print add(1,2), "\n";      # prints 3
+ print subtract(3,2), "\n", # prints 1
 
 =head1 DESCRIPTION
 
