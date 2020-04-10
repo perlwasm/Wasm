@@ -2,7 +2,18 @@
 
 Write Perl extensions using Wasm
 
+# SYNOPSIS
+
+```perl
+use Wasm
+  -api => 0,
+  -wat => '(module)';
+```
+
 # DESCRIPTION
+
+**WARNING**: WebAssembly and Wasmtime are a moving target and the interface for these modules
+is under active development.  Use with caution.
 
 The `Wasm` Perl dist provides tools for writing Perl bindings using WebAssembly (Wasm).
 
