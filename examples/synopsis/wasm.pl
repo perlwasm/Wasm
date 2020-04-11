@@ -6,6 +6,7 @@ use warnings;
 use base qw( Exporter );
 use Wasm
   -api => 0,
+  -exporter => 'ok',
   -wat => q{
     (module
       (func (export "add") (param i32 i32) (result i32)
@@ -19,7 +20,5 @@ use Wasm
       (memory (export "frooble") 2 3)
     )
   };
-
-our @EXPORT_OK = qw( add subtract );
 
 1;
