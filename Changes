@@ -8,6 +8,7 @@ Revision history for {{$dist->name}}},
   - Added Wasm::Wasmtime::ImportType class (gh#19)
   - Added imports method to Wasm::Wasmtime::Module (gh#19)
   - Support callback into Perl with params, results and traps (gh#20)
+  - Added -imports option for Wasm (gh#20)
 
 0.02      2020-04-11 08:36:52 -0600
   - Added -exporter option to Wasm module (gh#14)
