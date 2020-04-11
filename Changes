@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}},
 
 {{$NEXT}}
   - Added -exporter option to Wasm module (gh#14)
+  - Wasm::Wasmtime::Func attach method will carp when
+    replacing an existing subroutine instead of relying
+    on the built-in warning which unhelpfully indicates
+    Func.pm as the location of the warning (gh#15)
 
 0.01      2020-04-10 17:41:13 -0600
   - initial version

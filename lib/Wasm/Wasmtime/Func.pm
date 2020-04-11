@@ -187,7 +187,11 @@ sub attach
   my $self    = shift;
   my $package = @_ == 2 ? shift : caller;
   my $name    = shift;
-  Sub::Install::install_sub({
+  if($package->can($name))
+  {
+    Carp::carp("attaching ${package}::$name replaces existing subroutine");
+  }
+  Sub::Install::reinstall_sub({
     code => sub { $self->call(@_) },
     into => $package,
     as   => $name,

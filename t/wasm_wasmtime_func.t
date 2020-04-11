@@ -27,9 +27,23 @@ if($add)
 {
   { package Foo::Bar;
     $add->attach('baz');
+    sub optimus {}
   }
   ok(Foo::Bar->can('baz'), 'attached using caller');
   is(Foo::Bar::baz(9,9), 18, 'calling attached Foo::Bar::baz');
+
+  is(
+    warnings { $add->attach('Foo::Bar', 'optimus') },
+    bag {
+      item match qr/attaching Foo::Bar::optimus replaces existing subroutine .*wasm_wasmtime_func\.t/;
+      etc;
+    },
+    'warns about redefine'
+  );
+
+  ok(Foo::Bar->can('optimus'), 'attached using caller');
+  is(Foo::Bar::optimus(9,9), 18, 'calling attached Foo::Bar::optimus');
+
   { package Foo;
     $add->attach('Bar', 'baz');
   }
@@ -37,6 +51,7 @@ if($add)
   ok(!Foo->can('baz'), 'attach using explicit package does not install in caller');
   ok(Bar->can('baz'), 'attach using explicit package');
   is(Bar::baz(9,9), 18, 'calling attached Bar::baz');
+
 }
 
 is(
