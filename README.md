@@ -59,13 +59,15 @@ use Wasm -api => 0;
 
 As of this writing, since the API is subject to change, this must be provided and set to `0`.
 
-## -wat
+## -exporter
 
 ```perl
-use Wasm -api => 0, -wat => $wat;
+use Wasm -api => 0, -exporter => 'all';
+use Wasm -api => 0, -exporter => 'ok';
 ```
 
-String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
+Configure the caller as an [Exporter](https://metacpan.org/pod/Exporter), with all the functions in the WebAssembly either `@EXPORT` (`all`)
+or `@EXPORT_OK` C(&lt;ok>).
 
 ## -file
 
@@ -74,6 +76,14 @@ use Wasm -api => 0, -file => $file;
 ```
 
 Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly binary (.wasm) format.
+
+## -package
+
+```perl
+use Wasm -api => 0, -package => $package;
+```
+
+Install subroutines in to `$package` namespace instead of the calling namespace.
 
 ## -self
 
@@ -87,13 +97,13 @@ the Perl source this is called from.
 For example if you are calling this from `lib/Foo/Bar.pm`, it will look for `lib/Foo/Bar.wat` and
 `lib/Foo/Bar.wasm`.  If both exist, then it will use the newer of the two.
 
-## -package
+## -wat
 
 ```perl
-use Wasm -api => 0, -package => $package;
+use Wasm -api => 0, -wat => $wat;
 ```
 
-Install subroutines in to `$package` namespace instead of the calling namespace.
+String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
 # SEE ALSO
 

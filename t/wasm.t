@@ -64,8 +64,42 @@ is( Math::subtract(3,2), 1, '3-2=1' );
   use Wasm -api => 0, -package => 'Foo4', -file => 'corpus/wasm/Math.wat';
 }
 
-ok( !Foo3->can('add'), 'did not import into Foo3' );
+ok( !Foo3->can('add'), 'did not export into Foo3' );
 is( Foo4::add(1,2), 3, '1+2=3' );
 is( Foo4::subtract(3,2), 1, '3-2=1' );
+
+{
+  package Foo5;
+  use Wasm -api => 0, -exporter => 'ok', -file => 'corpus/wasm/Math.wat';
+  BEGIN { $INC{'Foo5.pm'} = __FILE__ }
+}
+
+{
+  package Foo6;
+  use Foo5 qw( add subtract );
+}
+
+{
+  package Foo7;
+  use Foo5;
+}
+
+ok( !Foo7->can('add'), 'did not export into Foo7' );
+is( Foo6::add(1,2), 3, '1+2=3' );
+is( Foo6::subtract(3,2), 1, '3-2=1' );
+
+{
+  package Foo8;
+  use Wasm -api => 0, -exporter => 'all', -file => 'corpus/wasm/Math.wat';
+  BEGIN { $INC{'Foo8.pm'} = __FILE__ }
+}
+
+{
+  package Foo9;
+  use Foo8;
+}
+
+is( Foo9::add(1,2), 3, '1+2=3' );
+is( Foo9::subtract(3,2), 1, '3-2=1' );
 
 done_testing;

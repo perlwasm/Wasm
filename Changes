@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Added -exporter option to Wasm module (gh#14)
 
 0.01      2020-04-10 17:41:13 -0600
   - initial version
