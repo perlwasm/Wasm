@@ -99,6 +99,21 @@ is(
 
 wasm_instance_ok [], '(module)';
 
+is(
+  dies {
+    Wasm::Wasmtime::Instance->new(
+      Wasm::Wasmtime::Module->new( wat => q{
+        (module
+          (func $hello (import "" "hello"))
+          (func (export "run") (call $hello))
+        )
+      }),
+    );
+  },
+  match qr/Got 0 imports, but expected 1/,
+  'import count mismatch',
+);
+
 {
   my $it_works;
 
