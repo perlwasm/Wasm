@@ -5,6 +5,8 @@ Revision history for {{$dist->name}}},
   - Added kind and kind_num methods to Wasm::Wasmtime::Extern (gh#18)
   - Added as_extern methods to Wasm::Wasmtime::Func and
     Wasm::Wasmtime::Memory (gh#18)
+  - Added Wasm::Wasmtime::ImportType class (gh#19)
+  - Added imports method to Wasm::Wasmtime::Module (gh#19)
 
 0.02      2020-04-11 08:36:52 -0600
   - Added -exporter option to Wasm module (gh#14)

@@ -141,6 +141,7 @@ is(
       call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     };
     call [ get_export => 'foo' ] => U();
+    call_list imports => [];
     call_list exports => array {
       item object {
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
