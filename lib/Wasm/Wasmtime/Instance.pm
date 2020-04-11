@@ -42,7 +42,7 @@ Create a new instance of the instance class.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'] => 'wasm_engine_t' => sub {
+$ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'] => 'wasm_instance_t' => sub {
   my($xsub, $class, $module, $imports) = @_;
   my @imports = defined $imports ? map { $_->{ptr} } @$imports : ();
   my $trap;
