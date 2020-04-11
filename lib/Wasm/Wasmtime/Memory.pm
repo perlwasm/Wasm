@@ -127,6 +127,22 @@ $ffi->attach( grow => ['wasm_memory_t', 'uint32'] => 'bool' => sub {
   $xsub->($self->{ptr}, $delta);
 });
 
+=head2 as_extern
+
+ my $extern = $memory->as_extern;
+
+Returns the L<Wasm::Wasmtime::Extern> for this memory object.
+
+=cut
+
+# actually returns a wasm_extern_t, but recursion
+$ffi->attach( as_extern => ['wasm_memory_t'] => 'opaque' => sub {
+  my($xsub, $self) = @_;
+  require Wasm::Wasmtime::Extern;
+  my $ptr = $xsub->($self->{ptr});
+  Wasm::Wasmtime::Extern->new($ptr, $self->{owner} || $self);
+});
+
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_memory_t'] => sub {
   my($xsub, $self) = @_;
   if(defined $self->{ptr} && !defined $self->{owner})

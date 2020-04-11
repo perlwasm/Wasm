@@ -28,3 +28,4 @@ pod_coverage:
   # for either Class or method.
   private:
     - Wasm::Wasmtime::ExternType#new
+    - Wasm::Wasmtime::Extern#new
