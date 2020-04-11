@@ -66,7 +66,7 @@ use Wasm -api => 0, -exporter => 'ok';
 ```
 
 Configure the caller as an [Exporter](https://metacpan.org/pod/Exporter), with all the functions in the WebAssembly either `@EXPORT` (`all`)
-or `@EXPORT_OK` C(&lt;ok>).
+or `@EXPORT_OK` (`ok`).
 
 ## -file
 

@@ -42,7 +42,7 @@ As of this writing, since the API is subject to change, this must be provided an
  use Wasm -api => 0, -exporter => 'ok';
 
 Configure the caller as an L<Exporter>, with all the functions in the WebAssembly either C<@EXPORT> (C<all>)
-or C<@EXPORT_OK> C(<ok>).
+or C<@EXPORT_OK> (C<ok>).
 
 =head2 -file
 
