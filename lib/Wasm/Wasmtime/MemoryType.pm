@@ -2,6 +2,7 @@ package Wasm::Wasmtime::MemoryType;
 
 use strict;
 use warnings;
+use Ref::Util qw( is_ref );
 use Wasm::Wasmtime::FFI;
 
 # ABSTRACT: Wasmtime memory type class
@@ -42,7 +43,7 @@ $ffi->attach( new => ['uint32[2]'] => 'wasm_memorytype_t' => sub {
   my $class = shift;
   my $ptr;
   my $owner;
-  if(ref $_[0])
+  if(is_ref $_[0])
   {
     $ptr = $xsub->(shift);
   }

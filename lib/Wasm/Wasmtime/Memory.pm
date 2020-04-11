@@ -2,6 +2,7 @@ package Wasm::Wasmtime::Memory;
 
 use strict;
 use warnings;
+use Ref::Util qw( is_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::MemoryType;
@@ -43,7 +44,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' =>
   my $class = shift;
   my $ptr;
   my $owner;
-  if(ref $_[0])
+  if(is_ref $_[0])
   {
     my($store, $memorytype) = @_;
     $ptr = $xsub->($store->{ptr}, $memorytype->{ptr});
