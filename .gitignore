@@ -1,0 +1,5 @@
+Wasm-Hook-*
+/.build/
+*.swp
+
+
