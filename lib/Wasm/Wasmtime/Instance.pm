@@ -45,7 +45,8 @@ Create a new instance of the instance class.
 
 $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'] => 'wasm_instance_t' => sub {
   my($xsub, $class, $module, $imports) = @_;
-  my @imports = defined $imports ? map { $_->{ptr} } @$imports : ();
+  $imports ||= [];
+  my @imports = @$imports;
   my $trap;
 
   {
@@ -54,6 +55,14 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
     {
       Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
     }
+
+    @imports = map {
+      ref($_) eq 'Wasm::Wasmtime::Extern'
+        ? $_->{ptr}
+        : eval { $_->can('as_extern') }
+          ? $_->as_extern->{ptr}
+          : Carp::croak("Non-extern object as import");
+    } @imports;
   }
   # TODO: we don't have an interface to module imports yet, but when
   # we do we should validate that the module and instance imports match
