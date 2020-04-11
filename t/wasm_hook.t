@@ -12,6 +12,13 @@ is(
   match qr/Can't locate Foo\/Bar\/Baz\/Math2\.pm/,
 );
 
+{ package Frooble;
+  use Foo::Bar::Baz::Math qw( add subtract );
+}
+
+ok(!__PACKAGE__->can('add'));
+is(Frooble::add(1,2), 3);
+
 done_testing;
 
 

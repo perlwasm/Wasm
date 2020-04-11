@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use autodie;
 use 5.008001;
-use Wasm;
+use Wasm 0.02;
 use Ref::Util qw( is_ref );
 use Path::Tiny qw( path );
 use Scalar::Util qw( refaddr );
@@ -22,6 +22,9 @@ use Scalar::Util qw( refaddr );
 
 This module installs an C<@INC> hook that automatically loads WebAssembly (Wasm)
 files so that they can be used like a Perl module, without:
+
+The functions inside the WebAssembly module are exportable via the L<Exporter>
+module.  C<@EXPORT_OK> is used, so you will need to explicitly export functions.
 
 =over 4
 
@@ -69,7 +72,7 @@ sub _hook
       my $package = $file;
       $package =~ s/\.pm$//;
       $package =~ s/\//::/g;
-      my $perl = qq{package $package; use Wasm -api => 0, -file => "$wa"; 1;\n};
+      my $perl = qq{package $package; use Wasm -api => 0, -exporter => 'ok', -file => "$wa"; 1;\n};
       my $fh;
       open $fh, '<', \$perl;
       return ($fh);

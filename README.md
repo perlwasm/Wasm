@@ -15,6 +15,9 @@ no Wasm::Hook; # turns off automatic wasm / wat loading
 This module installs an `@INC` hook that automatically loads WebAssembly (Wasm)
 files so that they can be used like a Perl module, without:
 
+The functions inside the WebAssembly module are exportable via the [Exporter](https://metacpan.org/pod/Exporter)
+module.  `@EXPORT_OK` is used, so you will need to explicitly export functions.
+
 - Having to write a boilerplate `.pm` file that loads the WebAssembly
 - The caller needing to even know or care that the module is implemented in something other than Perl.
 
