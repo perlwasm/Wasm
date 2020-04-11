@@ -5,6 +5,13 @@ use Foo::Bar::Baz::Math;
 
 is(Foo::Bar::Baz::Math::add(1,2), 3);
 
+Wasm::Hook->unimport;
+
+is(
+  dies { require Foo::Bar::Baz::Math2 },
+  match qr/Can't locate Foo\/Bar\/Baz\/Math2\.pm/,
+);
+
 done_testing;
 
 
