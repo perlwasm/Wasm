@@ -137,4 +137,27 @@ is(
   is $it_works, T(), 'callback called';
 }
 
+{
+  my $it_works;
+
+  is(
+    wasm_instance_ok([sub { $it_works = 1 }], q{
+      (module
+        (func $hello (import "" "hello"))
+        (func (export "run") (call $hello))
+      )
+    }),
+    object {
+      call [ get_export => 'run' ] => object {
+        call as_func => object {
+          call call => U();
+        };
+      };
+    },
+    'pass func as code ref'
+  );
+
+  is($it_works, T(), 'verified that we called the callback');
+}
+
 done_testing;
