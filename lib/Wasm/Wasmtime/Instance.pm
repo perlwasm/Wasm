@@ -6,6 +6,7 @@ use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::Trap;
+use Carp ();
 
 # ABSTRACT: Wasmtime instance class
 # VERSION
@@ -47,6 +48,13 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
   my @imports = defined $imports ? map { $_->{ptr} } @$imports : ();
   my $trap;
 
+  {
+    my @mi = $module->imports;
+    if(@mi != @imports)
+    {
+      Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
+    }
+  }
   # TODO: we don't have an interface to module imports yet, but when
   # we do we should validate that the module and instance imports match
   # otherwise SEGV
