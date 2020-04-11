@@ -11,6 +11,7 @@ my $post_diag;
 
 $modules{$_} = $_ for qw(
   ExtUtils::MakeMaker
+  Foo::Bar::Baz::Math
   Path::Tiny
   Ref::Util
   Test2::V0

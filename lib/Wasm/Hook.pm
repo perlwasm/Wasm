@@ -63,15 +63,16 @@ sub _hook
               grep { -f $_ }
               map { $pm->parent->child($basename . $_) }
               qw( .wasm .wat );
+    next unless defined $wa;
     if(-f $wa)
     {
       my $package = $file;
       $package =~ s/\.pm$//;
       $package =~ s/\//::/g;
-      my $perl = qq{package $package; use Wasm -api => 0, -file "$wa"; 1;};
+      my $perl = qq{package $package; use Wasm -api => 0, -file => "$wa"; 1;\n};
       my $fh;
       open $fh, '<', \$perl;
-      return ('', $fh);
+      return ($fh);
     }
   }
   return ();
@@ -89,5 +90,3 @@ sub unimport
 }
 
 1;
-
-
