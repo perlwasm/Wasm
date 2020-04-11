@@ -69,6 +69,14 @@ WebAssembly System Interface (WASI).
 
 Configuration and access control for WebAssembly System Interface (WASI).
 
+=item L<https://github.com/bytecodealliance/wasmtime>
+
+The rust library used by this module, via its C API, via FFI.
+
+=item L<https://github.com/bytecodealliance/wasmtime-py>
+
+These bindings here heavily influenced by the Python Wasmtime bindings.
+
 =back
 
 =cut
