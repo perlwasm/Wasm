@@ -5,7 +5,9 @@ use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Extern;
+use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::Trap;
+use Ref::Util qw( is_blessed_ref is_plain_coderef );
 use Carp ();
 
 # ABSTRACT: Wasmtime instance class
@@ -43,11 +45,52 @@ Create a new instance of the instance class.
 
 =cut
 
+sub _cast_import
+{
+  my($ii, $mi, $store, $keep) = @_;
+  if(ref($ii) eq 'Wasm::Wasmtime::Extern')
+  {
+    return $ii->{ptr};
+  }
+  elsif(is_blessed_ref($ii) && $ii->can('as_extern'))
+  {
+    return $ii->as_extern->{ptr};
+  }
+  elsif(is_plain_coderef($ii))
+  {
+    if($mi->type->kind eq 'func')
+    {
+      my $f = Wasm::Wasmtime::Func->new(
+        $store,
+        $mi->type->as_functype,
+        $ii,
+      );
+      push @$keep, $f;
+      return $f->as_extern->{ptr};
+    }
+  }
+  elsif(!defined $ii)
+  {
+    if($mi->type->kind eq 'memory')
+    {
+      my $m = Wasm::Wasmtime::Memory->new(
+        $store,
+        $mi->type->as_memorytype,
+      );
+      push @$keep, $m;
+      return $m->as_extern->{ptr};
+    }
+  }
+  Carp::croak("Non-extern object as import");
+}
+
 $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'] => 'wasm_instance_t' => sub {
   my($xsub, $class, $module, $imports) = @_;
   $imports ||= [];
   my @imports = @$imports;
   my $trap;
+  my $store = $module->store;
+  my @keep;
 
   {
     my @mi = $module->imports;
@@ -56,24 +99,16 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
       Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
     }
 
-    @imports = map {
-      ref($_) eq 'Wasm::Wasmtime::Extern'
-        ? $_->{ptr}
-        : eval { $_->can('as_extern') }
-          ? $_->as_extern->{ptr}
-          : Carp::croak("Non-extern object as import");
-    } @imports;
+    @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
   }
-  # TODO: we don't have an interface to module imports yet, but when
-  # we do we should validate that the module and instance imports match
-  # otherwise SEGV
 
-  my $ptr = $xsub->($module->store->{ptr}, $module->{ptr}, \@imports, \$trap);
+  my $ptr = $xsub->($store->{ptr}, $module->{ptr}, \@imports, \$trap);
   if($ptr)
   {
     return bless {
       ptr    => $ptr,
       module => $module,
+      keep   => \@keep,
     }, $class;
   }
   else
