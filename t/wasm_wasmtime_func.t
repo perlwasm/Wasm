@@ -19,6 +19,14 @@ is(
   object {
     call [ call => 1, 2 ] => 3;
     call [ call => 3, 4 ] => 7;
+    call type => object {
+      call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+    };
+    call param_arity => 2;
+    call result_arity => 1;
+    call as_extern => object {
+      call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
+    };
   },
   'call add',
 );
