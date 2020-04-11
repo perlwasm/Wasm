@@ -47,6 +47,7 @@ $ffi->attach( new => ['wasm_byte_vec_t*', 'wasm_externtype_t'] => 'wasm_exportty
     my $name = Wasm::Wasmtime::ByteVec->new(shift);
     my $externtype = shift;
     my $ptr = $xsub->($name, $externtype->{ptr});
+    $name->delete;
   }
   else
   {

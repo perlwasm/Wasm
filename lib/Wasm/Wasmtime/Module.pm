@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
+use Wasm::Wasmtime::ImportType;
 use Wasm::Wasmtime::ExportType;
 use Carp ();
 
@@ -200,9 +201,19 @@ $ffi->attach( exports => [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
   $exports->to_list;
 });
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
+=head2 imports
+
+ my @importtypes = $module->imports;
+
+Returns a list of L<Wasm::Wasmtime::ImportType> objects for the objects imported by the WebAssembly module.
+
+=cut
+
+$ffi->attach( imports => [ 'wasm_module_t', 'wasm_importtype_vec_t*' ] => sub {
   my($xsub, $self) = @_;
-  $xsub->($self->{ptr}) if $self->{ptr};
+  my $imports = Wasm::Wasmtime::ImportTypeVec->new;
+  $xsub->($self->{ptr}, $imports);
+  $imports->to_list;
 });
 
 =head2 store
@@ -238,5 +249,10 @@ sub get_export
   };
   $self->{exports}->{$name};
 }
+
+$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->{ptr}) if $self->{ptr};
+});
 
 1;
