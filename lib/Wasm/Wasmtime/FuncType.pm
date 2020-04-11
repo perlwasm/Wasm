@@ -87,6 +87,22 @@ $ffi->attach( results => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
   $xsub->($self->{ptr})->to_list;
 });
 
+=head2 as_externtype
+
+ my $externtype = $func->as_externtype
+
+Returns the L<Wasm::Wasmtime::ExternType> for this function type.
+
+=cut
+
+# actually returns a wasm_externtype_t, but recursion
+$ffi->attach( as_externtype => ['wasm_functype_t'] => 'opaque' => sub {
+  my($xsub, $self) = @_;
+  require Wasm::Wasmtime::ExternType;
+  my $ptr = $xsub->($self->{ptr});
+  Wasm::Wasmtime::ExternType->new($ptr, $self->{owner} || $self);
+});
+
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_functype_t'] => sub {
   my($xsub, $self) = @_;
   if(defined $self->{ptr} && !defined $self->{owner})
