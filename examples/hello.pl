@@ -17,12 +17,6 @@ sub say_hello
   print "Hello from Perl!\n";
 }
 
-my $hello = Wasm::Wasmtime::Func->new(
-  $store,
-  Wasm::Wasmtime::FuncType->new([],[]),
-  \&say_hello,
-);
-
 ## And with all that we can instantiate our module and call the export!
-my $instance = Wasm::Wasmtime::Instance->new($module, [$hello]);
+my $instance = Wasm::Wasmtime::Instance->new($module, [\&say_hello]);
 $instance->get_export("run")->as_func->();

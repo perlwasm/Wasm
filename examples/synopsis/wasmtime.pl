@@ -48,13 +48,12 @@ my $module = Wasm::Wasmtime::Module->new($store, wat => q{
   )
 });
 
-my $hello = Wasm::Wasmtime::Func->new(
-  $store,
-  Wasm::Wasmtime::FuncType->new([],[]),
-  sub { print "hello world!\n" },
-);
+sub hello
+{
+  print "hello world!\n";
+}
 
-my $instance = Wasm::Wasmtime::Instance->new( $module, [$hello] );
+my $instance = Wasm::Wasmtime::Instance->new( $module, [\&hello] );
 
 # call a WebAssembly function that calls back into Perl space
 $instance->get_export('call_hello')->as_func;

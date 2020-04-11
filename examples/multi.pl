@@ -21,18 +21,15 @@ print "Compiling module...\n";
 my $module = Wasm::Wasmtime::Module->new( $store, file => path(__FILE__)->parent->child('multi.wat') );
 
 print "Creating callback...\n";
-my $callback_func = Wasm::Wasmtime::Func->new(
-  $store,
-  ['i32','i64'] => ['i64','i32'],
-  sub {
-    my($x,$y) = @_;
-    return ($y+1, $x+1);
-  }
-);
+sub callback_func
+{
+  my($x,$y) = @_;
+  return ($y+1, $x+1);
+}
 
 print "Instantiating module...\n";
 my $instance = Wasm::Wasmtime::Instance->new(
-  $module, [$callback_func],
+  $module, [\&callback_func],
 );
 
 print "Extracting export...\n";
