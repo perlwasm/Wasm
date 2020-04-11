@@ -6,10 +6,6 @@ use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::Memory;
 use Wasm::Wasmtime::ExternType;
-use overload
-  '&{}' => sub { my $self = shift; sub { $self->call(@_) } },
-  bool => sub { 1 },
-  fallback => 1;
 
 # ABSTRACT: Wasmtime extern class
 # VERSION
@@ -30,18 +26,6 @@ sub new
     ptr   => $ptr,
     owner => $owner,
   }, $class;
-}
-
-=head1 METHODS
-
-=head2 call
-
-=cut
-
-sub call
-{
-  my $self = shift;
-  $self->as_func->call(@_);
 }
 
 $ffi->attach( type => ['wasm_extern_t'] => 'wasm_externtype_t' => sub {

@@ -57,16 +57,16 @@ my $hello = Wasm::Wasmtime::Func->new(
 my $instance = Wasm::Wasmtime::Instance->new( $module, [$hello] );
 
 # call a WebAssembly function that calls back into Perl space
-$instance->get_export('call_hello')->();
+$instance->get_export('call_hello')->as_func;
 
 # call plain WebAssembly function
-my $gcd = $instance->get_export('gcd');
+my $gcd = $instance->get_export('gcd')->as_func;
 print $gcd->(6,27), "\n";      # 3
 
 # write to memory from Perl and read it from WebAssembly
 my $memory = $instance->get_export('memory')->as_memory;
 poke($memory->data + 10, 42);  # set offset 10 to 42
-my $load = $instance->get_export('load');
+my $load = $instance->get_export('load')->as_func;
 print $load->(10), "\n";       # 42
 poke($memory->data + 10, 52);  # set offset 10 to 52
 print $load->(10), "\n";       # 52
