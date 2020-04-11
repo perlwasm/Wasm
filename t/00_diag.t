@@ -21,6 +21,7 @@ $modules{$_} = $_ for qw(
   FFI::Platypus::Record
   Path::Tiny
   PeekPoke::FFI
+  Ref::Util
   Sub::Install
   Test2::API
   Test2::V0

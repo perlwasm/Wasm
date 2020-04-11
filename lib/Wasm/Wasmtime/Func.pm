@@ -2,6 +2,7 @@ package Wasm::Wasmtime::Func;
 
 use strict;
 use warnings;
+use Ref::Util qw( is_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
@@ -83,10 +84,10 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
   my $xsub = shift;
   my $class = shift;
   my($ptr, $owner, $wrapper, $store);
-  if(ref $_[0])
+  if(is_ref $_[0])
   {
     $store = shift;
-    my($functype, $cb) = ref($_[0]) eq 'ARRAY'
+    my($functype, $cb) = is_plain_arrayref($_[0])
        ? (Wasm::Wasmtime::FuncType->new($_[0], $_[1]), $_[2])
        : @_;
 

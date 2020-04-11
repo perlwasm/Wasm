@@ -2,6 +2,7 @@ package Test2::Tools::Wasm;
 
 use strict;
 use warnings;
+use Ref::Util qw( is_plain_arrayref );
 use Test2::API qw( context );
 use base qw( Exporter );
 
@@ -36,7 +37,7 @@ sub _instance
 {
   my $module = _module(@_);
   my $name = shift;
-  my $imports = ref($_[-1]) eq 'ARRAY' ? pop : undef;
+  my $imports = is_plain_arrayref($_[-1]) ? pop : undef;
 
   return 0 unless $module;
 

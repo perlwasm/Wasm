@@ -2,6 +2,7 @@ package Wasm::Wasmtime::FuncType;
 
 use strict;
 use warnings;
+use Ref::Util qw( is_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ValType;
 
@@ -41,7 +42,7 @@ $ffi->attach( new => ['wasm_valtype_vec_t*', 'wasm_valtype_vec_t*'] => 'wasm_fun
   my $xsub = shift;
   my $class = shift;
   my($ptr, $owner);
-  if(ref $_[0])
+  if(is_ref $_[0])
   {
     # try not to think too much about all of the maps here
     my($params, $results) = map { my $rec = Wasm::Wasmtime::ValTypeVec->new; $rec->set($_) }
