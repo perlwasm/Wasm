@@ -1,11 +1,16 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.02      2020-04-11 08:36:52 -0600
   - Added -exporter option to Wasm module (gh#14)
   - Wasm::Wasmtime::Func attach method will carp when
     replacing an existing subroutine instead of relying
     on the built-in warning which unhelpfully indicates
     Func.pm as the location of the warning (gh#15)
+  - Added kind_num method to Wasm::Wasmtime::ExternType (gh#16)
+  - Added as_externtype method to Wasm::Wasmtime::FuncType (gh#16)
+  - Added as_externtype method to Wasm::Wasmtime::MemoryType (gh#16)
 
 0.01      2020-04-10 17:41:13 -0600
   - initial version
