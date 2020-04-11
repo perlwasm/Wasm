@@ -109,7 +109,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
       };
       if(my $error = $@)
       {
-        my $trap = Wasm::Wasmtime::Trap->new("$error");
+        my $trap = Wasm::Wasmtime::Trap->new($store, "$error\0");
         return delete $trap->{ptr};
       }
       else

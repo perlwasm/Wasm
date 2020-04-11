@@ -192,7 +192,7 @@ is(
   );
 }
 
-if(0) {
+{
   my $f = Wasm::Wasmtime::Func->new(
     Wasm::Wasmtime::Store->new,
     Wasm::Wasmtime::FuncType->new([],[]),
