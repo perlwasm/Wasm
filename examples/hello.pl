@@ -25,4 +25,4 @@ my $hello = Wasm::Wasmtime::Func->new(
 
 ## And with all that we can instantiate our module and call the export!
 my $instance = Wasm::Wasmtime::Instance->new($module, [$hello]);
-$instance->get_export("run")->();
+$instance->get_export("run")->as_func->();

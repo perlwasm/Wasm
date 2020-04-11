@@ -5,6 +5,6 @@ use Wasm::Wasmtime;
 
 my $module = Wasm::Wasmtime::Module->new( file => path(__FILE__)->parent->child('gcd.wat') );
 my $instance = Wasm::Wasmtime::Instance->new($module);
-my $gcd = $instance->get_export('gcd');
+my $gcd = $instance->get_export('gcd')->as_func;
 
 print "gcd(6,27) = @{[ $gcd->(6,27) ]}\n";

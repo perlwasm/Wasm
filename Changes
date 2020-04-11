@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Remove code reference overload for Wasm::Wasmtime::Extern (gh#18)
 
 0.02      2020-04-11 08:36:52 -0600
   - Added -exporter option to Wasm module (gh#14)

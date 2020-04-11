@@ -117,7 +117,7 @@ wasm_instance_ok [], '(module)';
   );
 
   my $instance = Wasm::Wasmtime::Instance->new($module, [$hello]);
-  $instance->get_export("run")->();
+  $instance->get_export("run")->as_func->();
 
   is $it_works, T(), 'callback called';
 }
