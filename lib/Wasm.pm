@@ -36,17 +36,25 @@ The C<Wasm> Perl dist provides tools for writing Perl bindings using WebAssembly
 
 As of this writing, since the API is subject to change, this must be provided and set to C<0>.
 
-=head2 -wat
+=head2 -exporter
 
- use Wasm -api => 0, -wat => $wat;
+ use Wasm -api => 0, -exporter => 'all';
+ use Wasm -api => 0, -exporter => 'ok';
 
-String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
+Configure the caller as an L<Exporter>, with all the functions in the WebAssembly either C<@EXPORT> (C<all>)
+or C<@EXPORT_OK> C(<ok>).
 
 =head2 -file
 
  use Wasm -api => 0, -file => $file;
 
 Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly binary (.wasm) format.
+
+=head2 -package
+
+ use Wasm -api => 0, -package => $package;
+
+Install subroutines in to C<$package> namespace instead of the calling namespace.
 
 =head2 -self
 
@@ -58,11 +66,11 @@ the Perl source this is called from.
 For example if you are calling this from C<lib/Foo/Bar.pm>, it will look for C<lib/Foo/Bar.wat> and
 C<lib/Foo/Bar.wasm>.  If both exist, then it will use the newer of the two.
 
-=head2 -package
+=head2 -wat
 
- use Wasm -api => 0, -package => $package;
+ use Wasm -api => 0, -wat => $wat;
 
-Install subroutines in to C<$package> namespace instead of the calling namespace.
+String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
 =head1 SEE ALSO
 
@@ -89,6 +97,7 @@ sub import
   }
 
   my $api;
+  my $exporter;
   my @module;
   my $package = $caller;
 
@@ -142,6 +151,10 @@ sub import
         @module = (file => shift @maybe);
       }
     }
+    elsif($key eq '-exporter')
+    {
+      $exporter = shift;
+    }
     elsif($key eq '-package')
     {
       $package = shift;
@@ -165,6 +178,8 @@ sub import
   my @me = $module->exports;
   my @ie = $instance->exports;
 
+  my @function_names;
+
   for my $i (0..$#ie)
   {
     my $exporttype = $me[$i];
@@ -175,6 +190,22 @@ sub import
     {
       my $func = $extern->as_func;
       $func->attach($package, $name);
+      push @function_names, $name;
+    }
+  }
+
+  if($exporter)
+  {
+    require Exporter;
+    no strict 'refs';
+    push @{ "${package}::ISA"       }, 'Exporter';
+    if($exporter eq 'all')
+    {
+      push @{ "${package}::EXPORT" }, @function_names;
+    }
+    else
+    {
+      push @{ "${package}::EXPORT_OK" }, @function_names;
     }
   }
 }
