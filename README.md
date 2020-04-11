@@ -7,7 +7,7 @@ Automatically load WebAssembly modules without a Perl wrapper
 ```perl
 use Wasm::Hook;
 use Foo::Bar;  # will load Foo/Bar.wasm or Foo/Bar.wat if no Foo/Bar.pm is found
-no Wasm::Hook; # turns off automatic wasm / wat loading 
+no Wasm::Hook; # turns off automatic wasm / wat loading
 ```
 
 # DESCRIPTION
@@ -19,6 +19,11 @@ files so that they can be used like a Perl module, without:
 - The caller needing to even know or care that the module is implemented in something other than Perl.
 
 This module will only load a WebAssembly module if there is now Perl Module (`.pm` file) with the appropriate name.
+
+# SEE ALSO
+
+- [Wasm](https://metacpan.org/pod/Wasm)
+- [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime)
 
 # AUTHOR
 

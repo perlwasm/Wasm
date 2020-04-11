@@ -37,6 +37,16 @@ The caller needing to even know or care that the module is implemented in someth
 
 This module will only load a WebAssembly module if there is now Perl Module (C<.pm> file) with the appropriate name.
 
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=item L<Wasm::Wasmtime>
+
+=back
+
 =cut
 
 sub _hook
