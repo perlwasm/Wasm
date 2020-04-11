@@ -160,4 +160,23 @@ is(
   is($it_works, T(), 'verified that we called the callback');
 }
 
+{
+  wasm_instance_ok([undef], q{
+    (module
+      (import "" "" (memory 1))
+    )
+  });
+}
+
+{
+  my $memory;
+  wasm_instance_ok([\$memory], q{
+    (module
+      (import "" "" (memory 1))
+    )
+  });
+
+  isa_ok $memory, 'Wasm::Wasmtime::Memory';
+}
+
 done_testing;

@@ -7,7 +7,7 @@ use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::Trap;
-use Ref::Util qw( is_blessed_ref is_plain_coderef );
+use Ref::Util qw( is_blessed_ref is_plain_coderef is_plain_scalarref );
 use Carp ();
 
 # ABSTRACT: Wasmtime instance class
@@ -41,7 +41,28 @@ $ffi->type('opaque' => 'wasm_instance_t');
    \@imports,  # array reference of Wasm::Wasmtime::Extern
  );
 
-Create a new instance of the instance class.
+Create a new instance of the instance class.  C<@imports> should match the
+imports specified by C<$module>.  You can use a few shortcuts when specifying
+imports:
+
+=over 4
+
+=item code reference
+
+For a function import, you can provide a plan Perl subroutine, since we can
+determine the function signature from the C<$module>.
+
+=item scalar reference
+
+For a memory import, a memory object will be created and the referred scalar
+will be set to it.
+
+=item C<undef>
+
+For a memory import, a memory object will be created.  You won't be able to
+access it from Perl space, but at least it won't die.
+
+=back
 
 =cut
 
@@ -69,7 +90,7 @@ sub _cast_import
       return $f->as_extern->{ptr};
     }
   }
-  elsif(!defined $ii)
+  elsif(is_plain_scalarref($ii) || !defined $ii)
   {
     if($mi->type->kind eq 'memory')
     {
@@ -77,6 +98,7 @@ sub _cast_import
         $store,
         $mi->type->as_memorytype,
       );
+      $$ii = $m if defined $ii;
       push @$keep, $m;
       return $m->as_extern->{ptr};
     }
