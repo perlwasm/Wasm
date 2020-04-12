@@ -102,3 +102,14 @@ $ffi->attach( [ delete => "DESTROY" ] => ['wasm_exporttype_t'] => sub {
 _generate_vec_class();
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=item L<Wasm::Wasmtime>
+
+=back
+
