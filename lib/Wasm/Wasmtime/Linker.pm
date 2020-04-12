@@ -7,6 +7,7 @@ use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::Instance;
 use Wasm::Wasmtime::WasiInstance;
+use Wasm::Wasmtime::Trap;
 use Ref::Util qw( is_blessed_ref );
 use Carp ();
 
@@ -137,7 +138,7 @@ else
 
 =head2 define_wasi
 
- my $bool = $ffi->define_wasi(
+ $linker->define_wasi(
    $wasi,   # Wasm::Wasmtime::WasiInstance
  );
 
@@ -166,7 +167,7 @@ else
 
 =head2 define_instance
 
- my $bool = $ffi->define_instance(
+ $linker->define_instance(
    $instance,   # Wasm::Wasmtime::Instance
  );
 
@@ -192,6 +193,44 @@ else
     my $ret = $xsub->($self->{ptr}, $vname, $instance->{ptr});
     Carp::croak("Unknown error in define_instance") unless $ret;
     $self;
+  });
+}
+
+=head2 instantiate
+
+ my $instance = $linker->instantiate(
+   $module,
+ );
+
+Instantiate the module using the linker.  Returns the new L<Wasm::Wasmtime::Instance> object.
+
+=cut
+
+if(Wasm::Wasmtime::Error->can('new'))
+{
+  ...
+}
+else
+{
+  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_trap_t' ] => 'wasm_instance_t' => sub {
+    my($xsub, $self, $module) = @_;
+    my $trap;
+    my $ptr = $xsub->($self->{ptr}, $module->{ptr}, \$trap);
+    if($trap)
+    {
+      $trap = Wasm::Wasmtime::Trap->new($trap);
+      Carp::croak($trap->message);
+    }
+    elsif($ptr)
+    {
+      return Wasm::Wasmtime::Instance->new(
+        $module, $ptr,
+      );
+    }
+    else
+    {
+      Carp::croak("unknown instantiate error");
+    }
   });
 }
 
