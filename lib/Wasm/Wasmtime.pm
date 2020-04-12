@@ -11,6 +11,7 @@ use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::ImportType;
 use Wasm::Wasmtime::Instance;
+use Wasm::Wasmtime::Linker;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Trap;
