@@ -86,6 +86,10 @@ String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside
 
 Low level interface to C<wasmtime>.
 
+=item L<Wasm::Hook>
+
+Load WebAssembly modules as though they were Perl modules.
+
 =back
 
 =cut

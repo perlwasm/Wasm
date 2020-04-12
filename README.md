@@ -118,6 +118,10 @@ String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside
 
     Low level interface to `wasmtime`.
 
+- [Wasm::Hook](https://metacpan.org/pod/Wasm::Hook)
+
+    Load WebAssembly modules as though they were Perl modules.
+
 # AUTHOR
 
 Graham Ollis <plicease@cpan.org>
