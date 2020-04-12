@@ -178,8 +178,8 @@ if(Wasm::Wasmtime::Error->can('new'))
 {
   $ffi->attach( define_instance => ['wasmtime_linker_t', 'wasm_byte_vec_t*', 'wasm_instance_t'] => 'wasmtime_error_t' => sub {
     my($xsub, $self, $name, $instance) = @_;
-    $name = Wasm::Wasmtime::ByteVec->new($name);
-    my $error = $xsub->($self->{ptr}, $name, $instance->{ptr});
+    my $vname = Wasm::Wasmtime::ByteVec->new($name);
+    my $error = $xsub->($self->{ptr}, $vname, $instance->{ptr});
     Carp::croak($error->message) if $error;
     $self;
   });
@@ -188,8 +188,8 @@ else
 {
   $ffi->attach( define_instance => ['wasmtime_linker_t', 'wasm_byte_vec_t*', 'wasm_instance_t'] => 'bool' => sub {
     my($xsub, $self, $name, $instance) = @_;
-    $name = Wasm::Wasmtime::ByteVec->new($name);
-    my $ret = $xsub->($self->{ptr}, $name, $instance->{ptr});
+    my $vname = Wasm::Wasmtime::ByteVec->new($name);
+    my $ret = $xsub->($self->{ptr}, $vname, $instance->{ptr});
     Carp::croak("Unknown error in define_instance") unless $ret;
     $self;
   });

@@ -30,7 +30,7 @@ my $instance2 = Wasm::Wasmtime::Instance->new(
 
 is(
   Wasm::Wasmtime::Linker->new(
-    $store,,
+    $store,
   ),
   object {
     call [ isa => 'Wasm::Wasmtime::Linker' ] => T();
