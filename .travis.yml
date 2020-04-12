@@ -22,6 +22,7 @@ jobs:
     - env: CIP_TAG=5.22
     - env: CIP_TAG=5.20
     - env: CIP_TAG=5.18
+    - env: CIP_TAG=5.18 CIP_ENV=ALIEN_WASMTIME_VERSION=dev
     - env: CIP_TAG=5.16
     - env: CIP_TAG=5.14
     - env: CIP_TAG=5.12

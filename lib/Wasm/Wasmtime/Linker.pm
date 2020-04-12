@@ -8,6 +8,7 @@ use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::Instance;
 use Wasm::Wasmtime::WasiInstance;
 use Ref::Util qw( is_blessed_ref );
+use Carp ();
 
 # ABSTRACT: Wasmtime linker class
 # VERSION
@@ -127,7 +128,7 @@ else
     my $ret = $xsub->($self->{ptr}, $module, $name, $extern->{ptr});
     unless($ret)
     {
-      Carp::Croak("Unknown error in define");
+      Carp::croak("Unknown error in define");
     }
 
     $self;
@@ -158,7 +159,7 @@ else
   $ffi->attach( define_wasi => ['wasmtime_linker_t', 'wasi_instance_t'] => 'bool' => sub {
     my($xsub, $self, $wasi) = @_;
     my $ret = $xsub->($self->{ptr}, $wasi);
-    Carp::Croak("Unknown error in define_wasi") unless $ret;
+    Carp::croak("Unknown error in define_wasi") unless $ret;
     $self;
   });
 }
@@ -189,7 +190,7 @@ else
     my($xsub, $self, $name, $instance) = @_;
     $name = Wasm::Wasmtime::ByteVec->new($name);
     my $ret = $xsub->($self->{ptr}, $name, $instance->{ptr});
-    Carp::Croak("Unknown error in define_instance") unless $ret;
+    Carp::croak("Unknown error in define_instance") unless $ret;
     $self;
   });
 }
