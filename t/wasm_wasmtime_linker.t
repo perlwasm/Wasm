@@ -2,6 +2,7 @@ use Test2::V0 -no_srand => 1;
 use lib 't/lib';
 use Test2::Tools::Wasm;
 use Wasm::Wasmtime::Linker;
+use Wasm::Wasmtime::WasiInstance;
 
 my $instance = wasm_instance_ok( [], q{
   (module
@@ -19,6 +20,13 @@ my $instance = wasm_instance_ok( [], q{
 
 my $module = $instance->module;
 my $store  = $module->store;
+my $wasi   = Wasm::Wasmtime::WasiInstance->new(
+  $store, "wasi_snapshot_preview1",
+);
+
+my $instance2 = Wasm::Wasmtime::Instance->new(
+  Wasm::Wasmtime::Module->new($store, wat => '(module)' ),
+);
 
 is(
   Wasm::Wasmtime::Linker->new(
@@ -28,7 +36,10 @@ is(
     call [ isa => 'Wasm::Wasmtime::Linker' ] => T();
     call [ allow_shadowing => 1 ] => D();
     call [ allow_shadowing => 0 ] => D();
-    call [ define => 'xx', 'add', $instance->get_export('add') ] => D();
+    call [ define => 'xx', 'add0', $instance->get_export('add') ] => D();
+    call [ define => 'xx', 'add1', $instance->get_export('add')->as_func ] => D();
+    call [ define_wasi => $wasi ] => T();
+    call [ define_instance => "foo", $instance2 ] => T();
   },
   'basics'
 );
