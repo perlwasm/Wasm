@@ -22,7 +22,7 @@ is under active development.  Use with caution.
 This class represents the WebAssembly System Interface (WASI).  For WebAssembly WASI is the
 equivalent to the part of libc that interfaces with the system.
 
-To configure if and how the WASI accesses program argument, environment, standard streams 
+To configure if and how the WASI accesses program argument, environment, standard streams
 and file system directories, see L<Wasm::Wasmtime::WasiConfig>.
 
 For a complete example of using WASI from WebAssembly, see the synopsis for
@@ -84,3 +84,14 @@ $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasi_instance_t'] => sub {
 });
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=item L<Wasm::Wasmtime>
+
+=back
+

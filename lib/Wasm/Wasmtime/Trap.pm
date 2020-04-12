@@ -85,3 +85,14 @@ $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_trap_t'] => sub {
 });
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=item L<Wasm::Wasmtime>
+
+=back
+
