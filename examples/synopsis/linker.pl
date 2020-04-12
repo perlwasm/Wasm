@@ -24,12 +24,6 @@ my $logger = $linker->instantiate(
         (type $fd_write_ty (func (param i32 i32 i32 i32) (result i32)))
         (import "wasi_snapshot_preview1" "fd_write" (func $fd_write (type $fd_write_ty)))
 
-        (func (export "double") (param i32) (result i32)
-          local.get 0
-          i32.const 2
-          i32.mul
-        )
-
         (func (export "log") (param i32 i32)
           ;; store the pointer in the first iovec field
           i32.const 4
@@ -64,18 +58,11 @@ my $caller = $linker->instantiate(
     $store,
     wat => q{
       (module
-        (import "logger" "double" (func $double (param i32) (result i32)))
         (import "logger" "log" (func $log (param i32 i32)))
         (import "logger" "memory" (memory 1))
         (import "logger" "memory_offset" (global $offset i32))
 
         (func (export "run")
-          ;; Call into the other module to double our number, and we could print it
-          ;; here but for now we just drop it
-          i32.const 2
-          call $double
-          drop
-
           ;; Our `data` segment initialized our imported memory, so let's print the
           ;; string there now.
           global.get $offset
