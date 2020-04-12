@@ -208,11 +208,32 @@ Instantiate the module using the linker.  Returns the new L<Wasm::Wasmtime::Inst
 
 if(Wasm::Wasmtime::Error->can('new'))
 {
-  ...
+  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_instance_t*','wasm_trap_t*'] => 'wasmtime_error_t' => sub {
+    my($xsub, $self, $module) = @_;
+    my $trap;
+    my $ptr;
+    my $error = $xsub->($self->{ptr}, $module->{ptr}, \$ptr, \$trap);
+    Carp::croak($error->message) if $error;
+    if($trap)
+    {
+      $trap = Wasm::Wasmtime::Trap->new($trap);
+      Carp::croak($trap->message);
+    }
+    elsif($ptr)
+    {
+      return Wasm::Wasmtime::Instance->new(
+        $module, $ptr,
+      );
+    }
+    else
+    {
+      Carp::croak("unknown instantiate error");
+    }
+  });
 }
 else
 {
-  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_trap_t' ] => 'wasm_instance_t' => sub {
+  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_trap_t*' ] => 'wasm_instance_t' => sub {
     my($xsub, $self, $module) = @_;
     my $trap;
     my $ptr = $xsub->($self->{ptr}, $module->{ptr}, \$trap);
