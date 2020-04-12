@@ -1,5 +1,6 @@
-Wasm-*
+/Wasm-*
 /.build/
 *.swp
 /.tmp/
 *.wasm
+/jit-*
