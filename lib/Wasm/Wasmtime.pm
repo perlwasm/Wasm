@@ -58,6 +58,10 @@ Interface to a WebAssembly module instance.
 
 Interface to WebAssembly function.
 
+=item L<Wasm::Wasmtime::Linker>
+
+Link together multiple WebAssembly modules into one program.
+
 =item L<Wasm::Wasmtime::Wat2Wasm>
 
 Tool to convert WebAssembly Text (WAT) to WebAssembly binary (Wasm).
@@ -65,10 +69,6 @@ Tool to convert WebAssembly Text (WAT) to WebAssembly binary (Wasm).
 =item L<Wasm::Wasmtime::WasiInstance>
 
 WebAssembly System Interface (WASI).
-
-=item L<Wasm::Wasmtime::WasiConfig>
-
-Configuration and access control for WebAssembly System Interface (WASI).
 
 =item L<https://github.com/bytecodealliance/wasmtime>
 
