@@ -7,7 +7,7 @@ use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::Trap;
-use Ref::Util qw( is_blessed_ref is_plain_coderef is_plain_scalarref );
+use Ref::Util qw( is_ref is_blessed_ref is_plain_coderef is_plain_scalarref );
 use Carp ();
 
 # ABSTRACT: Wasmtime instance class
@@ -107,26 +107,16 @@ sub _cast_import
 }
 
 $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'] => 'wasm_instance_t' => sub {
-  my($xsub, $class, $module, $imports) = @_;
-  $imports ||= [];
-  my @imports = @$imports;
-  my $trap;
-  my $store = $module->store;
+  my $xsub = shift;
+  my $class = shift;
+  my $module = shift;
+
+  my $ptr;
   my @keep;
 
+  if(defined $_[0] && !is_ref($_[0]))
   {
-    my @mi = $module->imports;
-    if(@mi != @imports)
-    {
-      Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
-    }
-
-    @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
-  }
-
-  my $ptr = $xsub->($store->{ptr}, $module->{ptr}, \@imports, \$trap);
-  if($ptr)
-  {
+    ($ptr) = @_;
     return bless {
       ptr    => $ptr,
       module => $module,
@@ -135,13 +125,43 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
   }
   else
   {
-    if($trap)
+    my($imports) = @_;
+
+    $imports ||= [];
+    my @imports = @$imports;
+    my $trap;
+    my $store = $module->store;
+
     {
-      $trap = Wasm::Wasmtime::Trap->new($trap);
-      Carp::croak($trap->message);
+      my @mi = $module->imports;
+      if(@mi != @imports)
+      {
+        Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
+      }
+
+      @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
     }
-    Carp::croak("error creating Wasm::Wasmtime::Instance ");
+
+    my $ptr = $xsub->($store->{ptr}, $module->{ptr}, \@imports, \$trap);
+    if($ptr)
+    {
+      return bless {
+        ptr    => $ptr,
+        module => $module,
+        keep   => \@keep,
+      }, $class;
+    }
+    else
+    {
+     if($trap)
+     {
+        $trap = Wasm::Wasmtime::Trap->new($trap);
+        Carp::croak($trap->message);
+      }
+      Carp::croak("error creating Wasm::Wasmtime::Instance ");
+    }
   }
+
 });
 
 =head1 METHODS

@@ -28,6 +28,8 @@ my $instance2 = Wasm::Wasmtime::Instance->new(
   Wasm::Wasmtime::Module->new($store, wat => '(module)' ),
 );
 
+my $module2 = Wasm::Wasmtime::Module->new($store, wat => '(module)' );
+
 is(
   Wasm::Wasmtime::Linker->new(
     $store,
@@ -40,6 +42,9 @@ is(
     call [ define => 'xx', 'add1', $instance->get_export('add')->as_func ] => D();
     call [ define_wasi => $wasi ] => T();
     call [ define_instance => "foo", $instance2 ] => T();
+    call [ instantiate => $module2 ] => object {
+      call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
+    };
   },
   'basics'
 );
