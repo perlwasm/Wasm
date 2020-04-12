@@ -108,20 +108,29 @@ Pre-open the given directory from the host's C<$host_path> to the guest's C<$gue
 
 =cut
 
+sub _wrapper
+{
+  my $xsub = shift;
+  my $self = shift;
+  $xsub->($self, @_);
+  $self;
+}
+
 $ffi->attach( new             => []                                  => 'wasi_config_t' );
-$ffi->attach( set_stdin_file  => ['wasi_config_t','string']          => 'void' );
-$ffi->attach( set_stdout_file => ['wasi_config_t','string']          => 'void' );
-$ffi->attach( set_stderr_file => ['wasi_config_t','string']          => 'void' );
-$ffi->attach( preopen_dir     => ['wasi_config_t','string','string'] => 'void' );
+$ffi->attach( set_stdin_file  => ['wasi_config_t','string']          => 'void', \&_wrapper );
+$ffi->attach( set_stdout_file => ['wasi_config_t','string']          => 'void', \&_wrapper );
+$ffi->attach( set_stderr_file => ['wasi_config_t','string']          => 'void', \&_wrapper );
+$ffi->attach( preopen_dir     => ['wasi_config_t','string','string'] => 'void', \&_wrapper );
 
 foreach my $name (qw( argv env stdin stdout stderr ))
 {
-  $ffi->attach( "inherit_$name" => ['wasi_config_t'] );
+  $ffi->attach( "inherit_$name" => ['wasi_config_t'], \&_wrapper );
 }
 
 $ffi->attach( set_argv => ['wasi_config_t', 'int', 'string[]'] => sub {
   my($xsub, $self, @argv) = @_;
   $xsub->($self, scalar(@argv), \@argv);
+  $self;
 });
 
 $ffi->attach( set_env => ['wasi_config_t','int','string[]','string[]'] => sub {
@@ -134,6 +143,7 @@ $ffi->attach( set_env => ['wasi_config_t','int','string[]','string[]'] => sub {
     push @values, $env{$name};
   }
   $xsub->($self, scalar(@names), \@names, \@values);
+  $self;
 });
 
 $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasi_config_t'] => sub {
