@@ -78,8 +78,8 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
       my($params, $results) = @_;
 
       my @args = @param_types > 0 ? (do {
-        my @copy = @param_types;
-        map { $_->{of}->{shift @copy} } @{ $cbc->unpack('wasm_val_vec_t', $ffi->cast('opaque' => $param_string, $params)) };
+        my @params = @{ $cbc->unpack('wasm_val_vec_t', $ffi->cast('opaque' => $param_string, $params)) };
+        map { my $param = shift @params; $param->{of}->{$_} } @param_types
       }) : ();
 
       local $@ = '';
