@@ -15,6 +15,7 @@ use Wasm::Wasmtime::Instance;
 use Wasm::Wasmtime::Linker;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Store;
+use Wasm::Wasmtime::TableType;
 use Wasm::Wasmtime::Trap;
 use Wasm::Wasmtime::ValType;
 use Wasm::Wasmtime::WasiConfig;
