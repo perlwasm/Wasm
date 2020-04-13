@@ -42,6 +42,11 @@ is(
       call as_functype => U();
       call as_globaltype => object {
         call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
+        call content => object {
+          call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+          call kind => 'i32';
+        };
+        call mutability => 'var';
       };
       call as_memorytype => U();
     };
