@@ -37,27 +37,6 @@ Perl, or to create a callback for calling a Perl function from WebAssembly.
 $ffi_prefix = 'wasm_func_';
 $ffi->type('opaque' => 'wasm_func_t');
 
-# CBC is probably not how we want to do this long term, but atm
-# Platypus does not support Unions or arrays of records so.
-my $cbc = Convert::Binary::C->new(
-  Alignment => 8,
-  LongSize => 8, # CBC does not apparently use the native alignment by default *sigh*
-);
-$cbc->parse(<<'END');
-typedef struct wasm_val_t {
-  unsigned char kind;
-  union {
-    signed int i32;
-    signed long i64;
-    float f32;
-    double f64;
-    void *anyref;
-    void *funcref;
-  } of;
-} wasm_val_t;
-typedef wasm_val_t wasm_val_vec_t[];
-END
-
 =head1 CONSTRUCTOR
 
 =head2 new
