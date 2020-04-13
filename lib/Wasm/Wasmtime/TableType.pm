@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ValType;
-use Ref::Util qw( is_ref );
+use Ref::Util qw( is_ref is_plain_arrayref );
 
 # ABSTRACT: Wasmtime table type class
 # VERSION
@@ -61,6 +61,9 @@ $ffi->attach( new => ['wasm_valtype_t','uint32[2]'] => 'wasm_tabletype_t' => sub
     {
       $valtype = Wasm::Wasmtime::ValType->new($valtype);
     }
+    Carp::croak("bad limits") unless is_plain_arrayref($limit);
+    Carp::croak("no minumum in limit") unless defined $limit->[0];
+    $limit->[1] = 0xffffffff unless defined $limit->[1];
     $ptr = $xsub->(delete $valtype->{ptr}, $limit);
   }
   bless {

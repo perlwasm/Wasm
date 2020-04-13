@@ -2,7 +2,7 @@ package Wasm::Wasmtime::MemoryType;
 
 use strict;
 use warnings;
-use Ref::Util qw( is_ref );
+use Ref::Util qw( is_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 
 # ABSTRACT: Wasmtime memory type class
@@ -45,7 +45,11 @@ $ffi->attach( new => ['uint32[2]'] => 'wasm_memorytype_t' => sub {
   my $owner;
   if(is_ref $_[0])
   {
-    $ptr = $xsub->(shift);
+    my $limit = shift;
+    Carp::croak("bad limits") unless is_plain_arrayref($limit);
+    Carp::croak("no minumum in limit") unless defined $limit->[0];
+    $limit->[1] = 0xffffffff unless defined $limit->[1];
+    $ptr = $xsub->($limit);
   }
   else
   {
