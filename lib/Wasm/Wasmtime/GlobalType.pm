@@ -86,6 +86,20 @@ $ffi->attach( new => ['wasm_valtype_t','uint8'] => 'wasm_globaltype_t' => sub {
   }, $class;
 });
 
+=head2 content
+
+ my $valtype = $globaltype->content;
+
+Returns the L<Wasm::Wasmtime::ValType> for this global type.
+
+=cut
+
+$ffi->attach( content => ['wasm_globaltype_t'] => 'wasm_valtype_t' => sub {
+  my($xsub, $self) = @_;
+  my $ptr = $xsub->($self->{ptr});
+  Wasm::Wasmtime::ValType->new($ptr, $self);
+});
+
 =head2 as_externtype
 
  my $externtype = $globaltype->as_externtype

@@ -5,6 +5,10 @@ is(
   Wasm::Wasmtime::GlobalType->new('i32','const'),
   object {
     call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
+    call content => object {
+      call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+      call kind => 'i32';
+    };
     call as_externtype => object {
       call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     }
@@ -16,6 +20,10 @@ is(
   Wasm::Wasmtime::GlobalType->new('i64','var'),
   object {
     call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
+    call content => object {
+      call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+      call kind => 'i64';
+    };
     call as_externtype => object {
       call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     }
@@ -27,6 +35,10 @@ is(
   Wasm::Wasmtime::GlobalType->new(Wasm::Wasmtime::ValType->new('f32'),'var'),
   object {
     call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
+    call content => object {
+      call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+      call kind => 'f32';
+    };
     call as_externtype => object {
       call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     }
