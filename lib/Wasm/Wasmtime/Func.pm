@@ -91,7 +91,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
        : @_;
 
     my @param_types = map { $_->kind } $functype->params;
-    my $param_string = "record(@{[ $cbc->sizeof('wasm_val_t') * scalar(@param_types) ]})*";
+    my $param_string = "string(@{[ $cbc->sizeof('wasm_val_t') * scalar(@param_types) ]})*";
     my @result_types = map { [ $_->kind, $_->kind_num ] } $functype->results;
     my $result_string = "string(@{[ $cbc->sizeof('wasm_val_t') * scalar(@result_types) ]})*";
 
