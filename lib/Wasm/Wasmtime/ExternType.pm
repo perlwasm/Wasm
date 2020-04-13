@@ -85,7 +85,7 @@ $ffi->attach( [ kind => 'kind_num' ] => ['wasm_externtype_t'] => 'uint8' => sub 
 
  my $functype = $externtype->as_functype;
 
-If the extern type is a function, returns the L<Was::Wasmtime::FuncType> for it.
+If the extern type is a function, returns the L<Wasm::Wasmtime::FuncType> for it.
 Otherwise returns C<undef>.
 
 =cut
@@ -100,7 +100,7 @@ $ffi->attach( as_functype => ['wasm_externtype_t'] => 'wasm_functype_t' => sub {
 
  my $globaltype = $externtype->as_globaltype;
 
-If the extern type is a global object, returns the L<Was::Wasmtime::GlobalType> for it.
+If the extern type is a global object, returns the L<Wasm::Wasmtime::GlobalType> for it.
 Otherwise returns C<undef>.
 
 =cut
@@ -115,7 +115,7 @@ $ffi->attach( as_globaltype => ['wasm_externtype_t'] => 'wasm_globaltype_t' => s
 
  my $tabletype = $externtype->as_tabletype;
 
-If the extern type is a table object, returns the L<Was::Wasmtime::TableType> for it.
+If the extern type is a table object, returns the L<Wasm::Wasmtime::TableType> for it.
 Otherwise returns C<undef>.
 
 =cut
@@ -130,7 +130,7 @@ $ffi->attach( as_tabletype => ['wasm_externtype_t'] => 'wasm_tabletype_t' => sub
 
  my $memorytype = $externtype->as_memorytype;
 
-If the extern type is a memory object, returns the L<Was::Wasmtime::MemoryType> for it.
+If the extern type is a memory object, returns the L<Wasm::Wasmtime::MemoryType> for it.
 Otherwise returns C<undef>.
 
 =cut
