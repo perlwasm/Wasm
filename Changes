@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.04      2020-04-13 13:49:46 -0600
   - Added Wasm::Wasm::Linker class (gh#23)
   - Added Wasm::Wasm::GlobalType class (gh#24)
   - Added Wasm::Wasm::TableType class (gh#25)
