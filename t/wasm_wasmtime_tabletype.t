@@ -18,14 +18,14 @@ is(
 );
 
 is(
-  Wasm::Wasmtime::TableType->new('i64',[9,10]),
+  Wasm::Wasmtime::TableType->new('i64',[9,undef]),
   object {
     call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
     call element => object {
       call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
       call kind => 'i64';
     };
-    call limits => [9,10];
+    call limits => [9,0xffffffff];
     call as_externtype => object {
       call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     }
