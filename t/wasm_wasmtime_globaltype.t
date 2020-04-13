@@ -9,6 +9,7 @@ is(
       call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
       call kind => 'i32';
     };
+    call mutability => 'const';
     call as_externtype => object {
       call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     }
@@ -24,6 +25,7 @@ is(
       call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
       call kind => 'i64';
     };
+    call mutability => 'var';
     call as_externtype => object {
       call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     }
@@ -39,6 +41,7 @@ is(
       call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
       call kind => 'f32';
     };
+    call mutability => 'var';
     call as_externtype => object {
       call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     }

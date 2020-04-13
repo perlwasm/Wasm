@@ -100,6 +100,24 @@ $ffi->attach( content => ['wasm_globaltype_t'] => 'wasm_valtype_t' => sub {
   Wasm::Wasmtime::ValType->new($ptr, $self);
 });
 
+=head2 mutability
+
+ my $mutable = $globaltype->mutability;
+
+Returns the mutability for this global type.  One of either C<const> or C<var>.
+
+=cut
+
+my @mutability = (
+  'const',
+  'var',
+);
+
+$ffi->attach( mutability => ['wasm_globaltype_t'] => 'uint8' => sub {
+  my($xsub, $self) = @_;
+  $mutability[$xsub->($self->{ptr})];
+});
+
 =head2 as_externtype
 
  my $externtype = $globaltype->as_externtype
