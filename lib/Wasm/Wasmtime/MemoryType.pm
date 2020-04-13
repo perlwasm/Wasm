@@ -73,7 +73,7 @@ $ffi->attach( limits => ['wasm_memorytype_t'] => 'uint32[2]' => sub {
 
 =head2 as_externtype
 
- my $externtype = $memory->as_externtype
+ my $externtype = $memorytype->as_externtype
 
 Returns the L<Wasm::Wasmtime::ExternType> for this memory type.
 

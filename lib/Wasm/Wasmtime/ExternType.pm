@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
+use Wasm::Wasmtime::GlobalType;
 use Wasm::Wasmtime::MemoryType;
 
 # ABSTRACT: Wasmtime extern type class
@@ -107,6 +108,21 @@ $ffi->attach( as_memorytype => ['wasm_externtype_t'] => 'wasm_memorytype_t' => s
   my($xsub, $self) = @_;
   my $ptr = $xsub->($self->{ptr});
   $ptr ? Wasm::Wasmtime::MemoryType->new($ptr, $self->{owner} || $self) : undef;
+});
+
+=head2 as_globaltype
+
+ my $globaltype = $externtype->as_globaltype;
+
+If the extern type is a global object, returns the L<Was::Wasmtime::GlobalType> for it.
+Otherwise returns C<undef>.
+
+=cut
+
+$ffi->attach( as_globaltype => ['wasm_externtype_t'] => 'wasm_globaltype_t' => sub {
+  my($xsub, $self) = @_;
+  my $ptr = $xsub->($self->{ptr});
+  $ptr ? Wasm::Wasmtime::GlobalType->new($ptr, $self->{owner} || $self) : undef;
 });
 
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_externtype_t'] => sub {

@@ -89,7 +89,7 @@ $ffi->attach( results => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
 
 =head2 as_externtype
 
- my $externtype = $func->as_externtype
+ my $externtype = $functype->as_externtype
 
 Returns the L<Wasm::Wasmtime::ExternType> for this function type.
 
