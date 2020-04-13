@@ -5,6 +5,7 @@ use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::GlobalType;
+use Wasm::Wasmtime::TableType;
 use Wasm::Wasmtime::MemoryType;
 
 # ABSTRACT: Wasmtime extern type class
@@ -95,21 +96,6 @@ $ffi->attach( as_functype => ['wasm_externtype_t'] => 'wasm_functype_t' => sub {
   $ptr ? Wasm::Wasmtime::FuncType->new($ptr, $self->{owner} || $self) : undef;
 });
 
-=head2 as_memorytype
-
- my $memorytype = $externtype->as_memorytype;
-
-If the extern type is a memory object, returns the L<Was::Wasmtime::MemoryType> for it.
-Otherwise returns C<undef>.
-
-=cut
-
-$ffi->attach( as_memorytype => ['wasm_externtype_t'] => 'wasm_memorytype_t' => sub {
-  my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
-  $ptr ? Wasm::Wasmtime::MemoryType->new($ptr, $self->{owner} || $self) : undef;
-});
-
 =head2 as_globaltype
 
  my $globaltype = $externtype->as_globaltype;
@@ -123,6 +109,36 @@ $ffi->attach( as_globaltype => ['wasm_externtype_t'] => 'wasm_globaltype_t' => s
   my($xsub, $self) = @_;
   my $ptr = $xsub->($self->{ptr});
   $ptr ? Wasm::Wasmtime::GlobalType->new($ptr, $self->{owner} || $self) : undef;
+});
+
+=head2 as_tabletype
+
+ my $tabletype = $externtype->as_tabletype;
+
+If the extern type is a table object, returns the L<Was::Wasmtime::TableType> for it.
+Otherwise returns C<undef>.
+
+=cut
+
+$ffi->attach( as_tabletype => ['wasm_externtype_t'] => 'wasm_tabletype_t' => sub {
+  my($xsub, $self) = @_;
+  my $ptr = $xsub->($self->{ptr});
+  $ptr ? Wasm::Wasmtime::TableType->new($ptr, $self->{owner} || $self) : undef;
+});
+
+=head2 as_memorytype
+
+ my $memorytype = $externtype->as_memorytype;
+
+If the extern type is a memory object, returns the L<Was::Wasmtime::MemoryType> for it.
+Otherwise returns C<undef>.
+
+=cut
+
+$ffi->attach( as_memorytype => ['wasm_externtype_t'] => 'wasm_memorytype_t' => sub {
+  my($xsub, $self) = @_;
+  my $ptr = $xsub->($self->{ptr});
+  $ptr ? Wasm::Wasmtime::MemoryType->new($ptr, $self->{owner} || $self) : undef;
 });
 
 $ffi->attach( [ delete => "DESTROY" ] => ['wasm_externtype_t'] => sub {
