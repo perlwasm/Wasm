@@ -6,7 +6,7 @@ use Ref::Util qw( is_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
-use Convert::Binary::C;
+use Wasm::Wasmtime::CBC qw( $cbc perl2wasm );
 use Sub::Install;
 use Carp ();
 use overload
@@ -144,18 +144,11 @@ any) is returned.
 $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => sub {
   my $xsub = shift;
   my $self = shift;
-  my @args = @_;
-  my $args = $cbc->pack('wasm_val_vec_t', [map {
-    my $valtype = $_;
-    {
-      kind => $valtype->kind_num,
-      of => {
-        $valtype->kind => shift @args,
-      },
-    }
-  } $self->type->params]);
+  my $args = perl2wasm(\@_, [$self->type->params]);
   my $results = $cbc->pack('wasm_val_vec_t', [map { { } } $self->type->results]);
+
   my $trap = $xsub->($self->{ptr}, $args, $results);
+
   if($trap)
   {
     $trap = Wasm::Wasmtime::Trap->new($trap);

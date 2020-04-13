@@ -35,14 +35,13 @@ This is a private class used internally by L<Wasm::Wasmtime> classes.
 
 =cut
 
-our @EXPORT = qw( $ffi $cbc $ffi_prefix _generate_vec_class _generate_destroy );
+our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
 
 sub _lib
 {
   find_lib lib => 'wasmtime', alien => 'Alien::wasmtime';
 }
 
-our $cbc;
 our $ffi_prefix = 'wasm_';
 our $ffi = FFI::Platypus->new( api => 1 );
 $ffi->lib(__PACKAGE__->_lib);
@@ -202,10 +201,15 @@ if($ffi->find_symbol('wasmtime_error_message'))
 { package Wasm::Wasmtime::CBC;
 
   use Convert::Binary::C;
+  use base qw( Exporter );
+
+  our @EXPORT_OK = qw( $cbc perl2wasm );
+
+  $INC{'Wasm/Wasmtime/CBC.pm'} = __FILE__;
 
   # CBC is probably not how we want to do this long term, but atm
   # Platypus does not support Unions or arrays of records so.
-  $cbc = Convert::Binary::C->new(
+  our $cbc = Convert::Binary::C->new(
     Alignment => 8,
     LongSize => 8, # CBC does not apparently use the native alignment by default *sigh*
   );
@@ -223,6 +227,20 @@ if($ffi->find_symbol('wasmtime_error_message'))
     } wasm_val_t;
     typedef wasm_val_t wasm_val_vec_t[];
   });
+
+  sub perl2wasm
+  {
+    my $vals = shift;
+    my $types = shift;
+    $cbc->pack('wasm_val_vec_t', [map {
+      {
+        kind => $_->kind_num,
+        of => {
+          $_->kind => shift @$vals,
+        }
+      }
+    } @$types]);
+  }
 }
 
 1;
