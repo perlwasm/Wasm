@@ -11,6 +11,7 @@ is(
         local.get 1
         i32.add)
       (memory (export "bar") 2 3)
+      (global (export "baz") (mut i32) (i32.const 1))
     )
   }),
   object {
@@ -21,8 +22,29 @@ is(
       call as_functype => object {
         call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
       };
+      call as_globaltype => U();
       call as_memorytype => U();
-    }
+    };
+    call [ get_export => 'bar' ] => object {
+      call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+      call kind => 'memory';
+      call kind_num => match qr/^[0-9]+$/;
+      call as_functype => U();
+      call as_globaltype => U();
+      call as_memorytype => object {
+        call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
+      };
+    };
+    call [ get_export => 'baz' ] => object {
+      call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+      call kind => 'global';
+      call kind_num => match qr/^[0-9]+$/;
+      call as_functype => U();
+      call as_globaltype => object {
+        call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
+      };
+      call as_memorytype => U();
+    };
   },
   'test extern types'
 );

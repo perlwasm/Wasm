@@ -9,6 +9,7 @@ use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::ExternType;
 use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::FuncType;
+use Wasm::Wasmtime::GlobalType;
 use Wasm::Wasmtime::ImportType;
 use Wasm::Wasmtime::Instance;
 use Wasm::Wasmtime::Linker;
