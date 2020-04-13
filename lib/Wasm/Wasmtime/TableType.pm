@@ -41,7 +41,7 @@ for C<$valtype>.
 
 =cut
 
-$ffi->attach( new => ['wasm_valtype_t','uint8[2]'] => 'wasm_tabletype_t' => sub {
+$ffi->attach( new => ['wasm_valtype_t','uint32[2]'] => 'wasm_tabletype_t' => sub {
   my $xsub = shift;
   my $class = shift;
   my $ptr;
@@ -81,6 +81,19 @@ $ffi->attach( element => ['wasm_tabletype_t'] => 'wasm_valtype_t' => sub {
   my($xsub, $self) = @_;
   my $ptr = $xsub->($self->{ptr});
   Wasm::Wasmtime::ValType->new($ptr, $self);
+});
+
+=head2 limits
+
+ my $limits = $tabletype->limits;
+
+Returns the limits as an array reference.
+
+=cut
+
+$ffi->attach( limits => ['wasm_tabletype_t'] => 'uint32[2]' => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->{ptr});
 });
 
 =head2 as_externtype

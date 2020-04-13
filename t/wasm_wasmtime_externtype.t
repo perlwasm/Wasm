@@ -12,7 +12,7 @@ is(
         i32.add)
       (memory (export "bar") 2 3)
       (global (export "baz") (mut i32) (i32.const 1))
-      (table (export "frooble") 1 funcref)
+      (table (export "frooble") 1 3 funcref)
     )
   }),
   object {
@@ -66,6 +66,7 @@ is(
           call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
           call kind => 'funcref';
         };
+        call limits => [ 1, 3 ];
       };
       call as_memorytype => U();
     };
