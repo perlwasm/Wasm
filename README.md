@@ -112,6 +112,18 @@ use Wasm -api => 0, -wat => $wat;
 
 String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
+# CAVEATS
+
+As mentioned before as of this writing this dist is a work in progress.  I won't intentionally break
+stuff if I don't have to, but practicality may demand it in some situations.
+
+This interface is implemented using the bundled [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime) family of modules, which depends
+on the Wasmtime project.  Because of the way Wasmtime handles out-of-bounds memory errors, large
+`PROT_NONE` pages are allocated at startup.  While these pages do not consume any actual resources
+(as used by Wasmtime), they can cause out-of-memory errors on Linux systems with virtual memory
+limits (`ulimit -v`).  Similar techniques are common in modern programming languages, and this
+seems to be more a limitation of the Linux kernel.
+
 # SEE ALSO
 
 - [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime)
