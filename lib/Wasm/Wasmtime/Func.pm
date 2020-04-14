@@ -6,7 +6,7 @@ use Ref::Util qw( is_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
-use Wasm::Wasmtime::CBC qw( $cbc perl2wasm );
+use Wasm::Wasmtime::CBC qw( $cbc perl2wasm wasm_allocate );
 use Sub::Install;
 use Carp ();
 use overload
@@ -141,11 +141,20 @@ any) is returned.
 
 =cut
 
+my %kind = (
+  0   => 'i32',
+  1   => 'i64',
+  2   => 'f32',
+  3   => 'f64',
+  128 => 'anyref',
+  129 => 'funcref',
+);
+
 $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => sub {
   my $xsub = shift;
   my $self = shift;
   my $args = perl2wasm(\@_, [$self->type->params]);
-  my $results = $cbc->pack('wasm_val_vec_t', [map { { } } $self->type->results]);
+  my $results = wasm_allocate( $self->result_arity );
 
   my $trap = $xsub->($self->{ptr}, $args, $results);
 
@@ -155,11 +164,9 @@ $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => su
     my $message = $trap->message;
     Carp::croak("trap in wasm function call: $message");
   }
-  my @valtypes = $self->type->results;
-  return unless @valtypes;
+  return unless $self->result_arity;
   my @results = map {
-    my $valtype = shift @valtypes;
-    $_->{of}->{$valtype->kind};
+    $_->{of}->{$kind{$_->{kind}}};
   } @{ $cbc->unpack('wasm_val_vec_t', $results) };
   wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
 });
