@@ -1,6 +1,9 @@
 use Test2::V0 -no_srand => 1;
+use Test2::Require::Module 'Test::Script';
 use Test::Script;
 use File::Glob qw( bsd_glob );
+
+skip_all 'not tested with ciperl:static' if defined $ENV{CIPSTATIC} && $ENV{CIPSTATIC} eq 'true';
 
 foreach my $example (bsd_glob 'examples/*.pl')
 {

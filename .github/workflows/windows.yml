@@ -46,6 +46,7 @@ jobs:
       - name: Install Static Dependencies
         run: |
           cpanm -n Dist::Zilla
+          cpanm -n PeekPoke::FFI Carp::Assert
           dzil authordeps --missing | cpanm -n
           dzil listdeps --missing   | cpanm -n
       - name: Install Dynamic Dependencies
