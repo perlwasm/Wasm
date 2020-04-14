@@ -6,7 +6,7 @@ use Ref::Util qw( is_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
-use Wasm::Wasmtime::CBC qw( perl_to_wasm wasm_allocate wasm_to_perl wasm_type );
+use Wasm::Wasmtime::CBC qw( perl_to_wasm wasm_allocate wasm_to_perl wasm_type wasm_memcpy );
 use Sub::Install;
 use Carp ();
 use overload
@@ -69,7 +69,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
        ? (Wasm::Wasmtime::FuncType->new($_[0], $_[1]), $_[2])
        : @_;
 
-    my $param_arity = scalar $functype->params;
+    my $param_arity  = scalar $functype->params;
     my $result_arity = scalar$functype->results;
 
     $wrapper = $ffi->closure(sub {
@@ -88,12 +88,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
       }
       else
       {
-        if($result_arity)
-        {
-          my $packed = perl_to_wasm(\@ret, [$functype->results]);
-          my $ffi = FFI::Platypus->new( api => 1, lib => [undef] );
-          $ffi->function( memcpy => ['opaque','string','size_t'] => 'opaque' )->call($results, $packed, length($packed));
-        }
+        wasm_memcpy($results, perl_to_wasm(\@ret, [$functype->results])) if $result_arity;
         return undef;
       }
     });
