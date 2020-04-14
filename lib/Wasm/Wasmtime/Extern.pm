@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Func;
+use Wasm::Wasmtime::Global;
+use Wasm::Wasmtime::Table;
 use Wasm::Wasmtime::Memory;
 use Wasm::Wasmtime::ExternType;
 
@@ -106,6 +108,38 @@ $ffi->attach( as_func => ['wasm_extern_t'] => 'wasm_func_t' => sub {
   my $ptr = $xsub->($self->{ptr});
   return undef unless $ptr;
   Wasm::Wasmtime::Func->new($ptr, $self->{owner} || $self);
+});
+
+=head2 as_global
+
+ my $global = $extern->as_global;
+
+If the extern is a C<global>, returns its L<Wasm::Wasmtime::Global>.
+Otherwise returns C<undef>.
+
+=cut
+
+$ffi->attach( as_global => ['wasm_extern_t'] => 'wasm_global_t' => sub {
+  my($xsub, $self) = @_;
+  my $ptr = $xsub->($self->{ptr});
+  return undef unless $ptr;
+  Wasm::Wasmtime::Global->new($ptr, $self->{owner} || $self);
+});
+
+=head2 as_table
+
+ my $table = $extern->as_table;
+
+If the extern is a C<table>, returns its L<Wasm::Wasmtime::Table>.
+Otherwise returns C<undef>.
+
+=cut
+
+$ffi->attach( as_table => ['wasm_extern_t'] => 'wasm_table_t' => sub {
+  my($xsub, $self) = @_;
+  my $ptr = $xsub->($self->{ptr});
+  return undef unless $ptr;
+  Wasm::Wasmtime::Table->new($ptr, $self->{owner} || $self);
 });
 
 =head2 as_memory
