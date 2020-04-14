@@ -58,7 +58,7 @@ signature.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaque'] => 'wasm_func_t' => sub {
+$ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func_t' => sub {
   my $xsub = shift;
   my $class = shift;
   my($ptr, $owner, $wrapper, $store);
@@ -71,15 +71,13 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
 
     my @param_types = map { $_->kind } $functype->params;
     my $param_string = wasm_type(scalar @param_types);
+    my $param_arity = scalar @param_types;
     my @result_types = map { [ $_->kind, $_->kind_num ] } $functype->results;
 
     $wrapper = $ffi->closure(sub {
       my($params, $results) = @_;
 
-      my @args = @param_types > 0 ? (do {
-        my @params = @{ $cbc->unpack('wasm_val_vec_t', $ffi->cast('opaque' => $param_string, $params)) };
-        map { my $param = shift @params; $param->{of}->{$_} } @param_types
-      }) : ();
+      my @args = $param_arity ? wasm_to_perl($params) : ();
 
       local $@ = '';
       my @ret = eval {
@@ -109,7 +107,8 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
         return undef;
       }
     });
-    $ptr = $xsub->($store->{ptr}, $functype->{ptr}, $wrapper);
+    my $fptr = $ffi->cast("($param_string,opaque)->opaque", => 'opaque', $wrapper);
+    $ptr = $xsub->($store->{ptr}, $functype->{ptr}, $fptr);
   }
   else
   {
