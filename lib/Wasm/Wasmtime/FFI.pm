@@ -203,7 +203,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
   use Convert::Binary::C;
   use base qw( Exporter );
 
-  our @EXPORT_OK = qw( perl_to_wasm wasm_to_perl wasm_allocate wasm_type );
+  our @EXPORT_OK = qw( perl_to_wasm wasm_to_perl wasm_allocate wasm_type wasm_memcpy );
 
   $INC{'Wasm/Wasmtime/CBC.pm'} = __FILE__;
 
@@ -281,6 +281,13 @@ if($ffi->find_symbol('wasmtime_error_message'))
     }
     $name;
   }
+
+  my $ffi2 = FFI::Platypus->new( api => 1, lib => [undef] );
+  $ffi2->attach( [ memcpy => 'wasm_memcpy' ] => ['opaque','string','size_t'] => 'opaque' => sub {
+    my $xsub = shift;
+    $xsub->($_[0], $_[1], length $_[1]);
+  });
+
 }
 
 1;
