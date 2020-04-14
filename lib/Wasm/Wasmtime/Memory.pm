@@ -48,7 +48,6 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' =>
   {
     my($store, $memorytype) = @_;
     $ptr = $xsub->($store->{ptr}, $memorytype->{ptr});
-    $owner = [$store, $memorytype];
   }
   else
   {
