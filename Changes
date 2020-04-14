@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}},
 
 {{$NEXT}}
   - Added Wasm::Wasmtime::Global class (gh#27)
+  - Added Wasm::Wasmtime::Table class (gh#29)
 
 0.04      2020-04-13 13:49:46 -0600
   - Added Wasm::Wasmtime::Linker class (gh#23)
