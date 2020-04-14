@@ -6,7 +6,7 @@ use Ref::Util qw( is_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
-use Wasm::Wasmtime::CBC qw( $cbc perl_to_wasm wasm_allocate wasm_to_perl );
+use Wasm::Wasmtime::CBC qw( $cbc perl_to_wasm wasm_allocate wasm_to_perl wasm_type );
 use Sub::Install;
 use Carp ();
 use overload
@@ -70,9 +70,8 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
        : @_;
 
     my @param_types = map { $_->kind } $functype->params;
-    my $param_string = "string(@{[ $cbc->sizeof('wasm_val_t') * scalar(@param_types) ]})*";
+    my $param_string = wasm_type(scalar @param_types);
     my @result_types = map { [ $_->kind, $_->kind_num ] } $functype->results;
-    my $result_string = "string(@{[ $cbc->sizeof('wasm_val_t') * scalar(@result_types) ]})*";
 
     $wrapper = $ffi->closure(sub {
       my($params, $results) = @_;
