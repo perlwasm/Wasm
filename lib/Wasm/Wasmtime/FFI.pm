@@ -203,7 +203,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
   use Convert::Binary::C;
   use base qw( Exporter );
 
-  our @EXPORT_OK = qw( $cbc perl2wasm wasm_allocate );
+  our @EXPORT_OK = qw( $cbc perl_to_wasm wasm_to_perl wasm_allocate );
 
   $INC{'Wasm/Wasmtime/CBC.pm'} = __FILE__;
 
@@ -228,7 +228,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
     typedef wasm_val_t wasm_val_vec_t[];
   });
 
-  sub perl2wasm
+  sub perl_to_wasm
   {
     my $vals = shift;
     my $types = shift;
@@ -242,12 +242,29 @@ if($ffi->find_symbol('wasmtime_error_message'))
     } @$types]);
   }
 
+  my %kind = (
+    0   => 'i32',
+    1   => 'i64',
+    2   => 'f32',
+    3   => 'f64',
+    128 => 'anyref',
+    129 => 'funcref',
+  );
+
+  sub wasm_to_perl
+  {
+    my $vals = shift;
+    map {
+      $_->{of}->{$kind{$_->{kind}}};
+    } @{ $cbc->unpack('wasm_val_vec_t', $vals) };
+  }
+
   my $size = 16; #$cbc->sizeof('wasm_val_t');
 
   sub wasm_allocate
   {
     my $count = shift;
-    "\0" x ($count * $size);
+    $count ? "\0" x ($count * $size) : undef;
   }
 }
 
