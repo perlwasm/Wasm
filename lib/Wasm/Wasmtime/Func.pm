@@ -69,9 +69,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
        ? (Wasm::Wasmtime::FuncType->new($_[0], $_[1]), $_[2])
        : @_;
 
-    my @param_types = map { $_->kind } $functype->params;
-    my $param_string = wasm_type(scalar @param_types);
-    my $param_arity = scalar @param_types;
+    my $param_arity = scalar $functype->params;
     my @result_types = map { [ $_->kind, $_->kind_num ] } $functype->results;
 
     $wrapper = $ffi->closure(sub {
@@ -107,7 +105,8 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
         return undef;
       }
     });
-    my $fptr = $ffi->cast("($param_string,opaque)->opaque", => 'opaque', $wrapper);
+    my $wasm_type = wasm_type($param_arity);
+    my $fptr = $ffi->cast("($wasm_type,opaque)->opaque", => 'opaque', $wrapper);
     $ptr = $xsub->($store->{ptr}, $functype->{ptr}, $fptr);
   }
   else

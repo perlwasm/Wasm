@@ -269,7 +269,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
 
   sub wasm_type
   {
-    my $count = shift;
+    my $count = shift || 0;
     my $name = "x_wasm_" . $count;
     eval { $ffi->type($name) };
     if($@)
