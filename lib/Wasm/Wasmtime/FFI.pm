@@ -203,7 +203,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
   use Convert::Binary::C;
   use base qw( Exporter );
 
-  our @EXPORT_OK = qw( $cbc perl_to_wasm wasm_to_perl wasm_allocate wasm_type );
+  our @EXPORT_OK = qw( perl_to_wasm wasm_to_perl wasm_allocate wasm_type );
 
   $INC{'Wasm/Wasmtime/CBC.pm'} = __FILE__;
 
