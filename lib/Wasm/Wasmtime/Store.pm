@@ -42,7 +42,7 @@ $ffi->attach( new => ['wasm_engine_t'] => 'wasm_store_t' => sub {
   my($xsub, $class, $engine) = @_;
   $engine ||= Wasm::Wasmtime::Engine->new;
   bless {
-    ptr    => $xsub->($engine->{ptr}),
+    ptr    => $xsub->($engine),
     engine => $engine,
   }, $class;
 });

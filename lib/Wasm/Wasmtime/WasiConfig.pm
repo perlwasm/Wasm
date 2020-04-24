@@ -142,10 +142,7 @@ $ffi->attach( set_env => ['wasi_config_t','int','string[]','string[]'] => sub {
   $self;
 });
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasi_config_t'] => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self) if $self->{ptr};
-});
+_generate_destroy_2();
 
 1;
 

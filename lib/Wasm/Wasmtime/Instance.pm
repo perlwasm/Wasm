@@ -219,7 +219,7 @@ $ffi->attach( exports => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
   $externs->to_list;
 });
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_engine_t'] => sub {
+$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_instance_t'] => sub {
   my($xsub, $self) = @_;
   $xsub->($self->{ptr}) if $self->{ptr};
 });

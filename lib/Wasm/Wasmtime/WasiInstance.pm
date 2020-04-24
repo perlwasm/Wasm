@@ -74,10 +74,7 @@ $ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'wasm_trap_t*']
 
 # TODO: bind_import
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasi_instance_t'] => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self) if $self->{ptr};
-});
+_generate_destroy_2();
 
 1;
 

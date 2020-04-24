@@ -36,11 +36,7 @@ Create a new instance of the config class.
 
 $ffi->attach( new => [] => 'wasm_config_t' );
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_config_t'] => sub {
-  my($xsub, $self) = @_;
-  return if Devel::GlobalDestruction::in_global_destruction();
-  $xsub->($self) if $self->{ptr};
-});
+_generate_destroy_2();
 
 =head1 METHODS
 
