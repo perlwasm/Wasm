@@ -31,11 +31,7 @@ L<Wasm::WebAssembly::Linker>.
 =cut
 
 $ffi_prefix = 'wasi_instance_';
-$ffi->custom_type('wasi_instance_t' => {
-  native_type => 'opaque',
-  perl_to_native => sub { shift->{ptr} },
-  native_to_perl => sub { bless { ptr => shift }, __PACKAGE__ },
-});
+$ffi->load_custom_type('::PtrObject' => 'wasi_instance_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 

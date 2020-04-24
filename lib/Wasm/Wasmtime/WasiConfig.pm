@@ -24,11 +24,7 @@ standard streams and file system directories.
 =cut
 
 $ffi_prefix = 'wasi_config_';
-$ffi->custom_type('wasi_config_t' => {
-  native_type => 'opaque',
-  perl_to_native => sub { shift->{ptr} },
-  native_to_perl => sub { bless { ptr => shift }, __PACKAGE__ },
-});
+$ffi->load_custom_type('::PtrObject' => 'wasi_config_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 

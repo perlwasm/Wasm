@@ -41,9 +41,11 @@ Creates a new instance of the engine class.
 $ffi->attach( [ 'new_with_config' => 'new' ] => ['wasm_config_t'] => 'wasm_engine_t' => sub {
   my($xsub, $class, $config) = @_;
   $config ||= Wasm::Wasmtime::Config->new;
-  bless {
-    ptr => $xsub->(delete $config->{ptr}),
+  my $self = bless {
+    ptr => $xsub->($config),
   }, $class;
+  delete $config->{ptr};
+  $self;
 });
 
 $ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_engine_t'] => sub {
