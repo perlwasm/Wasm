@@ -142,7 +142,7 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
       @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
     }
 
-    my $ptr = $xsub->($store, $module->{ptr}, \@imports, \$trap);
+    my $ptr = $xsub->($store, $module, \@imports, \$trap);
     if($ptr)
     {
       return bless {

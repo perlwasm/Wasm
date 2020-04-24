@@ -25,7 +25,7 @@ This class represents a WebAssembly module.
 =cut
 
 $ffi_prefix = 'wasm_module_';
-$ffi->type('opaque' => 'wasm_module_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_module_t' => __PACKAGE__);
 
 sub _args
 {
@@ -136,7 +136,7 @@ a useful diagnostic for why it was invalid.
 if(Wasm::Wasmtime::Error->can('new'))
 {
 
-  $ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_store_t', 'wasm_byte_vec_t*', 'wasm_module_t*'] => 'wasmtime_error_t' => sub {
+  $ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_store_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
     my $xsub = shift;
     my $class = shift;
     my($store, $wasm, $data) = _args(@_);
@@ -166,12 +166,10 @@ else
     my $xsub = shift;
     my $class = shift;
     my($store, $wasm, $data) = _args(@_);
-    my $ptr = $xsub->($store, $$wasm);
-    Carp::croak("error creating module") unless $ptr;
-    bless {
-      ptr   => $ptr,
-      store => $store,
-    }, $class;
+    my $self = $xsub->($store, $$wasm);
+    Carp::croak("error creating module") unless $self;
+    $self->{store} = $store;
+    $self;
   });
 
   $ffi->attach( validate => ['wasm_store_t','wasm_byte_vec_t*'] => 'bool' => sub {
@@ -197,7 +195,7 @@ Returns a list of L<Wasm::Wasmtime::ExportType> objects for the objects exported
 $ffi->attach( exports => [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
   my($xsub, $self) = @_;
   my $exports = Wasm::Wasmtime::ExportTypeVec->new;
-  $xsub->($self->{ptr}, $exports);
+  $xsub->($self, $exports);
   $exports->to_list;
 });
 
@@ -212,7 +210,7 @@ Returns a list of L<Wasm::Wasmtime::ImportType> objects for the objects imported
 $ffi->attach( imports => [ 'wasm_module_t', 'wasm_importtype_vec_t*' ] => sub {
   my($xsub, $self) = @_;
   my $imports = Wasm::Wasmtime::ImportTypeVec->new;
-  $xsub->($self->{ptr}, $imports);
+  $xsub->($self, $imports);
   $imports->to_list;
 });
 
@@ -250,10 +248,7 @@ sub get_export
   $self->{exports}->{$name};
 }
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_module_t'] => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr}) if $self->{ptr};
-});
+_generate_destroy_2();
 
 1;
 

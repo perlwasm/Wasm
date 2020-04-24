@@ -212,7 +212,7 @@ if(Wasm::Wasmtime::Error->can('new'))
     my($xsub, $self, $module) = @_;
     my $trap;
     my $ptr;
-    my $error = $xsub->($self->{ptr}, $module->{ptr}, \$ptr, \$trap);
+    my $error = $xsub->($self->{ptr}, $module, \$ptr, \$trap);
     Carp::croak($error->message) if $error;
     if($trap)
     {
@@ -236,7 +236,7 @@ else
   $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_trap_t*' ] => 'wasm_instance_t' => sub {
     my($xsub, $self, $module) = @_;
     my $trap;
-    my $ptr = $xsub->($self->{ptr}, $module->{ptr}, \$trap);
+    my $ptr = $xsub->($self->{ptr}, $module, \$trap);
     if($trap)
     {
       $trap = Wasm::Wasmtime::Trap->new($trap);
