@@ -27,7 +27,7 @@ This class represents an instance of a WebAssembly module L<Wasm::Wasmtime::Modu
 =cut
 
 $ffi_prefix = 'wasm_instance_';
-$ffi->type('opaque' => 'wasm_instance_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_instance_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 
@@ -128,6 +128,7 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
     my($imports) = @_;
 
     $imports ||= [];
+    Carp::confess("imports is not an array reference") unless ref($imports) eq 'ARRAY';
     my @imports = @$imports;
     my $trap;
     my $store = $module->store;
@@ -142,14 +143,12 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'
       @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
     }
 
-    my $ptr = $xsub->($store, $module, \@imports, \$trap);
-    if($ptr)
+    my $self = $xsub->($store, $module, \@imports, \$trap);
+    if($self)
     {
-      return bless {
-        ptr    => $ptr,
-        module => $module,
-        keep   => \@keep,
-      }, $class;
+      $self->{module} = $module;
+      $self->{keep}   = \@keep;
+      return $self;
     }
     else
     {
@@ -215,14 +214,11 @@ globals, tables and memory exported by the WebAssembly instance.
 $ffi->attach( exports => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
   my($xsub, $self) = @_;
   my $externs = Wasm::Wasmtime::ExternVec->new;
-  $xsub->($self->{ptr}, $externs);
+  $xsub->($self, $externs);
   $externs->to_list;
 });
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_instance_t'] => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr}) if $self->{ptr};
-});
+_generate_destroy_2();
 
 1;
 

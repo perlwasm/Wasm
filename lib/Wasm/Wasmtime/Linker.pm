@@ -180,7 +180,7 @@ if(Wasm::Wasmtime::Error->can('new'))
   $ffi->attach( define_instance => ['wasmtime_linker_t', 'wasm_byte_vec_t*', 'wasm_instance_t'] => 'wasmtime_error_t' => sub {
     my($xsub, $self, $name, $instance) = @_;
     my $vname = Wasm::Wasmtime::ByteVec->new($name);
-    my $error = $xsub->($self->{ptr}, $vname, $instance->{ptr});
+    my $error = $xsub->($self->{ptr}, $vname, $instance);
     Carp::croak($error->message) if $error;
     $self;
   });
@@ -190,7 +190,7 @@ else
   $ffi->attach( define_instance => ['wasmtime_linker_t', 'wasm_byte_vec_t*', 'wasm_instance_t'] => 'bool' => sub {
     my($xsub, $self, $name, $instance) = @_;
     my $vname = Wasm::Wasmtime::ByteVec->new($name);
-    my $ret = $xsub->($self->{ptr}, $vname, $instance->{ptr});
+    my $ret = $xsub->($self->{ptr}, $vname, $instance);
     Carp::croak("Unknown error in define_instance") unless $ret;
     $self;
   });
@@ -208,7 +208,7 @@ Instantiate the module using the linker.  Returns the new L<Wasm::Wasmtime::Inst
 
 if(Wasm::Wasmtime::Error->can('new'))
 {
-  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_instance_t*','wasm_trap_t*'] => 'wasmtime_error_t' => sub {
+  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*','wasm_trap_t*'] => 'wasmtime_error_t' => sub {
     my($xsub, $self, $module) = @_;
     my $trap;
     my $ptr;
@@ -233,7 +233,7 @@ if(Wasm::Wasmtime::Error->can('new'))
 }
 else
 {
-  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_trap_t*' ] => 'wasm_instance_t' => sub {
+  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_trap_t*' ] => 'opaque' => sub {
     my($xsub, $self, $module) = @_;
     my $trap;
     my $ptr = $xsub->($self->{ptr}, $module, \$trap);
