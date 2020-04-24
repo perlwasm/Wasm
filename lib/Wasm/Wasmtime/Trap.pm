@@ -54,7 +54,7 @@ $ffi->attach( new => [ 'wasm_store_t', 'wasm_byte_vec_t*' ] => 'wasm_trap_t' => 
     my $store = shift;
     my $message = Wasm::Wasmtime::ByteVec->new($_[0]);
     return bless {
-      ptr => $xsub->($store->{ptr}, $message),
+      ptr => $xsub->($store, $message),
     }, $class;
   }
 });

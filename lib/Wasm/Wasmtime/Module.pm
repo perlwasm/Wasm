@@ -141,7 +141,7 @@ if(Wasm::Wasmtime::Error->can('new'))
     my $class = shift;
     my($store, $wasm, $data) = _args(@_);
     my $ptr;
-    if(my $error = $xsub->($store->{ptr}, $$wasm, \$ptr))
+    if(my $error = $xsub->($store, $$wasm, \$ptr))
     {
       Carp::croak("error creating module: " . $error->message);
     }
@@ -152,7 +152,7 @@ if(Wasm::Wasmtime::Error->can('new'))
     my $xsub = shift;
     my $class = shift;
     my($store, $wasm, $data) = _args(@_);
-    my $error = $xsub->($store->{ptr}, $$wasm);
+    my $error = $xsub->($store, $$wasm);
     wantarray  ## no critic (Freenode::Wantarray)
       ? $error ? (0, $error->message) : (1, '')
       : $error ? 0 : 1;
@@ -166,7 +166,7 @@ else
     my $xsub = shift;
     my $class = shift;
     my($store, $wasm, $data) = _args(@_);
-    my $ptr = $xsub->($store->{ptr}, $$wasm);
+    my $ptr = $xsub->($store, $$wasm);
     Carp::croak("error creating module") unless $ptr;
     bless {
       ptr   => $ptr,
@@ -178,7 +178,7 @@ else
     my $xsub = shift;
     my $class = shift;
     my($store, $wasm, $data) = _args(@_);
-    my $ok = $xsub->($store->{ptr}, $$wasm);
+    my $ok = $xsub->($store, $$wasm);
     wantarray  ## no critic (Freenode::Wantarray)
       ? $ok ? (1, '') : (0, 'unknown error')
       : $ok ? 1 : 0;
