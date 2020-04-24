@@ -48,7 +48,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_globaltype_t', 'string'] => 'wasm_gl
   if(is_ref $_[0])
   {
     my($store, $globaltype, $value) = @_;
-    $ptr = $xsub->($store->{ptr}, $globaltype->{ptr}, perl_to_wasm([$value], [$globaltype->content]));
+    $ptr = $xsub->($store, $globaltype->{ptr}, perl_to_wasm([$value], [$globaltype->content]));
   }
   else
   {

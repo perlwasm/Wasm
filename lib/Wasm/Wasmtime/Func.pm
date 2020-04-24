@@ -94,7 +94,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
     });
     my $wasm_type = wasm_type($param_arity);
     my $fptr = $ffi->cast("($wasm_type,opaque)->opaque", => 'opaque', $wrapper);
-    $ptr = $xsub->($store->{ptr}, $functype->{ptr}, $fptr);
+    $ptr = $xsub->($store, $functype->{ptr}, $fptr);
   }
   else
   {

@@ -47,7 +47,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' =>
   if(is_ref $_[0])
   {
     my($store, $memorytype) = @_;
-    $ptr = $xsub->($store->{ptr}, $memorytype->{ptr});
+    $ptr = $xsub->($store, $memorytype->{ptr});
   }
   else
   {

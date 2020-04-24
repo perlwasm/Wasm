@@ -58,7 +58,7 @@ $ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'wasm_trap_t*']
   my $name = shift;
   my $config = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::WasiConfig' ? shift : Wasm::Wasmtime::WasiConfig->new;
   my $trap;
-  my $instance = $xsub->($store->{ptr}, $name, $config, \$trap);
+  my $instance = $xsub->($store, $name, $config, \$trap);
   delete $config->{ptr};
   unless($instance)
   {

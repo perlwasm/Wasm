@@ -44,7 +44,7 @@ Create a new WebAssembly linker object.
 
 $ffi->attach( new => ['wasm_store_t'] => 'wasmtime_linker_t' => sub {
   my($xsub, $class, $store) = @_;
-  my $ptr = $xsub->($store->{ptr});
+  my $ptr = $xsub->($store);
   bless { ptr => $ptr, store => $store }, $class;
 });
 

@@ -22,7 +22,7 @@ This class represents storage used by the WebAssembly engine.
 =cut
 
 $ffi_prefix = 'wasm_store_';
-$ffi->type('opaque' => 'wasm_store_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_store_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 
@@ -41,10 +41,9 @@ isn't provided, then a new one will be created.
 $ffi->attach( new => ['wasm_engine_t'] => 'wasm_store_t' => sub {
   my($xsub, $class, $engine) = @_;
   $engine ||= Wasm::Wasmtime::Engine->new;
-  bless {
-    ptr    => $xsub->($engine),
-    engine => $engine,
-  }, $class;
+  my $self = $xsub->($engine);
+  $self->{engine} = $engine;
+  $self;
 });
 
 =head2 engine
@@ -57,10 +56,7 @@ Returns the L<Wasm::Wasmtime::Engine> object for this storage object.
 
 sub engine { shift->{engine} }
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_store_t'] => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr}) if $self->{ptr};
-});
+_generate_destroy_2();
 
 1;
 
