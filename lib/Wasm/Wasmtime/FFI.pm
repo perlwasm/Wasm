@@ -108,7 +108,6 @@ sub _generate_vec_class
   my $type = $class;
   $type =~ s/^.*:://;
   my $v_type = "wasm_@{[ lc $type ]}_vec_t";
-  my $c_type = "wasm_@{[ lc $type ]}_t";
   my $vclass  = "Wasm::Wasmtime::${type}Vec";
   my $prefix = "wasm_@{[ lc $type ]}_vec";
 
@@ -117,7 +116,7 @@ sub _generate_vec_class
       my($self) = @_;
       my $size = $self->size;
       return () if $size == 0;
-      my $ptrs = $ffi->cast('opaque', "${c_type}[$size]", $self->data);
+      my $ptrs = $ffi->cast('opaque', "opaque[$size]", $self->data);
       map { $class->new($_, $self) } @$ptrs;
     },
     into => $vclass,
@@ -148,10 +147,7 @@ sub _wrapper_destroy
 sub _generate_destroy
 {
   my $caller = caller;
-  my $type = lc $caller;
-  $type =~ s/^.*:://;
-  $type = "wasm_${type}_t";
-  $ffi->attach( [ delete => join('::', $caller, 'DESTROY') ] => [ $type ] => \&_wrapper_destroy);
+  $ffi->attach( [ delete => join('::', $caller, 'DESTROY') ] => [ 'opaque' ] => \&_wrapper_destroy);
 }
 
 sub _wrapper_destroy_2
@@ -161,6 +157,7 @@ sub _wrapper_destroy_2
   if(defined $self->{ptr} && !defined $self->{owner})
   {
     $xsub->($self);
+    delete $self->{ptr};
   }
 }
 
