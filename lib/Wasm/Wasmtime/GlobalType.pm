@@ -78,7 +78,8 @@ $ffi->attach( new => ['wasm_valtype_t','uint8'] => 'wasm_globaltype_t' => sub {
       $valtype = Wasm::Wasmtime::ValType->new($valtype);
     }
     Carp::croak("mutability must be one of 'const' or 'var'") unless defined $mutability{$mutability};
-    $ptr = $xsub->(delete $valtype->{ptr}, $mutability{$mutability});
+    $ptr = $xsub->($valtype, $mutability{$mutability});
+    delete $valtype->{ptr};
   }
   bless {
     ptr => $ptr,
@@ -96,8 +97,9 @@ Returns the L<Wasm::Wasmtime::ValType> for this global type.
 
 $ffi->attach( content => ['wasm_globaltype_t'] => 'wasm_valtype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
-  Wasm::Wasmtime::ValType->new($ptr, $self);
+  my $valtype = $xsub->($self->{ptr});
+  $valtype->{owner} = $self;
+  $valtype;
 });
 
 =head2 mutability

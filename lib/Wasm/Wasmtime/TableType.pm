@@ -64,7 +64,8 @@ $ffi->attach( new => ['wasm_valtype_t','uint32[2]'] => 'wasm_tabletype_t' => sub
     Carp::croak("bad limits") unless is_plain_arrayref($limit);
     Carp::croak("no minumum in limit") unless defined $limit->[0];
     $limit->[1] = 0xffffffff unless defined $limit->[1];
-    $ptr = $xsub->(delete $valtype->{ptr}, $limit);
+    $ptr = $xsub->($valtype, $limit);
+    delete $valtype->{ptr};
   }
   bless {
     ptr => $ptr,
@@ -82,8 +83,9 @@ Returns the L<Wasm::Wasmtime::ValType> for this table type.
 
 $ffi->attach( element => ['wasm_tabletype_t'] => 'wasm_valtype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
-  Wasm::Wasmtime::ValType->new($ptr, $self);
+  my $valtype = $xsub->($self->{ptr});
+  $valtype->{owner} = $self;
+  $valtype;
 });
 
 =head2 limits
