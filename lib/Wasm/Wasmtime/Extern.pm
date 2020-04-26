@@ -23,7 +23,7 @@ This class represents an object exported from L<Wasm::Wasmtime::Instance>.
 =cut
 
 $ffi_prefix = 'wasm_extern_';
-$ffi->type('opaque' => 'wasm_extern_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_extern_t' => __PACKAGE__);
 
 sub new
 {
@@ -46,7 +46,7 @@ Returns the L<Wasm::Wasmtime::ExternType> for this extern.
 
 $ffi->attach( type => ['wasm_extern_t'] => 'wasm_externtype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::ExternType->new($xsub->($self->{ptr}), undef);
+  Wasm::Wasmtime::ExternType->new($xsub->($self), undef);
 });
 
 my %kind = (
@@ -76,10 +76,7 @@ Returns the kind of extern.  Should be one of:
 
 =cut
 
-$ffi->attach( kind => ['wasm_extern_t'] => 'uint8' => sub {
-  my($xsub, $self) = @_;
-  $kind{$xsub->($self->{ptr})};
-});
+sub kind { $kind{shift->kind_num} }
 
 =head2 kind_num
 
@@ -89,10 +86,7 @@ Returns the kind of extern as the internal integer used by Wasmtime.
 
 =cut
 
-$ffi->attach( [ kind => 'kind_num' ] => ['wasm_extern_t'] => 'uint8' => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
-});
+$ffi->attach( [ kind => 'kind_num' ] => ['wasm_extern_t'] => 'uint8');
 
 =head2 as_func
 
@@ -105,7 +99,7 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_func => ['wasm_extern_t'] => 'wasm_func_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   return undef unless $ptr;
   Wasm::Wasmtime::Func->new($ptr, $self->{owner} || $self);
 });
@@ -121,7 +115,7 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_global => ['wasm_extern_t'] => 'wasm_global_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   return undef unless $ptr;
   Wasm::Wasmtime::Global->new($ptr, $self->{owner} || $self);
 });
@@ -137,7 +131,7 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_table => ['wasm_extern_t'] => 'wasm_table_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   return undef unless $ptr;
   Wasm::Wasmtime::Table->new($ptr, $self->{owner} || $self);
 });
@@ -153,19 +147,12 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_memory => ['wasm_extern_t'] => 'wasm_memory_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   return undef unless $ptr;
   Wasm::Wasmtime::Memory->new($ptr, $self->{owner} || $self);
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_extern_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
-
+_generate_destroy_2();
 _generate_vec_class();
 
 1;
