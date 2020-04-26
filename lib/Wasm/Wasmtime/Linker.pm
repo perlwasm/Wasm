@@ -126,7 +126,7 @@ else
       Carp::croak("not an extern: $extern");
     }
 
-    my $ret = $xsub->($self->{ptr}, $module, $name, $extern->{ptr});
+    my $ret = $xsub->($self->{ptr}, $module, $name, $extern);
     unless($ret)
     {
       Carp::croak("Unknown error in define");

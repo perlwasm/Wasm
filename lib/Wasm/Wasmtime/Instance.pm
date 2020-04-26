@@ -106,7 +106,7 @@ sub _cast_import
   Carp::croak("Non-extern object as import");
 }
 
-$ffi->attach( new => ['wasm_store_t','wasm_module_t','wasm_extern_t[]','opaque*'] => 'wasm_instance_t' => sub {
+$ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque[]','opaque*'] => 'wasm_instance_t' => sub {
   my $xsub = shift;
   my $class = shift;
   my $module = shift;
