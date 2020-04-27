@@ -226,7 +226,7 @@ $ffi->attach( as_extern => ['wasm_func_t'] => 'opaque' => sub {
   Wasm::Wasmtime::Extern->new($ptr, $self->{owner} || $self);
 });
 
-#_generate_destroy();
+_generate_destroy();
 
 1;
 
