@@ -21,7 +21,7 @@ signature and other configuration details for import objects.
 =cut
 
 $ffi_prefix = 'wasm_importtype_';
-$ffi->type('opaque' => 'wasm_importtype_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_importtype_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 
@@ -40,20 +40,20 @@ Creates a new import type object.
 $ffi->attach( new => ['wasm_byte_vec_t*', 'wasm_externtype_t'] => 'wasm_importtype_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my($ptr, $owner);
   if(defined $_[2] && ref($_[2]) eq 'Wasm::Wasmtime::ExternType')
   {
     my $module = Wasm::Wasmtime::ByteVec->new(shift);
     my $name = Wasm::Wasmtime::ByteVec->new(shift);
     my $externtype = shift;
-    my $ptr = $xsub->($module, $name, $externtype->{ptr});
+    my $self = $xsub->($module, $name, $externtype);
     $module->delete;
     $name->delete;
+    $self;
   }
   else
   {
-    ($ptr,$owner) = @_;
-    bless {
+    my($ptr,$owner) = @_;
+    return bless {
       ptr   => $ptr,
       owner => $owner,
     }, $class;
@@ -72,7 +72,7 @@ Returns the name of the import.
 
 $ffi->attach( name => ['wasm_importtype_t'] => 'wasm_byte_vec_t*' => sub {
   my($xsub, $self) = @_;
-  my $name = $xsub->($self->{ptr});
+  my $name = $xsub->($self);
   $name->get;
 });
 
@@ -86,7 +86,7 @@ Returns the L<Wasm::Wasmtime::ExternType> for the import.
 
 $ffi->attach( type => ['wasm_importtype_t'] => 'wasm_externtype_t' => sub {
   my($xsub, $self) = @_;
-  my $type = $xsub->($self->{ptr});
+  my $type = $xsub->($self);
   $type->{owner} = $self->{owner} || $self;
   $type;
 });
@@ -101,18 +101,11 @@ Returns the name of the module for the import.
 
 $ffi->attach( module => ['wasm_importtype_t'] => 'wasm_byte_vec_t*' => sub {
   my($xsub, $self) = @_;
-  my $name = $xsub->($self->{ptr});
+  my $name = $xsub->($self);
   $name->get;
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_importtype_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
-
+_generate_destroy();
 _generate_vec_class();
 
 1;

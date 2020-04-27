@@ -133,8 +133,9 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_memorytype => ['wasm_externtype_t'] => 'wasm_memorytype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self);
-  $ptr ? Wasm::Wasmtime::MemoryType->new($ptr, $self->{owner} || $self) : undef;
+  my $memorytype = $xsub->($self);
+  $memorytype->{owner} = $self->{owner} || $self if $memorytype;
+  $memorytype;
 });
 
 _generate_destroy();

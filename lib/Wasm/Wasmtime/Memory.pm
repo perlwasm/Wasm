@@ -24,7 +24,7 @@ This class represents a WebAssembly memory object.
 =cut
 
 $ffi_prefix = 'wasm_memory_';
-$ffi->type('opaque' => 'wasm_memory_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_memory_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 
@@ -42,21 +42,19 @@ Creates a new memory object.
 $ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my $ptr;
-  my $owner;
   if(is_ref $_[0])
   {
     my($store, $memorytype) = @_;
-    $ptr = $xsub->($store, $memorytype->{ptr});
+    return $xsub->($store, $memorytype);
   }
   else
   {
-    ($ptr, $owner) = @_;
+    my($ptr, $owner) = @_;
+    return bless {
+      ptr   => $ptr,
+      owner => $owner,
+    }, $class;
   }
-  bless {
-    ptr   => $ptr,
-    owner => $owner,
-  }, $class;
 });
 
 =head1 METHODS
@@ -71,7 +69,9 @@ Returns the L<Wasm::Wasmtime::MemoryType> object for this memory object.
 
 $ffi->attach( type => ['wasm_memory_t'] => 'wasm_memorytype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::MemoryType->new($xsub->($self->{ptr}), $self->{owner} || $self);
+  my $type = $xsub->($self);
+  $type->{owner} = $self->{owner} || $self if $type;
+  $type;
 });
 
 =head2 data
@@ -84,7 +84,7 @@ Returns a pointer to the start of the memory.
 
 $ffi->attach( data => ['wasm_memory_t'] => 'opaque' => sub {
   my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
+  $xsub->($self);
 });
 
 =head2 data_size
@@ -97,7 +97,7 @@ Returns the current size of the memory in bytes.
 
 $ffi->attach( data_size => ['wasm_memory_t'] => 'size_t' => sub {
   my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
+  $xsub->($self);
 });
 
 =head2 size
@@ -110,7 +110,7 @@ Returns the current size of the memory in pages.
 
 $ffi->attach( size => ['wasm_memory_t'] => 'uint32' => sub {
   my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
+  $xsub->($self);
 });
 
 =head2 grow
@@ -123,7 +123,7 @@ Tries to increase the page size by the given C<$delta>.  Returns true on success
 
 $ffi->attach( grow => ['wasm_memory_t', 'uint32'] => 'bool' => sub {
   my($xsub, $self, $delta) = @_;
-  $xsub->($self->{ptr}, $delta);
+  $xsub->($self, $delta);
 });
 
 =head2 as_extern
@@ -138,17 +138,11 @@ Returns the L<Wasm::Wasmtime::Extern> for this memory object.
 $ffi->attach( as_extern => ['wasm_memory_t'] => 'opaque' => sub {
   my($xsub, $self) = @_;
   require Wasm::Wasmtime::Extern;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   Wasm::Wasmtime::Extern->new($ptr, $self->{owner} || $self);
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_memory_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
+_generate_destroy();
 
 1;
 

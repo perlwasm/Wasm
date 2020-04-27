@@ -148,9 +148,9 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_memory => ['wasm_extern_t'] => 'wasm_memory_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self);
-  return undef unless $ptr;
-  Wasm::Wasmtime::Memory->new($ptr, $self->{owner} || $self);
+  my $memory = $xsub->($self);
+  $memory->{owner} = $self->{owner} || $self if $memory;
+  $memory;
 });
 
 _generate_destroy();
