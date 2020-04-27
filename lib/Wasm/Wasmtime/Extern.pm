@@ -132,9 +132,9 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_table => ['wasm_extern_t'] => 'wasm_table_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self);
-  return undef unless $ptr;
-  Wasm::Wasmtime::Table->new($ptr, $self->{owner} || $self);
+  my $table = $xsub->($self);
+  $table->{owner} = $self->{owner} || $self if $table;
+  $table;
 });
 
 =head2 as_memory

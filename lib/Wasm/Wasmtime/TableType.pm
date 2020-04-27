@@ -23,7 +23,7 @@ This class represents a module table type.
 =cut
 
 $ffi_prefix = 'wasm_tabletype_';
-$ffi->type('opaque' => 'wasm_tabletype_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_tabletype_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 
@@ -44,11 +44,13 @@ for C<$valtype>.
 $ffi->attach( new => ['wasm_valtype_t','uint32[2]'] => 'wasm_tabletype_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my $ptr;
-  my $owner;
   if(defined $_[0] && !is_ref($_[0]) && $_[0] =~ /^[0-9]+$/)
   {
-    ($ptr, $owner) = @_;
+    my($ptr, $owner) = @_;
+    return bless {
+      ptr => $ptr,
+      owner => $owner,
+    }, $class;
   }
   else
   {
@@ -64,13 +66,10 @@ $ffi->attach( new => ['wasm_valtype_t','uint32[2]'] => 'wasm_tabletype_t' => sub
     Carp::croak("bad limits") unless is_plain_arrayref($limit);
     Carp::croak("no minumum in limit") unless defined $limit->[0];
     $limit->[1] = 0xffffffff unless defined $limit->[1];
-    $ptr = $xsub->($valtype, $limit);
+    my $self = $xsub->($valtype, $limit);
     delete $valtype->{ptr};
+    return $self;
   }
-  bless {
-    ptr => $ptr,
-    owner => $owner,
-  }, $class;
 });
 
 =head2 element
@@ -83,7 +82,7 @@ Returns the L<Wasm::Wasmtime::ValType> for this table type.
 
 $ffi->attach( element => ['wasm_tabletype_t'] => 'wasm_valtype_t' => sub {
   my($xsub, $self) = @_;
-  my $valtype = $xsub->($self->{ptr});
+  my $valtype = $xsub->($self);
   $valtype->{owner} = $self;
   $valtype;
 });
@@ -98,7 +97,7 @@ Returns the limits as an array reference.
 
 $ffi->attach( limits => ['wasm_tabletype_t'] => 'uint32[2]' => sub {
   my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
+  $xsub->($self);
 });
 
 =head2 as_externtype
@@ -113,17 +112,11 @@ Returns the L<Wasm::Wasmtime::ExternType> for this table type.
 $ffi->attach( as_externtype => ['wasm_tabletype_t'] => 'opaque' => sub {
   my($xsub, $self) = @_;
   require Wasm::Wasmtime::ExternType;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   Wasm::Wasmtime::ExternType->new($ptr, $self->{owner} || $self);
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_tabletype_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
+_generate_destroy();
 
 1;
 

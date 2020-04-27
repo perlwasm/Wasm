@@ -118,8 +118,9 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_tabletype => ['wasm_externtype_t'] => 'wasm_tabletype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self);
-  $ptr ? Wasm::Wasmtime::TableType->new($ptr, $self->{owner} || $self) : undef;
+  my $tabletype = $xsub->($self);
+  $tabletype->{owner} = $self->{owner} || $self if $tabletype;
+  $tabletype;
 });
 
 =head2 as_memorytype
