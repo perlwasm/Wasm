@@ -213,7 +213,7 @@ if(Wasm::Wasmtime::Error->can('new'))
     my($xsub, $self, $module) = @_;
     my $trap;
     my $ptr;
-    my $error = $xsub->($self->{ptr}, $module, \$ptr, \$trap);
+    my $error = $xsub->($self, $module, \$ptr, \$trap);
     Carp::croak($error->message) if $error;
     if($trap)
     {
