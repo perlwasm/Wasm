@@ -93,7 +93,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
     });
     my $wasm_type = wasm_type($param_arity);
     my $fptr = $ffi->cast("($wasm_type,opaque)->opaque", => 'opaque', $wrapper);
-    my $self = $xsub->($store, $functype->{ptr}, $fptr);
+    my $self = $xsub->($store, $functype, $fptr);
     $self->{store} = $store;
     $self->{wrapper} = $wrapper;
     return $self;
@@ -180,7 +180,9 @@ Returns the L<Wasm::Wasmtime::FuncType> instance which includes the function sig
 
 $ffi->attach( type => ['wasm_func_t'] => 'wasm_functype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::FuncType->new($xsub->($self), $self->{owner} || $self);
+  my $type = $xsub->($self);
+  $type->{owner} = $self->{owner} || $self;
+  $type;
 });
 
 =head2 param_arity
