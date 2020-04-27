@@ -28,7 +28,7 @@ This class represents a WebAssembly linker.
 =cut
 
 $ffi_prefix = 'wasmtime_linker_';
-$ffi->type('opaque' => 'wasmtime_linker_t');
+$ffi->load_custom_type('::PtrObject' => 'wasmtime_linker_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 
@@ -44,8 +44,9 @@ Create a new WebAssembly linker object.
 
 $ffi->attach( new => ['wasm_store_t'] => 'wasmtime_linker_t' => sub {
   my($xsub, $class, $store) = @_;
-  my $ptr = $xsub->($store);
-  bless { ptr => $ptr, store => $store }, $class;
+  my $self = $xsub->($store);
+  $self->{store} = $store;
+  $self;
 });
 
 =head1 METHODS
@@ -60,7 +61,7 @@ Sets the allow shadowing property.
 
 $ffi->attach( allow_shadowing => [ 'wasmtime_linker_t', 'bool' ] => sub {
   my($xsub, $self, $value) = @_;
-  $xsub->($self->{ptr}, $value);
+  $xsub->($self, $value);
   $self;
 });
 
@@ -99,7 +100,7 @@ if(Wasm::Wasmtime::Error->can('new'))
       Carp::croak("not an extern: $extern");
     }
 
-    my $error = $xsub->($self->{ptr}, $module, $name, $extern);
+    my $error = $xsub->($self, $module, $name, $extern);
     Carp::croak($error->message) if $error;
     $self;
   });
@@ -126,7 +127,7 @@ else
       Carp::croak("not an extern: $extern");
     }
 
-    my $ret = $xsub->($self->{ptr}, $module, $name, $extern);
+    my $ret = $xsub->($self, $module, $name, $extern);
     unless($ret)
     {
       Carp::croak("Unknown error in define");
@@ -150,7 +151,7 @@ if(Wasm::Wasmtime::Error->can('new'))
 {
   $ffi->attach( define_wasi => ['wasmtime_linker_t', 'wasi_instance_t'] => 'wasmtime_error_t' => sub {
     my($xsub, $self, $wasi) = @_;
-    my $error = $xsub->($self->{ptr}, $wasi);
+    my $error = $xsub->($self, $wasi);
     Carp::croak($error->message) if $error;
     $self;
   });
@@ -159,7 +160,7 @@ else
 {
   $ffi->attach( define_wasi => ['wasmtime_linker_t', 'wasi_instance_t'] => 'bool' => sub {
     my($xsub, $self, $wasi) = @_;
-    my $ret = $xsub->($self->{ptr}, $wasi);
+    my $ret = $xsub->($self, $wasi);
     Carp::croak("Unknown error in define_wasi") unless $ret;
     $self;
   });
@@ -180,7 +181,7 @@ if(Wasm::Wasmtime::Error->can('new'))
   $ffi->attach( define_instance => ['wasmtime_linker_t', 'wasm_byte_vec_t*', 'wasm_instance_t'] => 'wasmtime_error_t' => sub {
     my($xsub, $self, $name, $instance) = @_;
     my $vname = Wasm::Wasmtime::ByteVec->new($name);
-    my $error = $xsub->($self->{ptr}, $vname, $instance);
+    my $error = $xsub->($self, $vname, $instance);
     Carp::croak($error->message) if $error;
     $self;
   });
@@ -190,7 +191,7 @@ else
   $ffi->attach( define_instance => ['wasmtime_linker_t', 'wasm_byte_vec_t*', 'wasm_instance_t'] => 'bool' => sub {
     my($xsub, $self, $name, $instance) = @_;
     my $vname = Wasm::Wasmtime::ByteVec->new($name);
-    my $ret = $xsub->($self->{ptr}, $vname, $instance);
+    my $ret = $xsub->($self, $vname, $instance);
     Carp::croak("Unknown error in define_instance") unless $ret;
     $self;
   });
@@ -236,7 +237,7 @@ else
   $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_trap_t*' ] => 'opaque' => sub {
     my($xsub, $self, $module) = @_;
     my $trap;
-    my $ptr = $xsub->($self->{ptr}, $module, \$trap);
+    my $ptr = $xsub->($self, $module, \$trap);
     if($trap)
     {
       $trap = Wasm::Wasmtime::Trap->new($trap);
@@ -255,10 +256,7 @@ else
   });
 }
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasmtime_linker_t'] => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr}) if $self->{ptr};
-});
+_generate_destroy();
 
 1;
 

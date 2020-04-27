@@ -149,7 +149,11 @@ sub _generate_destroy
 {
   my $caller = caller;
   my $type = lc $caller;
-  if($type =~ /::wasi/)
+  if($type =~ /::linker$/)
+  {
+    $type = 'wasmtime_linker_t';
+  }
+  elsif($type =~ /::wasi/)
   {
     $type =~ s/^.*::wasi(.*)$/wasi_${1}_t/g;
   }
