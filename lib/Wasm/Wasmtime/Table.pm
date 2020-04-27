@@ -24,7 +24,7 @@ This class represents a WebAssembly table object.
 =cut
 
 $ffi_prefix = 'wasm_table_';
-$ffi->type('opaque' => 'wasm_table_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_table_t' => __PACKAGE__);
 
 sub new
 {
@@ -51,7 +51,9 @@ Returns the L<Wasm::Wasmtime::TableType> object for this table object.
 
 $ffi->attach( type => ['wasm_table_t'] => 'wasm_tabletype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::TableType->new($xsub->($self->{ptr}), $self->{owner} || $self);
+  my $type = $xsub->($self);
+  $type->{owner} = $self->{owner} || $self;
+  $type;
 });
 
 =head2 size
@@ -62,10 +64,7 @@ Returns the size of the table.
 
 =cut
 
-$ffi->attach( size => ['wasm_table_t'] => 'uint32' => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
-});
+$ffi->attach( size => ['wasm_table_t'] => 'uint32' );
 
 =head2 as_extern
 
@@ -79,17 +78,11 @@ Returns the L<Wasm::Wasmtime::Extern> for this table object.
 $ffi->attach( as_extern => ['wasm_table_t'] => 'opaque' => sub {
   my($xsub, $self) = @_;
   require Wasm::Wasmtime::Extern;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   Wasm::Wasmtime::Extern->new($ptr, $self->{owner} || $self);
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_table_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
+_generate_destroy();
 
 1;
 
