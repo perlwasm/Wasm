@@ -24,7 +24,7 @@ This class represents a module global type.
 =cut
 
 $ffi_prefix = 'wasm_globaltype_';
-$ffi->type('opaque' => 'wasm_globaltype_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_globaltype_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 
@@ -64,7 +64,11 @@ $ffi->attach( new => ['wasm_valtype_t','uint8'] => 'wasm_globaltype_t' => sub {
   my $owner;
   if(defined $_[0] && !is_ref($_[0]) && $_[0] =~ /^[0-9]+$/)
   {
-    ($ptr, $owner) = @_;
+    my($ptr, $owner) = @_;
+    return bless {
+      ptr => $ptr,
+      owner => $owner,
+    }, $class;
   }
   else
   {
@@ -78,13 +82,10 @@ $ffi->attach( new => ['wasm_valtype_t','uint8'] => 'wasm_globaltype_t' => sub {
       $valtype = Wasm::Wasmtime::ValType->new($valtype);
     }
     Carp::croak("mutability must be one of 'const' or 'var'") unless defined $mutability{$mutability};
-    $ptr = $xsub->($valtype, $mutability{$mutability});
+    my $self = $xsub->($valtype, $mutability{$mutability});
     delete $valtype->{ptr};
+    return $self;
   }
-  bless {
-    ptr => $ptr,
-    owner => $owner,
-  }, $class;
 });
 
 =head2 content
@@ -97,7 +98,7 @@ Returns the L<Wasm::Wasmtime::ValType> for this global type.
 
 $ffi->attach( content => ['wasm_globaltype_t'] => 'wasm_valtype_t' => sub {
   my($xsub, $self) = @_;
-  my $valtype = $xsub->($self->{ptr});
+  my $valtype = $xsub->($self);
   $valtype->{owner} = $self;
   $valtype;
 });
@@ -117,7 +118,7 @@ my @mutability = (
 
 $ffi->attach( mutability => ['wasm_globaltype_t'] => 'uint8' => sub {
   my($xsub, $self) = @_;
-  $mutability[$xsub->($self->{ptr})];
+  $mutability[$xsub->($self)];
 });
 
 =head2 as_externtype
@@ -132,17 +133,11 @@ Returns the L<Wasm::Wasmtime::ExternType> for this global type.
 $ffi->attach( as_externtype => ['wasm_globaltype_t'] => 'opaque' => sub {
   my($xsub, $self) = @_;
   require Wasm::Wasmtime::ExternType;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   Wasm::Wasmtime::ExternType->new($ptr, $self->{owner} || $self);
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_globaltype_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
+_generate_destroy();
 
 1;
 
