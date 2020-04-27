@@ -25,7 +25,7 @@ This class represents a WebAssembly global object.
 =cut
 
 $ffi_prefix = 'wasm_global_';
-$ffi->type('opaque' => 'wasm_global_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_global_t' => __PACKAGE__);
 
 =head1 CONSTRUCTOR
 
@@ -43,21 +43,22 @@ Creates a new global object.
 $ffi->attach( new => ['wasm_store_t', 'wasm_globaltype_t', 'string'] => 'wasm_global_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my $ptr;
-  my $owner;
   if(is_ref $_[0])
   {
     my($store, $globaltype, $value) = @_;
-    $ptr = $xsub->($store, $globaltype->{ptr}, perl_to_wasm([$value], [$globaltype->content]));
+    $DB::single = 1;
+    my $self = $xsub->($store, $globaltype->{ptr}, perl_to_wasm([$value], [$globaltype->content]));
+    $self->{store} = $store;
+    return $self;
   }
   else
   {
-    ($ptr, $owner) = @_;
+    my($ptr, $owner) = @_;
+    bless {
+      ptr   => $ptr,
+      owner => $owner,
+    }, $class;
   }
-  bless {
-    ptr   => $ptr,
-    owner => $owner,
-  }, $class;
 });
 
 =head1 METHODS
@@ -72,7 +73,7 @@ Returns the L<Wasm::Wasmtime::GlobalType> object for this global object.
 
 $ffi->attach( type => ['wasm_global_t'] => 'wasm_globaltype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::GlobalType->new($xsub->($self->{ptr}), $self->{owner} || $self);
+  Wasm::Wasmtime::GlobalType->new($xsub->($self), $self->{owner} || $self);
 });
 
 =head2 get
@@ -86,7 +87,7 @@ Gets the global value.
 $ffi->attach( get => ['wasm_global_t', 'string'] => sub {
   my($xsub, $self) = @_;
   my $value = wasm_allocate(1);
-  $xsub->($self->{ptr}, $value);
+  $xsub->($self, $value);
   ($value) = wasm_to_perl($value);
   $value;
 });
@@ -101,7 +102,7 @@ Sets the global to the given value.
 
 $ffi->attach( set => ['wasm_global_t','string'] => sub {
   my($xsub, $self, $value) = @_;
-  $xsub->($self->{ptr}, perl_to_wasm([$value],[$self->type->content]));
+  $xsub->($self, perl_to_wasm([$value],[$self->type->content]));
 });
 
 =head2 as_extern
@@ -116,17 +117,11 @@ Returns the L<Wasm::Wasmtime::Extern> for this global object.
 $ffi->attach( as_extern => ['wasm_global_t'] => 'opaque' => sub {
   my($xsub, $self) = @_;
   require Wasm::Wasmtime::Extern;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   Wasm::Wasmtime::Extern->new($ptr, $self->{owner} || $self);
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_global_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
+_generate_destroy();
 
 1;
 

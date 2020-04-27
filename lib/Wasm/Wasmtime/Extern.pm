@@ -116,9 +116,9 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_global => ['wasm_extern_t'] => 'wasm_global_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self);
-  return undef unless $ptr;
-  Wasm::Wasmtime::Global->new($ptr, $self->{owner} || $self);
+  my $global = $xsub->($self);
+  $global->{owner} = $self->{owner} || $self if $global;
+  $global;
 });
 
 =head2 as_table
