@@ -14,8 +14,8 @@ jobs:
   include:
     - env: CIP_TAG=static
     - env: CIP_TAG=5.31
-    - env: CIP_TAG=5.30 CIP_ENV=ALIEN_WASMTIME_VERSION=dev
-    - env: CIP_TAG=5.30-buster-arm64v8
+    - env: CIP_TAG=5.30 ALIEN_WASMTIME_VERSION=dev
+    - env: CIP_TAG=5.30-buster-arm64v8 ALIEN_WASMTIME_VERSION=dev
       arch: arm64
     - env: CIP_TAG=5.30
     - env: CIP_TAG=5.28
@@ -24,16 +24,16 @@ jobs:
     - env: CIP_TAG=5.22
     - env: CIP_TAG=5.20
     - env: CIP_TAG=5.18
-    - env: CIP_TAG=5.18 CIP_ENV=ALIEN_WASMTIME_VERSION=dev
+    - env: CIP_TAG=5.18 ALIEN_WASMTIME_VERSION=dev
     - env: CIP_TAG=5.16
     - env: CIP_TAG=5.14
     - env: CIP_TAG=5.12
     - env: CIP_TAG=5.10
     - env: CIP_TAG=5.8
   allow_failures:
-    - env: CIP_TAG=5.30 CIP_ENV=ALIEN_WASMTIME_VERSION=dev
-    - env: CIP_TAG=5.18 CIP_ENV=ALIEN_WASMTIME_VERSION=dev
-    - env: CIP_TAG=5.30-buster-arm64v8
+    - env: CIP_TAG=5.30 ALIEN_WASMTIME_VERSION=dev
+    - env: CIP_TAG=5.18 ALIEN_WASMTIME_VERSION=dev
+    - env: CIP_TAG=5.30-buster-arm64v8 ALIEN_WASMTIME_VERSION=dev
       arch: arm64
 cache:
   directories:
