@@ -35,7 +35,7 @@ This is a private class used internally by L<Wasm::Wasmtime> classes.
 
 =cut
 
-our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy_2 );
+our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
 
 sub _lib
 {
@@ -134,7 +134,7 @@ sub _generate_vec_class
 
 }
 
-sub _wrapper_destroy_2
+sub _wrapper_destroy
 {
   my($xsub, $self) = @_;
   return if Devel::GlobalDestruction::in_global_destruction();
@@ -145,7 +145,7 @@ sub _wrapper_destroy_2
   }
 }
 
-sub _generate_destroy_2
+sub _generate_destroy
 {
   my $caller = caller;
   my $type = lc $caller;
@@ -158,7 +158,7 @@ sub _generate_destroy_2
     $type =~ s/^.*:://;
     $type = "wasm_${type}_t";
   }
-  $ffi->attach( [ delete => join('::', $caller, 'DESTROY') ] => [ $type ] => \&_wrapper_destroy_2);
+  $ffi->attach( [ delete => join('::', $caller, 'DESTROY') ] => [ $type ] => \&_wrapper_destroy);
 }
 
 if($ffi->find_symbol('wasmtime_error_message'))

@@ -153,7 +153,7 @@ $ffi->attach( as_memory => ['wasm_extern_t'] => 'wasm_memory_t' => sub {
   Wasm::Wasmtime::Memory->new($ptr, $self->{owner} || $self);
 });
 
-_generate_destroy_2();
+_generate_destroy();
 _generate_vec_class();
 
 1;

@@ -56,7 +56,7 @@ Returns the L<Wasm::Wasmtime::Engine> object for this storage object.
 
 sub engine { shift->{engine} }
 
-_generate_destroy_2();
+_generate_destroy();
 
 1;
 
