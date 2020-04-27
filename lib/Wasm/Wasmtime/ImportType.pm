@@ -86,10 +86,9 @@ Returns the L<Wasm::Wasmtime::ExternType> for the import.
 
 $ffi->attach( type => ['wasm_importtype_t'] => 'wasm_externtype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::ExternType->new(
-    $xsub->($self->{ptr}),
-    $self->{owner} || $self,
-  );
+  my $type = $xsub->($self->{ptr});
+  $type->{owner} = $self->{owner} || $self;
+  $type;
 });
 
 =head2 module

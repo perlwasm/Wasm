@@ -46,7 +46,7 @@ Returns the L<Wasm::Wasmtime::ExternType> for this extern.
 
 $ffi->attach( type => ['wasm_extern_t'] => 'wasm_externtype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::ExternType->new($xsub->($self), undef);
+  $xsub->($self);
 });
 
 my %kind = (

@@ -128,7 +128,6 @@ any) is returned.
 $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => sub {
   my $xsub = shift;
   my $self = shift;
-  $DB::single = 1;
   my $args = perl_to_wasm(\@_, [$self->type->params]);
   my $results = wasm_allocate( $self->result_arity );
 
@@ -181,7 +180,6 @@ Returns the L<Wasm::Wasmtime::FuncType> instance which includes the function sig
 
 $ffi->attach( type => ['wasm_func_t'] => 'wasm_functype_t' => sub {
   my($xsub, $self) = @_;
-  $DB::single = 1;
   Wasm::Wasmtime::FuncType->new($xsub->($self), $self->{owner} || $self);
 });
 
