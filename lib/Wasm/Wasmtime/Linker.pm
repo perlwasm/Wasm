@@ -99,7 +99,7 @@ if(Wasm::Wasmtime::Error->can('new'))
       Carp::croak("not an extern: $extern");
     }
 
-    my $error = $xsub->($self->{ptr}, $module, $name, $extern->{ptr});
+    my $error = $xsub->($self->{ptr}, $module, $name, $extern);
     Carp::croak($error->message) if $error;
     $self;
   });
