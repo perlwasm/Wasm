@@ -99,9 +99,10 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_func => ['wasm_extern_t'] => 'wasm_func_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self);
-  return undef unless $ptr;
-  Wasm::Wasmtime::Func->new($ptr, $self->{owner} || $self);
+  my $func = $xsub->($self);
+  return unless $func;
+  $func->{owner} = $self->{owner} || $self;
+  $func;
 });
 
 =head2 as_global
