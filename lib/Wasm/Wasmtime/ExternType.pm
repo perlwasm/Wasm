@@ -86,8 +86,9 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_functype => ['wasm_externtype_t'] => 'wasm_functype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self);
-  $ptr ? Wasm::Wasmtime::FuncType->new($ptr, $self->{owner} || $self) : undef;
+  my $functype = $xsub->($self);
+  $functype->{owner} = $self->{owner} || $self if $functype;
+  $functype;
 });
 
 =head2 as_globaltype
