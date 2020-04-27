@@ -248,7 +248,7 @@ sub get_export
   $self->{exports}->{$name};
 }
 
-_generate_destroy_2();
+_generate_destroy();
 
 1;
 

@@ -74,7 +74,7 @@ $ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'wasm_trap_t*']
 
 # TODO: bind_import
 
-_generate_destroy_2();
+_generate_destroy();
 
 1;
 

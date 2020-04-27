@@ -91,7 +91,7 @@ $ffi->attach( type => ['wasm_exporttype_t'] => 'wasm_externtype_t' => sub {
   );
 });
 
-_generate_destroy_2();
+_generate_destroy();
 _generate_vec_class();
 
 1;

@@ -142,7 +142,7 @@ $ffi->attach( set_env => ['wasi_config_t','int','string[]','string[]'] => sub {
   $self;
 });
 
-_generate_destroy_2();
+_generate_destroy();
 
 1;
 

@@ -46,7 +46,7 @@ $ffi->attach( [ 'new_with_config' => 'new' ] => ['wasm_config_t'] => 'wasm_engin
   $self;
 });
 
-_generate_destroy_2();
+_generate_destroy();
 
 1;
 

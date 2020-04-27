@@ -218,7 +218,7 @@ $ffi->attach( exports => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
   $externs->to_list;
 });
 
-_generate_destroy_2();
+_generate_destroy();
 
 1;
 

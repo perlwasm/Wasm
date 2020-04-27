@@ -119,7 +119,7 @@ Returns the number used internally to represent the type.
 
 $ffi->attach( [kind => 'kind_num'] => ['wasm_valtype_t'] => 'uint8' );
 
-_generate_destroy_2();
+_generate_destroy();
 _generate_vec_class( delete => 0 );
 
 $ffi->attach( [ wasm_valtype_vec_new => 'Wasm::Wasmtime::ValTypeVec::set' ] => ['wasm_valtype_vec_t*','size_t','opaque[]'] => sub {
