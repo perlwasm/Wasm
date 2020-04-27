@@ -209,7 +209,7 @@ Instantiate the module using the linker.  Returns the new L<Wasm::Wasmtime::Inst
 
 if(Wasm::Wasmtime::Error->can('new'))
 {
-  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*','wasm_trap_t*'] => 'wasmtime_error_t' => sub {
+  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
     my($xsub, $self, $module) = @_;
     my $trap;
     my $ptr;
@@ -234,7 +234,7 @@ if(Wasm::Wasmtime::Error->can('new'))
 }
 else
 {
-  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','wasm_trap_t*' ] => 'opaque' => sub {
+  $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*' ] => 'opaque' => sub {
     my($xsub, $self, $module) = @_;
     my $trap;
     my $ptr = $xsub->($self, $module, \$trap);

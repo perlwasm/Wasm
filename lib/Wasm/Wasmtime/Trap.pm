@@ -24,7 +24,7 @@ own trap here.
 =cut
 
 $ffi_prefix = 'wasm_trap_';
-$ffi->type('opaque' => 'wasm_trap_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_trap_t' => __PACKAGE__);
 
 =head1 CONSTRUCTORS
 
@@ -44,18 +44,16 @@ $ffi->attach( new => [ 'wasm_store_t', 'wasm_byte_vec_t*' ] => 'wasm_trap_t' => 
   my $class = shift;
   if(@_ == 1)
   {
-    my $pointer = shift;
+    my $ptr = shift;
     return bless {
-      ptr => $pointer,
+      ptr => $ptr,
     }, $class;
   }
   else
   {
     my $store = shift;
     my $message = Wasm::Wasmtime::ByteVec->new($_[0]);
-    return bless {
-      ptr => $xsub->($store, $message),
-    }, $class;
+    return $xsub->($store, $message);
   }
 });
 
@@ -72,17 +70,14 @@ Returns the trap message as a string.
 $ffi->attach( message => ['wasm_trap_t', 'wasm_byte_vec_t*'] => sub {
   my($xsub, $self) = @_;
   my $message = Wasm::Wasmtime::ByteVec->new;
-  $xsub->($self->{ptr}, $message);
+  $xsub->($self, $message);
   my $ret = $message->get;
   $ret =~ s/\0$//;
   $message->delete;
   $ret;
 });
 
-$ffi->attach( [ 'delete' => 'DESTROY' ] => ['wasm_trap_t'] => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr}) if $self->{ptr};
-});
+_generate_destroy();
 
 1;
 

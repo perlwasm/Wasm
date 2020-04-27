@@ -51,7 +51,7 @@ Create a new WASI instance.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'wasm_trap_t*'] => 'wasi_instance_t' => sub {
+$ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'opaque*'] => 'wasi_instance_t' => sub {
   my $xsub = shift;
   my $class = shift;
   my $store = shift;
