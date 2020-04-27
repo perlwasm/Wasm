@@ -46,8 +46,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_globaltype_t', 'string'] => 'wasm_gl
   if(is_ref $_[0])
   {
     my($store, $globaltype, $value) = @_;
-    $DB::single = 1;
-    my $self = $xsub->($store, $globaltype->{ptr}, perl_to_wasm([$value], [$globaltype->content]));
+    my $self = $xsub->($store, $globaltype, perl_to_wasm([$value], [$globaltype->content]));
     $self->{store} = $store;
     return $self;
   }
@@ -73,7 +72,9 @@ Returns the L<Wasm::Wasmtime::GlobalType> object for this global object.
 
 $ffi->attach( type => ['wasm_global_t'] => 'wasm_globaltype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::GlobalType->new($xsub->($self), $self->{owner} || $self);
+  my $type = $xsub->($self);
+  $type->{owner} = $self->{owner} || $self;
+  $type;
 });
 
 =head2 get

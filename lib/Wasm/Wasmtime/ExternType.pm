@@ -102,8 +102,9 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_globaltype => ['wasm_externtype_t'] => 'wasm_globaltype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self);
-  $ptr ? Wasm::Wasmtime::GlobalType->new($ptr, $self->{owner} || $self) : undef;
+  my $globaltype = $xsub->($self);
+  $globaltype->{owner} = $self->{owner} || $self if $globaltype;
+  $globaltype;
 });
 
 =head2 as_tabletype
