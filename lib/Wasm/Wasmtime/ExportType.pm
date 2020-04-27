@@ -85,10 +85,9 @@ Returns the L<Wasm::Wasmtime::ExternType> for the export.
 
 $ffi->attach( type => ['wasm_exporttype_t'] => 'wasm_externtype_t' => sub {
   my($xsub, $self) = @_;
-  Wasm::Wasmtime::ExternType->new(
-    $xsub->($self),
-    $self->{owner} || $self,
-  );
+  my $type = $xsub->($self);
+  $type->{owner} = $self->{owner} || $self;
+  $type;
 });
 
 _generate_destroy();

@@ -23,7 +23,7 @@ retrieved from the L<Wasm::Wasmtime::Module> class.
 =cut
 
 $ffi_prefix = 'wasm_externtype_';
-$ffi->type('opaque' => 'wasm_externtype_t');
+$ffi->load_custom_type('::PtrObject' => 'wasm_externtype_t' => __PACKAGE__);
 
 sub new
 {
@@ -63,10 +63,7 @@ Returns the kind of extern type.  Should be one of:
 
 =cut
 
-$ffi->attach( kind => ['wasm_externtype_t'] => 'uint8' => sub {
-  my($xsub, $self) = @_;
-  $kind{$xsub->($self->{ptr})};
-});
+sub kind { $kind{shift->kind_num} }
 
 =head2 kind_num
 
@@ -76,10 +73,7 @@ Returns the kind of extern type as the internal integer code.
 
 =cut
 
-$ffi->attach( [ kind => 'kind_num' ] => ['wasm_externtype_t'] => 'uint8' => sub {
-  my($xsub, $self) = @_;
-  $xsub->($self->{ptr});
-});
+$ffi->attach( [ kind => 'kind_num' ] => ['wasm_externtype_t'] => 'uint8');
 
 =head2 as_functype
 
@@ -92,7 +86,7 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_functype => ['wasm_externtype_t'] => 'wasm_functype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   $ptr ? Wasm::Wasmtime::FuncType->new($ptr, $self->{owner} || $self) : undef;
 });
 
@@ -107,7 +101,7 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_globaltype => ['wasm_externtype_t'] => 'wasm_globaltype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   $ptr ? Wasm::Wasmtime::GlobalType->new($ptr, $self->{owner} || $self) : undef;
 });
 
@@ -122,7 +116,7 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_tabletype => ['wasm_externtype_t'] => 'wasm_tabletype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   $ptr ? Wasm::Wasmtime::TableType->new($ptr, $self->{owner} || $self) : undef;
 });
 
@@ -137,17 +131,11 @@ Otherwise returns C<undef>.
 
 $ffi->attach( as_memorytype => ['wasm_externtype_t'] => 'wasm_memorytype_t' => sub {
   my($xsub, $self) = @_;
-  my $ptr = $xsub->($self->{ptr});
+  my $ptr = $xsub->($self);
   $ptr ? Wasm::Wasmtime::MemoryType->new($ptr, $self->{owner} || $self) : undef;
 });
 
-$ffi->attach( [ delete => "DESTROY" ] => ['wasm_externtype_t'] => sub {
-  my($xsub, $self) = @_;
-  if(defined $self->{ptr} && !defined $self->{owner})
-  {
-    $xsub->($self->{ptr});
-  }
-});
+_generate_destroy();
 
 1;
 
