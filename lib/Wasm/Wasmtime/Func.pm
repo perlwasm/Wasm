@@ -135,7 +135,6 @@ $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => su
 
   if($trap)
   {
-    $trap = Wasm::Wasmtime::Trap->new($trap);
     my $message = $trap->message;
     Carp::croak("trap in wasm function call: $message");
   }
