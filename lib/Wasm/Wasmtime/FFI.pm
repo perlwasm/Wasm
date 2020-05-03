@@ -2,6 +2,7 @@ package Wasm::Wasmtime::FFI;
 
 use strict;
 use warnings;
+use FFI::C;
 use FFI::Platypus 1.00;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
@@ -44,6 +45,7 @@ sub _lib
 
 our $ffi_prefix = 'wasm_';
 our $ffi = FFI::Platypus->new( api => 1 );
+FFI::C->ffi($ffi);
 $ffi->lib(__PACKAGE__->_lib);
 $ffi->mangler(sub {
   my $name = shift;
@@ -220,7 +222,7 @@ if($ffi->find_symbol('wasmtime_error_message'))
 
   # CBC is probably not how we want to do this long term, but atm
   # Platypus does not support Unions or arrays of records so.
-  our $cbc = Convert::Binary::C->new(
+  my $cbc = Convert::Binary::C->new(
     Alignment => 8,
     LongSize => 8, # CBC does not apparently use the native alignment by default *sigh*
   );
@@ -299,6 +301,30 @@ if($ffi->find_symbol('wasmtime_error_message'))
     $xsub->($_[0], $_[1], length $_[1]);
   });
 
+}
+
+{ package FFI::Wasmtime::WasmValof;
+  FFI::C->union([
+    i32     => 'sint32',
+    i64     => 'sint64',
+    f32     => 'float',
+    f64     => 'double',
+    anyref  => 'opaque',
+    funcref => 'opaque',
+  ]);
+}
+
+{ package FFI::Wasmtime::WasmVal;
+  FFI::C->struct([
+    kind => 'uint8',
+    of   => 'wasm_valof_t',
+  ]);
+}
+
+{ package FFI::Wasmtime::WasmValVec;
+  FFI::C->array([
+    'wasm_val_t',
+  ]);
 }
 
 1;
