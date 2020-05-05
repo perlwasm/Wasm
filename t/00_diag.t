@@ -14,6 +14,7 @@ $modules{$_} = $_ for qw(
   Convert::Binary::C
   Devel::GlobalDestruction
   ExtUtils::MakeMaker
+  FFI::C
   FFI::CheckLib
   FFI::Platypus
   FFI::Platypus::Buffer
