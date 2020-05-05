@@ -5,6 +5,31 @@ use warnings;
 use Test2::API qw( context );
 use Test2::Mock;
 
+# ABSTRACT: Test2 plugin for Wasm extensions
+# VERSION
+
+=head1 SYNOPSIS
+
+ use Test2::Plugin::Wasm;
+
+=head1 DESCRIPTION
+
+This L<Test2> plugin is for testing L<Wasm> extensions.  Right now, it sets C<wasmtime> resource
+limits to work on systems with a low virtual memory address limit.  It may do other thing that
+make sense for all L<Wasm> extensions in the future.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+Write Perl extensions using Web Assembly.
+
+=back
+
+=cut
+
 sub get_virtual_memory_limit
 {
   my $ctx = context();
