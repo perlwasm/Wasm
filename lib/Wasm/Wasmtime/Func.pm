@@ -6,7 +6,6 @@ use Ref::Util qw( is_blessed_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
-use Wasm::Wasmtime::CBC qw( wasm_to_perl wasm_type );
 use Sub::Install;
 use Carp ();
 use overload
@@ -74,7 +73,13 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
     my $wrapper = $ffi->closure(sub {
       my($params, $results) = @_;
 
-      my @args = $param_arity ? wasm_to_perl($params) : ();
+      my @args = $param_arity ? do {
+        my $args = $ffi->cast('opaque', 'wasm_val_vec_t', $params);
+        # TODO: this should be a utility function
+        # in FFI::C::Util
+        $args->{count} = $param_arity;
+        $args->to_perl;
+      } : ();
 
       local $@ = '';
       my @ret = eval {
@@ -102,8 +107,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
         return undef;
       }
     });
-    my $wasm_type = wasm_type($param_arity);
-    my $fptr = $ffi->cast("($wasm_type,opaque)->opaque", => 'opaque', $wrapper);
+    my $fptr = $ffi->cast("(opaque,opaque)->opaque", => 'opaque', $wrapper);
     my $self = $xsub->($store, $functype, $fptr);
     $self->{store} = $store;
     $self->{wrapper} = $wrapper;
