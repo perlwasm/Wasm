@@ -105,7 +105,6 @@ foreach my $prop (qw( static_memory_maximum_size static_memory_guard_size dynami
     $xsub->($self, $value);
     $self;
   }) };
-  warn $@ if $@;
   if($f)
   {
     $f->attach($prop);
