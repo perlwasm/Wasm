@@ -6,7 +6,6 @@ use Ref::Util qw( is_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::GlobalType;
-use Wasm::Wasmtime::CBC qw( perl_to_wasm wasm_allocate wasm_to_perl );
 
 # ABSTRACT: Wasmtime global class
 # VERSION
@@ -40,13 +39,17 @@ Creates a new global object.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t', 'wasm_globaltype_t', 'string'] => 'wasm_global_t' => sub {
+$ffi->attach( new => ['wasm_store_t', 'wasm_globaltype_t', 'wasm_val_t'] => 'wasm_global_t' => sub {
   my $xsub = shift;
   my $class = shift;
   if(is_ref $_[0])
   {
     my($store, $globaltype, $value) = @_;
-    my $self = $xsub->($store, $globaltype, perl_to_wasm([$value], [$globaltype->content]));
+    $value = Wasm::Wasmtime::Val->new({
+      kind => $globaltype->content->kind_num,
+      of => { $globaltype->content->kind => $value },
+    });
+    my $self = $xsub->($store, $globaltype, $value);
     $self->{store} = $store;
     return $self;
   }
@@ -85,12 +88,12 @@ Gets the global value.
 
 =cut
 
-$ffi->attach( get => ['wasm_global_t', 'string'] => sub {
+$ffi->attach( get => ['wasm_global_t', 'wasm_val_t'] => sub {
   my($xsub, $self) = @_;
-  my $value = wasm_allocate(1);
+  my $value = Wasm::Wasmtime::Val->new;
   $xsub->($self, $value);
-  ($value) = wasm_to_perl($value);
-  $value;
+  my $kind = $self->type->content->kind;
+  $value->of->$kind;
 });
 
 =head2 set
@@ -101,9 +104,13 @@ Sets the global to the given value.
 
 =cut
 
-$ffi->attach( set => ['wasm_global_t','string'] => sub {
+$ffi->attach( set => ['wasm_global_t','wasm_val_t'] => sub {
   my($xsub, $self, $value) = @_;
-  $xsub->($self, perl_to_wasm([$value],[$self->type->content]));
+    $value = Wasm::Wasmtime::Val->new({
+      kind => $self->type->content->kind_num,
+      of => { $self->type->content->kind => $value },
+    });
+  $xsub->($self, $value);
 });
 
 =head2 as_extern

@@ -2,7 +2,7 @@ package Wasm::Wasmtime::FFI;
 
 use strict;
 use warnings;
-use FFI::C;
+use FFI::C 0.03;
 use FFI::Platypus 1.00;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
@@ -303,8 +303,8 @@ if($ffi->find_symbol('wasmtime_error_message'))
 
 }
 
-{ package FFI::Wasmtime::WasmValof;
-  FFI::C->union([
+{ package Wasm::Wasmtime::Val::Of;
+  FFI::C->union(of_t => [
     i32     => 'sint32',
     i64     => 'sint64',
     f32     => 'float',
@@ -314,15 +314,15 @@ if($ffi->find_symbol('wasmtime_error_message'))
   ]);
 }
 
-{ package FFI::Wasmtime::WasmVal;
-  FFI::C->struct([
+{ package Wasm::Wasmtime::Val;
+  FFI::C->struct(wasm_val_t => [
     kind => 'uint8',
-    of   => 'wasm_valof_t',
+    of   => 'of_t',
   ]);
 }
 
-{ package FFI::Wasmtime::WasmValVec;
-  FFI::C->array([
+{ package Wasm::Wasmtime::ValVec;
+  FFI::C->array(wasm_val_vec_t => [
     'wasm_val_t',
   ]);
 }
