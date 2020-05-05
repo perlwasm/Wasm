@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Add Test2::Plugin::Wasm (gh#36)
 
   [Warning: numerous breaking changes]
 
