@@ -102,9 +102,9 @@ sub import
         new => sub {
           my $orig = shift;
           my $self = shift->$orig(@_);
-          $self->static_memory_maximum_size($vm_limit/4);
-          $self->static_memory_guard_size(1024);
-          $self->dynamic_memory_guard_size(1024);
+          $self->static_memory_maximum_size(0);
+          $self->static_memory_guard_size(0);
+          $self->dynamic_memory_guard_size(0);
           $self;
         },
       ],
