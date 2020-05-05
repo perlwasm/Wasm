@@ -98,6 +98,25 @@ foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
   });
 }
 
+foreach my $prop (qw( static_memory_maximum_size static_memory_guard_size dynamic_memory_guard_size ))
+{
+  my $f = eval { $ffi->function( "wasmtime_config_${prop}_set" => [ 'wasm_config_t', 'uint64' ] => 'void' => sub {
+    my($xsub, $self, $value) = @_;
+    $xsub->($self, $value);
+    $self;
+  }) };
+  warn $@ if $@;
+  if($f)
+  {
+    $f->attach($prop);
+  }
+  else
+  {
+    no strict 'refs';
+    *$prop = sub { Carp::croak("property $prop is not available") };
+  }
+}
+
 =head2 strategy
 
  $config->strategy($strategy);
