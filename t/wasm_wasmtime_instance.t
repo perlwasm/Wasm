@@ -1,4 +1,5 @@
 use Test2::V0 -no_srand => 1;
+use Test2::Plugin::Wasm;
 use lib 't/lib';
 use Test2::Tools::Wasm;
 use Wasm::Wasmtime::Module;

@@ -81,6 +81,8 @@ L<https://github.com/webassembly/bulk-memory>
 
 =head2 wasm_multi_value
 
+ $config->wasm_multi_value($bool)
+
 Configures whether the wasm multi value proposal is enabled.
 
 L<https://github.com/webassembly/multi-value>
@@ -97,6 +99,26 @@ foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
     $self;
   });
 }
+
+=head2 static_memory_maximum_size
+
+ $config->static_memory_maximum_size($size);
+
+Configure the static memory maximum size.
+
+=head2 static_memory_guard_size
+
+ $config->static_memory_guard_size($size);
+
+Configure the static memory guard size.
+
+=head2 dynamic_memory_guard_size
+
+ $config->dynamic_memory_guard_size($size);
+
+Configure the dynamic memory guard size.
+
+=cut
 
 foreach my $prop (qw( static_memory_maximum_size static_memory_guard_size dynamic_memory_guard_size ))
 {

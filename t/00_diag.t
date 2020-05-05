@@ -14,6 +14,7 @@ $modules{$_} = $_ for qw(
   Devel::GlobalDestruction
   ExtUtils::MakeMaker
   FFI::C
+  FFI::C::StructDef
   FFI::CheckLib
   FFI::Platypus
   FFI::Platypus::Buffer
@@ -23,6 +24,7 @@ $modules{$_} = $_ for qw(
   Ref::Util
   Sub::Install
   Test2::API
+  Test2::Mock
   Test2::V0
   Test::Alien::Diag
 );

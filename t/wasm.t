@@ -1,4 +1,5 @@
 use Test2::V0 -no_srand => 1;
+use Test2::Plugin::Wasm;
 use Wasm;
 
 try_ok  { Wasm->import( -api => 0 );    }                                                   'works with -api => 0 ';
