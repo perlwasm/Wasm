@@ -92,8 +92,7 @@ $ffi->attach( get => ['wasm_global_t', 'wasm_val_t'] => sub {
   my($xsub, $self) = @_;
   my $value = Wasm::Wasmtime::Val->new;
   $xsub->($self, $value);
-  my $kind = $self->type->content->kind;
-  $value->of->$kind;
+  $value->to_perl;
 });
 
 =head2 set

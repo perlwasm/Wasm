@@ -6,7 +6,7 @@ use Ref::Util qw( is_blessed_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
-use Wasm::Wasmtime::CBC qw( perl_to_wasm wasm_allocate wasm_to_perl wasm_type wasm_memcpy );
+use Wasm::Wasmtime::CBC qw( wasm_to_perl wasm_type );
 use Sub::Install;
 use Carp ();
 use overload
@@ -87,7 +87,18 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
       }
       else
       {
-        wasm_memcpy($results, perl_to_wasm(\@ret, [$functype->results])) if $result_arity;
+        if($result_arity)
+        {
+          $results = $ffi->cast('opaque', 'wasm_val_vec_t', $results);
+          my @types = $functype->results;
+          foreach my $i (0..$#types)
+          {
+            my $kind = $types[$i]->kind;
+            my $result = $results->get($i);
+            $result->kind($types[$i]->kind_num);
+            $result->of->$kind(shift @ret);
+          }
+        }
         return undef;
       }
     });
@@ -125,11 +136,11 @@ any) is returned.
 
 =cut
 
-$ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => sub {
+$ffi->attach( call => ['wasm_func_t', 'wasm_val_vec_t', 'wasm_val_vec_t'] => 'wasm_trap_t' => sub {
   my $xsub = shift;
   my $self = shift;
-  my $args = perl_to_wasm(\@_, [$self->type->params]);
-  my $results = wasm_allocate( $self->result_arity );
+  my $args = Wasm::Wasmtime::ValVec->from_perl(\@_, [$self->type->params]);
+  my $results = $self->result_arity ? Wasm::Wasmtime::ValVec->new($self->result_arity) : undef;
 
   my $trap = $xsub->($self, $args, $results);
 
@@ -139,7 +150,7 @@ $ffi->attach( call => ['wasm_func_t', 'string', 'string'] => 'wasm_trap_t' => su
     Carp::croak("trap in wasm function call: $message");
   }
   return unless defined $results;
-  my @results = wasm_to_perl($results);
+  my @results = $results->to_perl;
   wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
 });
 

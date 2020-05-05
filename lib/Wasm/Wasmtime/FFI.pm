@@ -2,7 +2,7 @@ package Wasm::Wasmtime::FFI;
 
 use strict;
 use warnings;
-use FFI::C 0.03;
+use FFI::C 0.04;
 use FFI::Platypus 1.00;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
@@ -314,17 +314,45 @@ if($ffi->find_symbol('wasmtime_error_message'))
   ]);
 }
 
+my %kind = (
+  0   => 'i32',
+  1   => 'i64',
+  2   => 'f32',
+  3   => 'f64',
+  128 => 'anyref',
+  129 => 'funcref',
+);
+
 { package Wasm::Wasmtime::Val;
   FFI::C->struct(wasm_val_t => [
     kind => 'uint8',
     of   => 'of_t',
   ]);
+
+  sub to_perl
+  {
+    my $self = shift;
+    my $kind = $kind{$self->kind};
+    $self->of->$kind;
+  }
 }
 
 { package Wasm::Wasmtime::ValVec;
   FFI::C->array(wasm_val_vec_t => [
     'wasm_val_t',
-  ]);
+  ], { nullable => 1 });
+
+  sub to_perl
+  {
+    my $self = shift;
+    map { $_->to_perl } @$self
+  }
+
+  sub from_perl
+  {
+    my($class, $vals, $types) = @_;
+    @$vals ? $class->new([map { { kind => $_->kind_num, of => { $_->kind => shift @$vals } } } @$types]) : undef;
+  }
 }
 
 1;
