@@ -225,22 +225,6 @@ $ffi->attach( result_arity => ['wasm_func_t'] => 'size_t' => sub {
   $xsub->($self);
 });
 
-=head2 as_extern
-
- my $extern = $func->as_extern;
-
-Returns the L<Wasm::Wasmtime::Extern> for this function.
-
-=cut
-
-# actually returns a wasm_extern_t, but recursion
-$ffi->attach( as_extern => ['wasm_func_t'] => 'opaque' => sub {
-  my($xsub, $self) = @_;
-  require Wasm::Wasmtime::Extern;
-  my $ptr = $xsub->($self);
-  Wasm::Wasmtime::Extern->new($ptr, $self->{owner} || $self);
-});
-
 _generate_destroy();
 
 1;

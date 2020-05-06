@@ -73,9 +73,15 @@ sub _cast_import
   {
     return $ii->{ptr};
   }
-  elsif(is_blessed_ref($ii) && $ii->can('as_extern'))
+  # TODO: if Wasm::Wasmtime::Extern becomes a baseclass for
+  # these four extern classes, then we don't have to check them
+  # in this stupid way.
+  elsif(is_blessed_ref($ii) && (   $ii->isa('Wasm::Wasmtime::Func')
+                                || $ii->isa('Wasm::Wasmtime::Memory')
+                                || $ii->isa('Wasm::Wasmtime::Global')
+                                || $ii->isa('Wasm::Wasmtime::Table')))
   {
-    return $ii->as_extern->{ptr};
+    return $ii->{ptr};
   }
   elsif(is_plain_coderef($ii))
   {
@@ -87,7 +93,7 @@ sub _cast_import
         $ii,
       );
       push @$keep, $f;
-      return $f->as_extern->{ptr};
+      return $f->{ptr};
     }
   }
   elsif(is_plain_scalarref($ii) || !defined $ii)
@@ -100,7 +106,7 @@ sub _cast_import
       );
       $$ii = $m if defined $ii;
       push @$keep, $m;
-      return $m->as_extern->{ptr};
+      return $m->{ptr};
     }
   }
   Carp::croak("Non-extern object as import");
