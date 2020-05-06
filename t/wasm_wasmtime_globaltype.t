@@ -10,6 +10,12 @@ is(
       call kind => 'i32';
     };
     call mutability => 'const';
+
+    call is_functype   => F();
+    call is_globaltype => T();
+    call is_tabletype  => F();
+    call is_memorytype => F();
+    call kind          => 'globaltype';
   },
   'i32,const',
 );

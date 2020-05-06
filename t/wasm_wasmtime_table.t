@@ -15,6 +15,11 @@ is(
           call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
         };
         call size => 1;
+        call is_func   => F();
+        call is_global => F();
+        call is_table  => T();
+        call is_memory => F();
+        call kind      => 'table';
       };
     };
   },

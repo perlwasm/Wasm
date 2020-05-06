@@ -263,4 +263,61 @@ my %kind = (
   }
 }
 
+# TODO: defaults should go in a base class
+package Wasm::Wasmtime::Func;
+use constant is_func   => 1;
+use constant is_global => 0;
+use constant is_table  => 0;
+use constant is_memory => 0;
+use constant kind      => 'func';
+
+package Wasm::Wasmtime::FuncType;
+use constant is_functype   => 1;
+use constant is_globaltype => 0;
+use constant is_tabletype  => 0;
+use constant is_memorytype => 0;
+use constant kind          => 'functype';
+
+package Wasm::Wasmtime::Global;
+use constant is_func   => 0;
+use constant is_global => 1;
+use constant is_table  => 0;
+use constant is_memory => 0;
+use constant kind      => 'global';
+
+package Wasm::Wasmtime::GlobalType;
+use constant is_functype   => 0;
+use constant is_globaltype => 1;
+use constant is_tabletype  => 0;
+use constant is_memorytype => 0;
+use constant kind          => 'globaltype';
+
+package Wasm::Wasmtime::Table;
+use constant is_func   => 0;
+use constant is_global => 0;
+use constant is_table  => 1;
+use constant is_memory => 0;
+use constant kind      => 'table';
+
+package Wasm::Wasmtime::TableType;
+use constant is_functype   => 0;
+use constant is_globaltype => 0;
+use constant is_tabletype  => 1;
+use constant is_memorytype => 0;
+use constant kind          => 'tabletype';
+
+package Wasm::Wasmtime::Memory;
+use constant is_func   => 0;
+use constant is_global => 0;
+use constant is_table  => 0;
+use constant is_memory => 1;
+use constant kind      => 'memory';
+
+package Wasm::Wasmtime::MemoryType;
+use constant is_functype   => 0;
+use constant is_globaltype => 0;
+use constant is_tabletype  => 0;
+use constant is_memorytype => 1;
+use constant kind          => 'memorytype';
+
 1;
