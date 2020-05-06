@@ -85,11 +85,11 @@ sub _cast_import
   }
   elsif(is_plain_coderef($ii))
   {
-    if($mi->type->kind eq 'func')
+    if($mi->type->kind eq 'functype')
     {
       my $f = Wasm::Wasmtime::Func->new(
         $store,
-        $mi->type->as_functype,
+        $mi->type,
         $ii,
       );
       push @$keep, $f;
@@ -98,11 +98,11 @@ sub _cast_import
   }
   elsif(is_plain_scalarref($ii) || !defined $ii)
   {
-    if($mi->type->kind eq 'memory')
+    if($mi->type->kind eq 'memorytype')
     {
       my $m = Wasm::Wasmtime::Memory->new(
         $store,
-        $mi->type->as_memorytype,
+        $mi->type,
       );
       $$ii = $m if defined $ii;
       push @$keep, $m;

@@ -15,7 +15,7 @@ is(
         call [ isa => 'Wasm::Wasmtime::ImportType' ] => T();
         call name => 'hello';
         call type => object {
-          call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+          call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
         };
         call module => 'xx';
       };
