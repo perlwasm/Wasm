@@ -24,9 +24,6 @@ is(
         call size => 2;
         call [ grow => 3] => T();
         call size => 5;
-        call as_extern => object {
-          call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
-        };
       };
     };
   },

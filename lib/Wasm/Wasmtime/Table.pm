@@ -66,22 +66,6 @@ Returns the size of the table.
 
 $ffi->attach( size => ['wasm_table_t'] => 'uint32' );
 
-=head2 as_extern
-
- my $extern = $table->as_extern;
-
-Returns the L<Wasm::Wasmtime::Extern> for this table object.
-
-=cut
-
-# actually returns a wasm_extern_t, but recursion
-$ffi->attach( as_extern => ['wasm_table_t'] => 'opaque' => sub {
-  my($xsub, $self) = @_;
-  require Wasm::Wasmtime::Extern;
-  my $ptr = $xsub->($self);
-  Wasm::Wasmtime::Extern->new($ptr, $self->{owner} || $self);
-});
-
 _generate_destroy();
 
 1;

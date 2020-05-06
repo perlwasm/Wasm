@@ -15,9 +15,6 @@ is(
     call type => object {
       call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
     };
-    call as_extern => object {
-      call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
-    };
     call get => 42;
     call [ set => 99 ] => U();
     call get => 99;

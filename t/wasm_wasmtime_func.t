@@ -24,9 +24,6 @@ is(
     };
     call param_arity => 2;
     call result_arity => 1;
-    call as_extern => object {
-      call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
-    };
   },
   'call add',
 );

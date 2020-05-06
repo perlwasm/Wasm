@@ -1,10 +1,13 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  [Warning: numerous breaking changes]
   - Wasm::Wasmtime::Extern, amd ::ExternType are now private classes
     and may be removed completely in the future (gh#37, gh#40)
   - Removed as_externtype method from the Wasm::Wasmtime::FuncType,
     ::GlobalType, ::MemoryType and ::TableType classes (gh#37, gh#40)
+  - Removed as_extern method from the Wasm::Wasmtime::Func, ::Global,
+    ::Memory and ::Table classes (gh#37, gh#40)
 
 0.06      2020-04-27 06:47:38 -0600
   - Improved type safety (gh#32)
