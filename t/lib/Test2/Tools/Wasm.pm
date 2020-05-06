@@ -114,7 +114,7 @@ sub wasm_func_ok ($$;$)
   my $extern = $instance->get_export($f);
   return $ctx->fail_and_release($name, "no export $f") unless $extern;
 
-  my $kind = $extern->type->kind;
+  my $kind = $extern->kind;
   return $ctx->fail_and_release($name, "$f is a $kind, expected a func") unless $kind eq 'func';
 
   $ctx->pass_and_release($name);
