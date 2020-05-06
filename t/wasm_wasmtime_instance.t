@@ -39,14 +39,12 @@ is(
       item object {
         call [isa => 'Wasm::Wasmtime::Extern'] => T();
         call type => object {
-          call [isa => 'Wasm::Wasmtime::ExternType'] => T();
-          call kind => 'func';
-          call as_functype => object {
-            call_list params => array {
-              item object { call kind => 'i32' };
-              item object { call kind => 'i32' };
-              end;
-            };
+          call [isa => 'Wasm::Wasmtime::FuncType'] => T();
+          call kind => 'functype';
+          call_list params => array {
+            item object { call kind => 'i32' };
+            item object { call kind => 'i32' };
+            end;
           };
         };
         call as_func => object {
@@ -63,14 +61,12 @@ is(
       item object {
         call [isa => 'Wasm::Wasmtime::Extern'] => T();
         call type => object {
-          call [isa => 'Wasm::Wasmtime::ExternType'] => T();
-          call kind => 'func';
-          call as_functype => object {
-            call_list params => array {
-              item object { call kind => 'i64' };
-              item object { call kind => 'i64' };
-              end;
-            };
+          call [isa => 'Wasm::Wasmtime::FuncType'] => T();
+          call kind => 'functype';
+          call_list params => array {
+            item object { call kind => 'i64' };
+            item object { call kind => 'i64' };
+            end;
           };
         };
         call as_func => object {
@@ -87,8 +83,8 @@ is(
       item object {
         call [isa => 'Wasm::Wasmtime::Extern'] => T();
         call type => object {
-          call [isa => 'Wasm::Wasmtime::ExternType'] => T();
-          call kind => 'memory';
+          call [isa => 'Wasm::Wasmtime::MemoryType'] => T();
+          call kind => 'memorytype';
         };
       };
       end;

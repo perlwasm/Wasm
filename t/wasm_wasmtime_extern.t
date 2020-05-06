@@ -19,7 +19,7 @@ is(
     call [ get_export => 'foo' ] => object{
       call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
       call type => object {
-        call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+        call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
       };
       call kind      => 'func';
       call kind_num  => match qr/^[0-9]+$/;
@@ -33,7 +33,7 @@ is(
     call [ get_export => 'hi' ] => object {
       call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
       call type => object {
-        call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+        call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
       };
       call kind      => 'global';
       call kind_num  => match qr/^[0-9]+$/;
@@ -47,7 +47,7 @@ is(
     call [ get_export => 'frooble' ] => object {
       call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
       call type => object {
-        call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+        call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
       };
       call kind      => 'table';
       call kind_num  => match qr/^[0-9]+$/;
@@ -61,7 +61,7 @@ is(
     call [ get_export => 'bar' ] => object{
       call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
       call type => object {
-        call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+        call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
       };
       call kind      => 'memory';
       call kind_num  => match qr/^[0-9]+$/;

@@ -104,8 +104,7 @@ $ffi->attach( type => ['wasm_importtype_t'] => 'wasm_externtype_t' => sub {
   my($xsub, $self) = @_;
   my $type = $xsub->($self);
   $type->{owner} = $self->{owner} || $self;
-  my $method = "as_" . $type->kind . "type";
-  $type->$method;
+  $type;
 });
 
 =head2 module
