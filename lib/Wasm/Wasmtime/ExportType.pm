@@ -2,6 +2,7 @@ package Wasm::Wasmtime::ExportType;
 
 use strict;
 use warnings;
+use Ref::Util qw( is_blessed_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ExternType;
 
@@ -36,13 +37,17 @@ Creates a new export type object.
 
 =cut
 
-$ffi->attach( new => ['wasm_byte_vec_t*', 'wasm_externtype_t'] => 'wasm_exporttype_t' => sub {
+$ffi->attach( new => ['wasm_byte_vec_t*', 'opaque'] => 'wasm_exporttype_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  if(defined $_[1] && ref($_[1]) eq 'Wasm::Wasmtime::ExternType')
+
+  # TODO: Fix this sillyness if ExternType becomes a base class
+  if(defined $_[1] && is_blessed_ref $_[1] && (   $_[1]->isa('Wasm::Wasmtime::ExternType')
+                                               || $_[1]->isa('Wasm::Wasmtime::FuncType')
+                                               || $_[1]->isa('Wasm::Wasmtime::GlobalType')
+                                               || $_[1]->isa('Wasm::Wasmtime::MemoryType')
+                                               || $_[1]->isa('Wasm::Wasmtime::TableType')))
   {
-    # not sure this is actually useful?
-    # doesn't seem to bee a way to new an wasm_externtype_t
     my $name = Wasm::Wasmtime::ByteVec->new(shift);
     my $externtype = shift;
     my $self = $xsub->($name, $externtype->{ptr});
