@@ -19,14 +19,14 @@ is(
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
         call name => 'foo';
         call type => object {
-          call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+          call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
         };
       };
       item object {
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
         call name => 'bar';
         call type => object {
-          call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
+          call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
         };
       };
       end;

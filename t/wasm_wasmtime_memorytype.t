@@ -11,15 +11,13 @@ is(
   }),
   object {
     call [ get_export => 'frooble' ] => object {
-      call as_memorytype => object {
-        call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
-        call limits => [2,6];
-        call is_functype   => F();
-        call is_globaltype => F();
-        call is_tabletype  => F();
-        call is_memorytype => T();
-        call kind          => 'memorytype';
-      };
+      call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
+      call limits => [2,6];
+      call is_functype   => F();
+      call is_globaltype => F();
+      call is_tabletype  => F();
+      call is_memorytype => T();
+      call kind          => 'memorytype';
     };
   },
   'memorytype class basics',
