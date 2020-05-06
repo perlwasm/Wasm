@@ -213,7 +213,7 @@ sub import
     my $name = $me[$i]->name;
     my $externtype = $exporttype->type;
     my $extern = $ie[$i];
-    if($externtype->kind eq 'func')
+    if($externtype->kind eq 'functype')
     {
       my $func = $extern->as_func;
       $func->attach($package, $name);
