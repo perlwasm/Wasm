@@ -30,3 +30,5 @@ pod_coverage:
     - Wasm::Wasmtime::ExternType#new
     - Wasm::Wasmtime::Extern#new
     - Wasm::Wasmtime::Table#new
+    - Wasm::Wasmtime::Extern
+    - Wasm::Wasmtime::ExternType

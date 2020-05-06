@@ -11,14 +11,9 @@ use Wasm::Wasmtime::MemoryType;
 # ABSTRACT: Wasmtime extern type class
 # VERSION
 
-=head1 SYNOPSIS
-
-# EXAMPLE: examples/synopsis/externtype.pl
-
 =head1 DESCRIPTION
 
-This class represents an extern type.  This class cannot be created independently, but can be
-retrieved from the L<Wasm::Wasmtime::Module> class.
+This is a private class.  The C<.pm> file for it may be removed in the future.
 
 =cut
 
@@ -41,115 +36,22 @@ my %kind = (
   3 => 'memory',
 );
 
-=head1 METHODS
-
-=head2 kind
-
- my $kind = $externtype->kind;
-
-Returns the kind of extern type.  Should be one of:
-
-=over 4
-
-=item C<func>
-
-=item C<global>
-
-=item C<table>
-
-=item C<memory>
-
-=back
-
-=cut
+sub _cast_body
+{
+  my($xsub, $self) = @_;
+  my $type = $xsub->($self);
+  return undef unless $type;
+  $type->{owner} = $self->{owner} || $self if $type;
+  $type;
+}
 
 sub kind { $kind{shift->kind_num} }
 
-=head2 kind_num
-
- my $kind = $externtype->kind_num;
-
-Returns the kind of extern type as the internal integer code.
-
-=cut
-
 $ffi->attach( [ kind => 'kind_num' ] => ['wasm_externtype_t'] => 'uint8');
 
-=head2 as_functype
-
- my $functype = $externtype->as_functype;
-
-If the extern type is a function, returns the L<Wasm::Wasmtime::FuncType> for it.
-Otherwise returns C<undef>.
-
-=cut
-
-$ffi->attach( as_functype => ['wasm_externtype_t'] => 'wasm_functype_t' => sub {
-  my($xsub, $self) = @_;
-  my $functype = $xsub->($self);
-  $functype->{owner} = $self->{owner} || $self if $functype;
-  $functype;
-});
-
-=head2 as_globaltype
-
- my $globaltype = $externtype->as_globaltype;
-
-If the extern type is a global object, returns the L<Wasm::Wasmtime::GlobalType> for it.
-Otherwise returns C<undef>.
-
-=cut
-
-$ffi->attach( as_globaltype => ['wasm_externtype_t'] => 'wasm_globaltype_t' => sub {
-  my($xsub, $self) = @_;
-  my $globaltype = $xsub->($self);
-  $globaltype->{owner} = $self->{owner} || $self if $globaltype;
-  $globaltype;
-});
-
-=head2 as_tabletype
-
- my $tabletype = $externtype->as_tabletype;
-
-If the extern type is a table object, returns the L<Wasm::Wasmtime::TableType> for it.
-Otherwise returns C<undef>.
-
-=cut
-
-$ffi->attach( as_tabletype => ['wasm_externtype_t'] => 'wasm_tabletype_t' => sub {
-  my($xsub, $self) = @_;
-  my $tabletype = $xsub->($self);
-  $tabletype->{owner} = $self->{owner} || $self if $tabletype;
-  $tabletype;
-});
-
-=head2 as_memorytype
-
- my $memorytype = $externtype->as_memorytype;
-
-If the extern type is a memory object, returns the L<Wasm::Wasmtime::MemoryType> for it.
-Otherwise returns C<undef>.
-
-=cut
-
-$ffi->attach( as_memorytype => ['wasm_externtype_t'] => 'wasm_memorytype_t' => sub {
-  my($xsub, $self) = @_;
-  my $memorytype = $xsub->($self);
-  $memorytype->{owner} = $self->{owner} || $self if $memorytype;
-  $memorytype;
-});
+$ffi->attach( "as_${_}type"   => ['wasm_externtype_t'] => "wasm_${_}type_t"   => \&_cast_body)
+  for qw( func global table memory );
 
 _generate_destroy();
 
 1;
-
-=head1 SEE ALSO
-
-=over 4
-
-=item L<Wasm>
-
-=item L<Wasm::Wasmtime>
-
-=back
-
