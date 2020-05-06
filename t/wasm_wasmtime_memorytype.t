@@ -14,9 +14,6 @@ is(
       call as_memorytype => object {
         call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
         call limits => [2,6];
-        call as_externtype => object {
-          call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
-        };
       };
     };
   },
@@ -28,9 +25,6 @@ is(
   object {
     call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
     call limits => [2,3];
-    call as_externtype => object {
-      call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
-    };
   },
   'standalone',
 );

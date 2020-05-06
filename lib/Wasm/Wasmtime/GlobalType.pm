@@ -121,22 +121,6 @@ $ffi->attach( mutability => ['wasm_globaltype_t'] => 'uint8' => sub {
   $mutability[$xsub->($self)];
 });
 
-=head2 as_externtype
-
- my $externtype = $globaltype->as_externtype
-
-Returns the L<Wasm::Wasmtime::ExternType> for this global type.
-
-=cut
-
-# actually returns a wasm_externtype_t, but recursion
-$ffi->attach( as_externtype => ['wasm_globaltype_t'] => 'opaque' => sub {
-  my($xsub, $self) = @_;
-  require Wasm::Wasmtime::ExternType;
-  my $ptr = $xsub->($self);
-  Wasm::Wasmtime::ExternType->new($ptr, $self->{owner} || $self);
-});
-
 _generate_destroy();
 
 1;
