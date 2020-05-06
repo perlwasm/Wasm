@@ -2,6 +2,8 @@ package Wasm::Wasmtime::ImportType;
 
 use strict;
 use warnings;
+use Carp ();
+use Ref::Util qw( is_blessed_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ExternType;
 
@@ -30,25 +32,39 @@ $ffi->load_custom_type('::PtrObject' => 'wasm_importtype_t' => __PACKAGE__);
  my $importtype = Wasm::Wasmtime::ImportType->new(
    $module,       # Wasm::Wasmtime::Module
    $name,         # string
-   $externtype,   # Wasm::Wasmtime::ExternType
+   $externtype,   # Wasm::Wasmtime::FuncType, ::MemoryType, ::GlobalType or ::TableType
  );
 
 Creates a new import type object.
 
 =cut
 
-$ffi->attach( new => ['wasm_byte_vec_t*', 'wasm_externtype_t'] => 'wasm_importtype_t' => sub {
+$ffi->attach( new => ['wasm_byte_vec_t*', 'wasm_byte_vec_t*', 'opaque'] => 'wasm_importtype_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  if(defined $_[2] && ref($_[2]) eq 'Wasm::Wasmtime::ExternType')
+  if(defined $_[2] && is_blessed_ref $_[2])
   {
-    my $module = Wasm::Wasmtime::ByteVec->new(shift);
-    my $name = Wasm::Wasmtime::ByteVec->new(shift);
-    my $externtype = shift;
-    my $self = $xsub->($module, $name, $externtype);
-    $module->delete;
-    $name->delete;
-    $self;
+    my $externtype = $_[2];
+    # not sure this is actually useful?
+    # doesn't seem to bee a way to new an wasm_externtype_t
+    # TODO: Fix this sillyness if ExternType becomes a base class
+    if(is_blessed_ref($externtype) && (   $externtype->isa('Wasm::Wasmtime::ExternType')
+                                       || $externtype->isa('Wasm::Wasmtime::FuncType')
+                                       || $externtype->isa('Wasm::Wasmtime::GlobalType')
+                                       || $externtype->isa('Wasm::Wasmtime::MemoryType')
+                                       || $externtype->isa('Wasm::Wasmtime::TableType')))
+    {
+      my $module = Wasm::Wasmtime::ByteVec->new(shift);
+      my $name = Wasm::Wasmtime::ByteVec->new(shift);
+      my $self = $xsub->($module, $name, $externtype->{ptr});
+      $module->delete;
+      $name->delete;
+      return $self;
+    }
+    else
+    {
+      Carp::croak("Not an externtype");
+    }
   }
   else
   {
