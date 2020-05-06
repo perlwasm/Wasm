@@ -18,6 +18,12 @@ is(
     call get => 42;
     call [ set => 99 ] => U();
     call get => 99;
+
+    call is_func   => F();
+    call is_global => T();
+    call is_table  => F();
+    call is_memory => F();
+    call kind      => 'global';
   },
 );
 

@@ -37,6 +37,12 @@ is(
       };
       end;
     };
+
+    call is_functype   => T();
+    call is_globaltype => F();
+    call is_tabletype  => F();
+    call is_memorytype => F();
+    call kind          => 'functype';
   },
   '(i32,f64)->(i64,f32)',
 );

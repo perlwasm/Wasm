@@ -10,6 +10,11 @@ is(
       call kind => 'i32';
     };
     call limits => [3,4];
+    call is_functype   => F();
+    call is_globaltype => F();
+    call is_tabletype  => T();
+    call is_memorytype => F();
+    call kind          => 'tabletype';
   },
   'i32,const',
 );

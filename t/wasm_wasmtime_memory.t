@@ -24,6 +24,11 @@ is(
         call size => 2;
         call [ grow => 3] => T();
         call size => 5;
+        call is_func   => F();
+        call is_global => F();
+        call is_table  => F();
+        call is_memory => T();
+        call kind      => 'memory';
       };
     };
   },
