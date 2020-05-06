@@ -10,9 +10,6 @@ is(
       call kind => 'i32';
     };
     call limits => [3,4];
-    call as_externtype => object {
-      call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
-    }
   },
   'i32,const',
 );
@@ -26,9 +23,6 @@ is(
       call kind => 'i64';
     };
     call limits => [9,0xffffffff];
-    call as_externtype => object {
-      call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
-    }
   },
   'i64,var',
 );
@@ -42,9 +36,6 @@ is(
       call kind => 'f32';
     };
     call limits => [1,6];
-    call as_externtype => object {
-      call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
-    }
   },
   '(i64),var',
 );

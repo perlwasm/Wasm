@@ -7,9 +7,6 @@ is(
     call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
     call_list params => [];
     call_list results => [];
-    call as_externtype => object {
-      call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
-    };
   },
   'functype with no args or return type',
 );
@@ -39,9 +36,6 @@ is(
         call kind => 'f32';
       };
       end;
-    };
-    call as_externtype => object {
-      call [ isa => 'Wasm::Wasmtime::ExternType' ] => T();
     };
   },
   '(i32,f64)->(i64,f32)',

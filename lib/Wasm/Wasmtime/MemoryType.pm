@@ -73,22 +73,6 @@ $ffi->attach( limits => ['wasm_memorytype_t'] => 'uint32[2]' => sub {
   $limits;
 });
 
-=head2 as_externtype
-
- my $externtype = $memorytype->as_externtype
-
-Returns the L<Wasm::Wasmtime::ExternType> for this memory type.
-
-=cut
-
-# actually returns a wasm_externtype_t, but recursion
-$ffi->attach( as_externtype => ['wasm_memorytype_t'] => 'opaque' => sub {
-  my($xsub, $self) = @_;
-  require Wasm::Wasmtime::ExternType;
-  my $ptr = $xsub->($self);
-  Wasm::Wasmtime::ExternType->new($ptr, $self->{owner} || $self);
-});
-
 _generate_destroy();
 
 1;
