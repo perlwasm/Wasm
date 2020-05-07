@@ -215,7 +215,7 @@ sub import
     my $extern = $ie[$i];
     if($externtype->kind eq 'functype')
     {
-      my $func = $extern->as_func;
+      my $func = $extern;
       $func->attach($package, $name);
       push @function_names, $name;
     }

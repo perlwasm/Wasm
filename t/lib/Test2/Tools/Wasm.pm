@@ -119,7 +119,7 @@ sub wasm_func_ok ($$;$)
 
   $ctx->pass_and_release($name);
 
-  return $extern->as_func;
+  return $extern;
 }
 
 1;

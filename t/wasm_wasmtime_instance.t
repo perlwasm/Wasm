@@ -32,12 +32,12 @@ is(
   object {
     call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
     call [ get_export => 'add' ] => object {
-      call [isa => 'Wasm::Wasmtime::Extern'] => T();
+      call [isa => 'Wasm::Wasmtime::Func'] => T();
     };
     call [ get_export => 'foo' ] => U();
     call_list exports => array {
       item object {
-        call [isa => 'Wasm::Wasmtime::Extern'] => T();
+        call [isa => 'Wasm::Wasmtime::Func'] => T();
         call type => object {
           call [isa => 'Wasm::Wasmtime::FuncType'] => T();
           call kind => 'functype';
@@ -47,19 +47,16 @@ is(
             end;
           };
         };
-        call as_func => object {
-          call [isa => 'Wasm::Wasmtime::Func'] => T();
-          call type => object {
-            call [isa => 'Wasm::Wasmtime::FuncType'] => T();
-          };
-          call param_arity => 2;
-          call result_arity => 1;
-          call [call => 1, 2] => 3;
-          call_list [call => 1, 2] => [3];
+        call type => object {
+          call [isa => 'Wasm::Wasmtime::FuncType'] => T();
         };
+        call param_arity => 2;
+        call result_arity => 1;
+        call [call => 1, 2] => 3;
+        call_list [call => 1, 2] => [3];
       };
       item object {
-        call [isa => 'Wasm::Wasmtime::Extern'] => T();
+        call [isa => 'Wasm::Wasmtime::Func'] => T();
         call type => object {
           call [isa => 'Wasm::Wasmtime::FuncType'] => T();
           call kind => 'functype';
@@ -69,19 +66,16 @@ is(
             end;
           };
         };
-        call as_func => object {
-          call [isa => 'Wasm::Wasmtime::Func'] => T();
-          call type => object {
-            call [isa => 'Wasm::Wasmtime::FuncType'] => T();
-          };
-          call param_arity => 2;
-          call result_arity => 1;
-          call [call => 3, 1] => 2;
-          call_list [call => 3, 1] => [2];
+        call type => object {
+          call [isa => 'Wasm::Wasmtime::FuncType'] => T();
         };
+        call param_arity => 2;
+        call result_arity => 1;
+        call [call => 3, 1] => 2;
+        call_list [call => 3, 1] => [2];
       };
       item object {
-        call [isa => 'Wasm::Wasmtime::Extern'] => T();
+        call [isa => 'Wasm::Wasmtime::Memory'] => T();
         call type => object {
           call [isa => 'Wasm::Wasmtime::MemoryType'] => T();
           call kind => 'memorytype';
@@ -128,7 +122,7 @@ is(
   );
 
   my $instance = Wasm::Wasmtime::Instance->new($module, [$hello]);
-  $instance->get_export("run")->as_func->();
+  $instance->get_export("run")->();
 
   is $it_works, T(), 'callback called';
 }
@@ -145,9 +139,7 @@ is(
     }),
     object {
       call [ get_export => 'run' ] => object {
-        call as_func => object {
-          call call => U();
-        };
+        call call => U();
       };
     },
     'pass func as code ref'

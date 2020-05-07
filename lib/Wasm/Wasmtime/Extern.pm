@@ -3,11 +3,11 @@ package Wasm::Wasmtime::Extern;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
-use Wasm::Wasmtime::Func;
-use Wasm::Wasmtime::Global;
-use Wasm::Wasmtime::Table;
-use Wasm::Wasmtime::Memory;
-use Wasm::Wasmtime::ExternType;
+
+require Wasm::Wasmtime::Func;
+require Wasm::Wasmtime::Global;
+require Wasm::Wasmtime::Table;
+require Wasm::Wasmtime::Memory;
 
 # ABSTRACT: Wasmtime extern class
 # VERSION
@@ -19,48 +19,36 @@ This is a private class.  The C<.pm> file for it may be removed in the future.
 =cut
 
 $ffi_prefix = 'wasm_extern_';
-$ffi->load_custom_type('::PtrObject' => 'wasm_extern_t' => __PACKAGE__);
+
+$ffi->attach( [ kind => '_kind' ] => ['opaque'] => 'uint8' );
+
+our @cast =
+  map { $ffi->function( "wasm_extern_as_$_" => ['opaque'] => "wasm_${_}_t")->sub_ref }
+  qw( func global table memory );
+
+$ffi->custom_type('wasm_extern_t' => {
+  native_type => 'opaque',
+  native_to_perl => sub {
+    my $extern = shift;
+    Carp::croak("extern error") unless defined $extern;
+    my $kind = _kind($extern);
+    $cast[$kind]->($extern);
+  },
+});
+
+# TODO: use a wrapper if
+# https://github.com/Perl5-FFI/FFI-Platypus/issues/261
+# lands
+$ffi->attach_cast('_new', 'opaque', 'wasm_extern_t');
 
 sub new
 {
   my($class, $ptr, $owner) = @_;
-  bless {
-    ptr   => $ptr,
-    owner => $owner,
-  }, $class;
+  my $self = _new($ptr);
+  $self->{owner} = $owner;
+  $self;
 }
 
-sub _cast_body
-{
-  my($xsub, $self) = @_;
-  my $extern = $xsub->($self);
-  return undef unless $extern;
-  $extern->{owner} = $self->{owner} || $self;
-  $extern;
-}
-
-$ffi->attach( type => ['wasm_extern_t'] => 'wasm_externtype_t' => sub {
-  my($xsub, $self) = @_;
-  my $type = $xsub->($self);
-  $type->{owner} = $self->{owner} || $self;
-  $type;
-});
-
-my %kind = (
-  0 => 'func',
-  1 => 'global',
-  2 => 'table',
-  3 => 'memory',
-);
-
-sub kind { $kind{shift->kind_num} }
-
-$ffi->attach( [ kind => 'kind_num' ] => ['wasm_extern_t'] => 'uint8');
-
-$ffi->attach( "as_$_" => ['wasm_extern_t'] => "wasm_${_}_t" => \&_cast_body)
-  for qw( func global table memory );
-
-_generate_destroy();
 _generate_vec_class();
 
 1;

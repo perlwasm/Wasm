@@ -9,18 +9,16 @@ is(
   }),
   object {
     call [ get_export => 'frooble' ] => object {
-      call as_table => object {
-        call [ isa => 'Wasm::Wasmtime::Table' ] => T();
-        call type => object {
-          call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
-        };
-        call size => 1;
-        call is_func   => F();
-        call is_global => F();
-        call is_table  => T();
-        call is_memory => F();
-        call kind      => 'table';
+      call [ isa => 'Wasm::Wasmtime::Table' ] => T();
+      call type => object {
+        call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
       };
+      call size => 1;
+      call is_func   => F();
+      call is_global => F();
+      call is_table  => T();
+      call is_memory => F();
+      call kind      => 'table';
     };
   },
   'table good'

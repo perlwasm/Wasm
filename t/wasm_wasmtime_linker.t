@@ -39,7 +39,6 @@ is(
     call [ allow_shadowing => 1 ] => D();
     call [ allow_shadowing => 0 ] => D();
     call [ define => 'xx', 'add0', $instance->get_export('add') ] => D();
-    call [ define => 'xx', 'add1', $instance->get_export('add')->as_func ] => D();
     call [ define_wasi => $wasi ] => T();
     call [ define_instance => "foo", $instance2 ] => T();
     call [ instantiate => $module2 ] => object {

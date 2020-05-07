@@ -29,5 +29,5 @@ $linker->define_instance("linking2", $instance2);
 
 # And with that we can perform the final link and the execute the module.
 my $instance1 = $linker->instantiate($module1);
-my $run = $instance1->get_export('run')->as_func;
+my $run = $instance1->get_export('run');
 $run->();
