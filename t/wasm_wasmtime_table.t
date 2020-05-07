@@ -8,17 +8,19 @@ is(
     (module (table (export "frooble") 1 funcref))
   }),
   object {
-    call [ get_export => 'frooble' ] => object {
-      call [ isa => 'Wasm::Wasmtime::Table' ] => T();
-      call type => object {
-        call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
+    call exports => object {
+      call frooble => object {
+        call [ isa => 'Wasm::Wasmtime::Table' ] => T();
+        call type => object {
+          call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
+        };
+        call size => 1;
+        call is_func   => F();
+        call is_global => F();
+        call is_table  => T();
+        call is_memory => F();
+        call kind      => 'table';
       };
-      call size => 1;
-      call is_func   => F();
-      call is_global => F();
-      call is_table  => T();
-      call is_memory => F();
-      call kind      => 'table';
     };
   },
   'table good'

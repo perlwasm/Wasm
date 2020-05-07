@@ -7,6 +7,7 @@ use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::Trap;
+use Wasm::Wasmtime::Instance::Exports;
 use Ref::Util qw( is_ref is_blessed_ref is_plain_coderef is_plain_scalarref );
 use Carp ();
 
@@ -165,33 +166,6 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque[]','opaque*'] => 'w
 
 =head1 METHODS
 
-=head2 get_export
-
- my $extern = $instance->get_export($name);
-
-Returns a L<Wasm::Wasmtime::Extern> object with the given C<$name>.
-If no such object exists, then C<undef> will be returned.
-
-Extern objects represent functions, globals, tables or memory in WebAssembly.
-
-=cut
-
-sub get_export
-{
-  my($self, $name) = @_;
-  $self->{exports} ||= do {
-    my @exports = $self->exports;
-    my @module_exports   = @{ $self->module->exports };
-    my %exports;
-    foreach my $i (0..$#exports)
-    {
-      $exports{$module_exports[$i]->name} = $exports[$i];
-    }
-    \%exports;
-  };
-  $self->{exports}->{$name};
-}
-
 =head2 module
 
  my $module = $instance->module;
@@ -204,14 +178,19 @@ sub module { shift->{module} }
 
 =head2 exports
 
- my @externs = $instance->exports;
+ my $exports = $instance->exports;
 
-Returns a list of L<Wasm::Wasmtime::Extern> objects for the functions,
-globals, tables and memory exported by the WebAssembly instance.
+Returns the L<Wasm:Wasmtime::Instance::Exports> object for this instance.
+This can be used to query and call exports from the instance.
 
 =cut
 
-$ffi->attach( exports => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
+sub exports
+{
+  Wasm::Wasmtime::Instance::Exports->new(shift);
+}
+
+$ffi->attach( [ exports => '_exports' ] => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
   my($xsub, $self) = @_;
   my $externs = Wasm::Wasmtime::ExternVec->new;
   $xsub->($self, $externs);

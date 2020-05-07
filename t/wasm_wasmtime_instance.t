@@ -32,11 +32,12 @@ is(
   })),
   object {
     call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
-    call [ get_export => 'add' ] => object {
-      call [isa => 'Wasm::Wasmtime::Func'] => T();
+    call exports => object {
+      call add => object {
+        call [isa => 'Wasm::Wasmtime::Func'] => T();
+      };
     };
-    call [ get_export => 'foo' ] => U();
-    call_list exports => array {
+    call_list sub { @{ shift->exports } } => array {
       item object {
         call [isa => 'Wasm::Wasmtime::Func'] => T();
         call type => object {
@@ -123,7 +124,7 @@ is(
   );
 
   my $instance = Wasm::Wasmtime::Instance->new($module, [$hello]);
-  $instance->get_export("run")->();
+  $instance->exports->run->();
 
   is $it_works, T(), 'callback called';
 }
@@ -139,8 +140,10 @@ is(
       )
     }),
     object {
-      call [ get_export => 'run' ] => object {
-        call call => U();
+      call exports => object {
+        call run => object {
+          call call => U();
+        };
       };
     },
     'pass func as code ref'

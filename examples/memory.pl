@@ -9,10 +9,10 @@ use PeekPoke::FFI qw( peek poke );
 my $module = Wasm::Wasmtime::Module->new( file => path(__FILE__)->parent->child('memory.wat') );
 my $instance = Wasm::Wasmtime::Instance->new($module);
 
-my $memory = $instance->get_export("memory");
-my $size   = $instance->get_export("size");
-my $load   = $instance->get_export("load");
-my $store  = $instance->get_export("store");
+my $memory = $instance->exports->memory;
+my $size   = $instance->exports->size;
+my $load   = $instance->exports->load;
+my $store  = $instance->exports->store;
 
 print "Checking memory...\n";
 assert($memory->size == 2);

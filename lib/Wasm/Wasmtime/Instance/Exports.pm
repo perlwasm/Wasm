@@ -13,7 +13,7 @@ use overload
   '@{}' => sub {
     my $self = shift;
     my $instance = $$self;
-    my @exports = $instance->exports;
+    my @exports = $instance->_exports;
     Internals::SvREADONLY @exports, 1;
     Internals::SvREADONLY $exports[$_], 1 for 0..$#exports;
     \@exports;
@@ -69,7 +69,7 @@ sub new
   my($class, $instance) = @_;
 
   $instance->{exports} ||= do {
-    my @exports = $instance->exports;
+    my @exports = $instance->_exports;
     my @module_exports   = @{ $instance->module->exports };
     my %exports;
     foreach my $i (0..$#exports)

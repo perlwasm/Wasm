@@ -188,7 +188,7 @@ else
 
 =head2 exports
 
- my @exporttypes = $module->exports;
+ my $exports = $module->exports;
 
 Returns a L<Wasm::Wasmtime::Module::Exports> object that can be used to query the module exports.
 
@@ -208,7 +208,7 @@ $ffi->attach( [ exports => '_exports' ]=> [ 'wasm_module_t', 'wasm_exporttype_ve
 
 =head2 imports
 
- my @importtypes = $module->imports;
+ my $imports = $module->imports;
 
 Returns a list of L<Wasm::Wasmtime::ImportType> objects for the objects imported by the WebAssembly module.
 
