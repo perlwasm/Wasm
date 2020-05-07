@@ -28,6 +28,12 @@ use YAML qw( Dump );
         };
         end;
       };
+
+      # test that you can't insert a new key
+      call sub { my $exports = shift; dies { $exports->{foo} = 1 } } => D();
+
+      # test that you can't replace an existing key
+      call sub { my $exports = shift; dies { $exports->{add} = 1 } } => D();
     },
     'exports object looks good'
   );
