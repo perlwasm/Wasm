@@ -94,18 +94,12 @@ $ffi->custom_type('wasm_extern_t' => {
   },
 });
 
-# TODO: use a wrapper if
-# https://github.com/Perl5-FFI/FFI-Platypus/issues/261
-# lands
-$ffi->attach_cast('_new', 'opaque', 'wasm_extern_t');
-
-sub new
-{
-  my($class, $ptr, $owner) = @_;
-  my $self = _new($ptr);
+$ffi->attach_cast('new', 'opaque', 'wasm_extern_t',  sub {
+  my($xsub, undef, $ptr, $owner) = @_;
+  my $self = $xsub->($ptr);
   $self->{owner} = $owner;
   $self;
-}
+});
 
 use constant is_func   => 0;
 use constant is_global => 0;

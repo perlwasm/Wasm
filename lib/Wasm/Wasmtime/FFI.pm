@@ -2,8 +2,8 @@ package Wasm::Wasmtime::FFI;
 
 use strict;
 use warnings;
-use FFI::C 0.04;
-use FFI::Platypus 1.00;
+use FFI::C 0.05;
+use FFI::Platypus 1.26;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
 use Sub::Install;
@@ -255,6 +255,11 @@ my %kind = (
     my $self = shift;
     map { $_->to_perl } @$self
   }
+
+  $ffi->attach_cast('from_c', 'opaque', 'wasm_val_vec_t', sub {
+    my($xsub, undef, $ptr) = @_;
+    $xsub->($ptr);
+  });
 
   sub from_perl
   {
