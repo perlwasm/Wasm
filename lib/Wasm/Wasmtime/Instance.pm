@@ -134,7 +134,7 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque[]','opaque*'] => 'w
     my $store = $module->store;
 
     {
-      my @mi = $module->imports;
+      my @mi = @{ $module->imports };
       if(@mi != @imports)
       {
         Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");

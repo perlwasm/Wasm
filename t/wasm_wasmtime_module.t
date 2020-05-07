@@ -144,7 +144,7 @@ is(
       };
     };
     call [ get_export => 'foo' ] => U();
-    call_list imports => [];
+    call_list sub { @{ shift->imports } } => [];
     call_list sub { @{ shift->exports } } => array {
       item object {
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
