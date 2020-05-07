@@ -70,7 +70,6 @@ sub new
 
   $module->{imports} ||= do {
     my @imports = $module->_imports;
-    # TODO: lock with Hash::Util
     my %imports;
     foreach my $export (@imports)
     {

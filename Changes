@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}},
 
 {{$NEXT}}
   - Add Test2::Plugin::Wasm (gh#36)
+  - Add Wasm::Wasmtime::Instance::Exports class (gh#38, gh#44)
   - Add Wasm::Wasmtime::Module::Exports class (gh#38, gh#44)
   - Add Wasm::Wasmtime::Module::Imports class (gh#38, gh#44)
 
@@ -21,6 +22,9 @@ Revision history for {{$dist->name}}},
   - The Wasm::Wasmtime::Module method exports returns a
     Wasm::Wasmtime::Module::Exports object instead of a list of
     exports (gh#38, gh#44)
+  - The Wasm::Wasmtime::Module method imports returns a
+    Wasm::Wasmtime::Module::Imports object instead of a list of
+    imports (gh#38, gh#44)
 
 0.06      2020-04-27 06:47:38 -0600
   - Improved type safety (gh#32)
