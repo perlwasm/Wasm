@@ -115,6 +115,26 @@ $ffi->attach( set => ['wasm_global_t','wasm_val_t'] => sub {
   $xsub->($self, $value);
 });
 
+=head2 tie
+
+ my $ref = $global->tie;
+
+Returns a reference to a tied scalar that can be used to get/set the global.
+
+=cut
+
+sub tie
+{
+  my $self = shift;
+  my $ref;
+  tie $ref, __PACKAGE__, $self;
+  \$ref;
+}
+
+sub TIESCALAR { $_[1] }
+*FETCH = \&get;
+*STORE = \&set;
+
 __PACKAGE__->_cast(1);
 _generate_destroy();
 

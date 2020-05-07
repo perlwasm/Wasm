@@ -1,15 +1,18 @@
 use Test2::V0 -no_srand => 1;
 use Wasm::Wasmtime::Global;
 
-is(
-  Wasm::Wasmtime::Global->new(
-    Wasm::Wasmtime::Store->new,
-    Wasm::Wasmtime::GlobalType->new(
-      'i32',
-      'var',
-    ),
-    42
+my $global = Wasm::Wasmtime::Global->new(
+  Wasm::Wasmtime::Store->new,
+  Wasm::Wasmtime::GlobalType->new(
+    'i32',
+    'var',
   ),
+  42
+);
+
+
+is(
+  $global,
   object {
     call [ isa => 'Wasm::Wasmtime::Global' ] => T();
     call type => object {
@@ -26,5 +29,12 @@ is(
     call kind      => 'global';
   },
 );
+
+our $tied;
+*tied = $global->tie;
+is $tied, 99, 'tied.FETCH == 99';
+is $tied = 100, 100, 'tied.STORE == 100';
+is $tied, 100, 'tied.FETCH == 100';
+is $global->get, 100, 'globa.get == 100';
 
 done_testing;
