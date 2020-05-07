@@ -5,6 +5,7 @@ use warnings;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module::Exports;
+use Wasm::Wasmtime::Module::Imports;
 use Wasm::Wasmtime::ImportType;
 use Wasm::Wasmtime::ExportType;
 use Carp ();
@@ -213,7 +214,12 @@ Returns a list of L<Wasm::Wasmtime::ImportType> objects for the objects imported
 
 =cut
 
-$ffi->attach( imports => [ 'wasm_module_t', 'wasm_importtype_vec_t*' ] => sub {
+sub imports
+{
+  Wasm::Wasmtime::Module::Imports->new(shift);
+}
+
+$ffi->attach( [ imports => '_imports' ] => [ 'wasm_module_t', 'wasm_importtype_vec_t*' ] => sub {
   my($xsub, $self) = @_;
   my $imports = Wasm::Wasmtime::ImportTypeVec->new;
   $xsub->($self, $imports);

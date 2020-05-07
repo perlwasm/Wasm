@@ -10,7 +10,7 @@ is(
     )
   }),
   object {
-    call_list imports => array {
+    call_list sub { @{ shift->imports } } => array {
       item object {
         call [ isa => 'Wasm::Wasmtime::ImportType' ] => T();
         call name => 'hello';
