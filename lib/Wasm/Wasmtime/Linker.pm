@@ -251,6 +251,16 @@ else
   });
 }
 
+=head2 store
+
+ my $store = $linker->store;
+
+Returns the L<Wasm::Wasmtime::Store> for the linker.
+
+=cut
+
+sub store { shift->{store} }
+
 _generate_destroy();
 
 1;
