@@ -13,7 +13,10 @@ use overload
   '@{}' => sub {
     my $self = shift;
     my $module = $$self;
-    [$module->exports];
+    my @exports = $module->exports;
+    Internals::SvREADONLY @exports, 1;
+    Internals::SvREADONLY $exports[$_], 1 for 0..$#exports;
+    \@exports;
   },
   bool => sub { 1 },
   fallback => 1;

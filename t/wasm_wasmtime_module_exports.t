@@ -36,7 +36,7 @@ use YAML qw( Dump );
       call sub { my $exports = shift; dies { $exports->{add} = 1 } } => D();
 
       # hopefully we can still modify the values themselves?
-      call sub { my $exports = shift; lives { $exports->{add}->{rando} = 1 } } => T();
+      call sub { my $exports = shift; lives { $exports->{add}->{rando1} = 1 } } => T();
 
       call sub { \@{ shift() } } => array {
         item object {
@@ -48,6 +48,10 @@ use YAML qw( Dump );
         };
         end;
       };
+
+      call sub { my $exports = shift; dies { $exports->[0] = 1 } } => D();
+      call sub { my $exports = shift; dies { $exports->[1] = 1 } } => D();
+      call sub { my $exports = shift; lives { $exports->[0]->{rando2} = 1 } } => T();
     },
     'exports object looks good'
   );
