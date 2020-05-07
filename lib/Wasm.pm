@@ -117,7 +117,7 @@ Load WebAssembly modules as though they were Perl modules.
 
 =cut
 
-my $store;
+my $linker;
 
 sub import
 {
@@ -208,13 +208,25 @@ sub import
   @module = (wat => '(module)') unless @module;
 
   require Wasm::Wasmtime;
-  $store ||= do {
-    my $config = Wasm::Wasmtime::Config->new;
-    $config->wasm_multi_value(1);
-    my $engine = Wasm::Wasmtime::Engine->new($config);
-    Wasm::Wasmtime::Store->new($engine);
+  $linker ||= do {
+    my $linker = Wasm::Wasmtime::Linker->new(
+      Wasm::Wasmtime::Store->new(
+        Wasm::Wasmtime::Engine->new(
+          Wasm::Wasmtime::Config->new
+            ->wasm_multi_value(1),
+        ),
+      ),
+    );
+
+    my $wasi = Wasm::Wasmtime::WasiInstance->new(
+      $linker->store,
+      'wasi_snapshot_preview1',
+      Wasm::Wasmtime::WasiConfig->new,
+    );
+
+    $linker;
   };
-  my $module = Wasm::Wasmtime::Module->new($store, @module);
+  my $module = Wasm::Wasmtime::Module->new($linker->store, @module);
   my $instance = Wasm::Wasmtime::Instance->new($module, \@imports);
 
   my @me = @{ $module->exports   };
