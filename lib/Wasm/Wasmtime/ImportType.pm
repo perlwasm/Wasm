@@ -130,3 +130,4 @@ _generate_vec_class();
 
 =back
 
+=cut

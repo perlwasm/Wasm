@@ -140,3 +140,4 @@ $ffi->attach( [ wasm_valtype_vec_new => 'Wasm::Wasmtime::ValTypeVec::set' ] => [
 
 =back
 
+=cut
