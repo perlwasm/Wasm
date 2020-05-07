@@ -45,6 +45,9 @@ is(
     call [ instantiate => $module2 ] => object {
       call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
     };
+    call store => object {
+      call [ isa => 'Wasm::Wasmtime::Store' ] => T();
+    };
   },
   'basics'
 );
