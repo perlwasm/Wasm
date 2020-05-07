@@ -13,23 +13,20 @@ is(
   }),
   object {
     call [get_export => 'frooble'] => object {
-      call [ isa => 'Wasm::Wasmtime::Extern' ] => T();
-      call as_memory => object {
-        call [ isa => 'Wasm::Wasmtime::Memory' ] => T();
-        call type => object {
-          call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
-        };
-        call data => match qr/^[0-9]+$/;
-        call data_size => match qr/^[0-9]+$/;
-        call size => 2;
-        call [ grow => 3] => T();
-        call size => 5;
-        call is_func   => F();
-        call is_global => F();
-        call is_table  => F();
-        call is_memory => T();
-        call kind      => 'memory';
+      call [ isa => 'Wasm::Wasmtime::Memory' ] => T();
+      call type => object {
+        call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
       };
+      call data => match qr/^[0-9]+$/;
+      call data_size => match qr/^[0-9]+$/;
+      call size => 2;
+      call [ grow => 3] => T();
+      call size => 5;
+      call is_func   => F();
+      call is_global => F();
+      call is_table  => F();
+      call is_memory => T();
+      call kind      => 'memory';
     };
   },
   'memory class basics',

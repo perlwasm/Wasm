@@ -1,13 +1,19 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
   [Warning: numerous breaking changes]
-  - Wasm::Wasmtime::Extern, amd ::ExternType are now private classes
-    and may be removed completely in the future (gh#37, gh#40)
+
+  - Wasm::Wasmtime::Extern, amd ::ExternType are now base classes
+    and no longer require casting (gh#37, gh#40)
   - Removed as_externtype method from the Wasm::Wasmtime::FuncType,
     ::GlobalType, ::MemoryType and ::TableType classes (gh#37, gh#40)
   - Removed as_extern method from the Wasm::Wasmtime::Func, ::Global,
     ::Memory and ::Table classes (gh#37, gh#40)
+  - Added predicate methods is_func, is_global, is_table and is_memory
+    to Wasm::Wasmtime::Extern class (gh#37, gh#40)
+  - Added predicate methods is_functype, is_globaltype, is_tabletype
+    and is_memorytype to Wasm::Wasmtime::ExternType class (gh#37, gh#40)
 
 0.06      2020-04-27 06:47:38 -0600
   - Improved type safety (gh#32)
