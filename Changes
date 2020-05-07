@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.07      2020-05-07 13:52:00 -0600
   - Add Test2::Plugin::Wasm (gh#36)
   - Add Wasm::Wasmtime::Instance::Exports class (gh#38, gh#44)
   - Add Wasm::Wasmtime::Module::Exports class (gh#38, gh#44)
