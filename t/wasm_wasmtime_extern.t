@@ -17,33 +17,35 @@ is(
     )
   }),
   object {
-    call [ get_export => 'foo' ] => object{
-      call [ isa => 'Wasm::Wasmtime::Func' ] => T();
-      call type => object {
-        call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+    call exports => object {
+      call foo => object {
+        call [ isa => 'Wasm::Wasmtime::Func' ] => T();
+        call type => object {
+          call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+        };
+        call kind      => 'func';
       };
-      call kind      => 'func';
-    };
-    call [ get_export => 'hi' ] => object {
-      call [ isa => 'Wasm::Wasmtime::Global' ] => T();
-      call type => object {
-        call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
+      call hi => object {
+        call [ isa => 'Wasm::Wasmtime::Global' ] => T();
+        call type => object {
+          call [ isa => 'Wasm::Wasmtime::GlobalType' ] => T();
+        };
+        call kind      => 'global';
       };
-      call kind      => 'global';
-    };
-    call [ get_export => 'frooble' ] => object {
-      call [ isa => 'Wasm::Wasmtime::Table' ] => T();
-      call type => object {
-        call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
+      call frooble => object {
+        call [ isa => 'Wasm::Wasmtime::Table' ] => T();
+        call type => object {
+          call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
+        };
+        call kind      => 'table';
       };
-      call kind      => 'table';
-    };
-    call [ get_export => 'bar' ] => object{
-      call [ isa => 'Wasm::Wasmtime::Memory' ] => T();
-      call type => object {
-        call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
+      call bar => object {
+        call [ isa => 'Wasm::Wasmtime::Memory' ] => T();
+        call type => object {
+          call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
+        };
+        call kind      => 'memory';
       };
-      call kind      => 'memory';
     };
   },
   'exter objects',

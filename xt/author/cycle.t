@@ -19,6 +19,7 @@ subtest 'module' => sub {
     },
   );
 
+  $module->imports;
   $module->exports;
 
   memory_cycle_ok $module;
@@ -43,7 +44,7 @@ subtest 'instance' => sub {
     [],
   );
 
-  $instance->get_export("add");
+  $instance->exports;
 
   memory_cycle_ok $instance;
 

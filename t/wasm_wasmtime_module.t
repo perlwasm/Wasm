@@ -143,7 +143,6 @@ is(
         call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
       };
     };
-    call [ get_export => 'foo' ] => U();
     call_list sub { @{ shift->imports } } => [];
     call_list sub { @{ shift->exports } } => array {
       item object {

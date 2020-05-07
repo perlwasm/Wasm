@@ -19,12 +19,16 @@ Revision history for {{$dist->name}}},
   - Added predicate methods is_functype, is_globaltype, is_tabletype
     and is_memorytype to Wasm::Wasmtime::ExternType class (gh#37, gh#40)
   - Removed the get_export method on Wasm::Wasmtime::Module (gh#38, gh#44)
+  - Removed the get_export method on Wasm::Wasmtime::Instance (gh#38, gh#44)
   - The Wasm::Wasmtime::Module method exports returns a
     Wasm::Wasmtime::Module::Exports object instead of a list of
     exports (gh#38, gh#44)
   - The Wasm::Wasmtime::Module method imports returns a
     Wasm::Wasmtime::Module::Imports object instead of a list of
     imports (gh#38, gh#44)
+  - The Wasm::Wasmtime::Instance method exports returns a
+    Wasm::Wasmtime::Instance::Exports object instead of a list of
+    exports (gh#38, gh#44)
 
 0.06      2020-04-27 06:47:38 -0600
   - Improved type safety (gh#32)

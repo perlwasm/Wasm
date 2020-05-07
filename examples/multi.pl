@@ -33,7 +33,7 @@ my $instance = Wasm::Wasmtime::Instance->new(
 );
 
 print "Extracting export...\n";
-my $g = $instance->get_export('g');
+my $g = $instance->exports->g;
 
 print "Calling export \"g\"...\n";
 my @results = $g->(1,3);
@@ -43,7 +43,7 @@ assert($results[0] == 4);
 assert($results[1] == 2);
 
 print "Calling export \"round_trip_many\"...\n";
-my $round_trip_many = $instance->get_export("round_trip_many");
+my $round_trip_many = $instance->exports->round_trip_many;
 @results = $round_trip_many->(0,1,2,3,4,5,6,7,8,9);
 
 print "Printing results...\n";
