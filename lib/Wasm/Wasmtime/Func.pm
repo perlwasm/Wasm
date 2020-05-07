@@ -7,6 +7,7 @@ use Ref::Util qw( is_blessed_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
+use FFI::C::Util qw( set_array_count );
 use Sub::Install;
 use Carp ();
 use constant is_func => 1;
@@ -60,7 +61,7 @@ signature.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func_t' => sub {
+$ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaque'] => 'wasm_func_t' => sub {
   my $xsub = shift;
   my $class = shift;
   if(is_blessed_ref $_[0] && $_[0]->isa('Wasm::Wasmtime::Store'))
@@ -77,10 +78,8 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
       my($params, $results) = @_;
 
       my @args = $param_arity ? do {
-        my $args = $ffi->cast('opaque', 'wasm_val_vec_t', $params);
-        # TODO: this should be a utility function
-        # in FFI::C::Util
-        $args->{count} = $param_arity;
+        my $args = Wasm::Wasmtime::ValVec->from_c($params);
+        set_array_count($args, $param_arity);
         $args->to_perl;
       } : ();
 
@@ -97,7 +96,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
       {
         if($result_arity)
         {
-          $results = $ffi->cast('opaque', 'wasm_val_vec_t', $results);
+          $results = Wasm::Wasmtime::ValVec->from_c($results);
           my @types = $functype->results;
           foreach my $i (0..$#types)
           {
@@ -110,8 +109,7 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', 'opaque'] => 'wasm_func
         return undef;
       }
     });
-    my $fptr = $ffi->cast("(opaque,opaque)->opaque", => 'opaque', $wrapper);
-    my $self = $xsub->($store, $functype, $fptr);
+    my $self = $xsub->($store, $functype, $wrapper);
     $self->{store} = $store;
     $self->{wrapper} = $wrapper;
     return $self;
