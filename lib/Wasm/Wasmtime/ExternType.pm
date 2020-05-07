@@ -3,28 +3,89 @@ package Wasm::Wasmtime::ExternType;
 use strict;
 use warnings;
 use Wasm::Wasmtime::FFI;
-use Wasm::Wasmtime::FuncType;
-use Wasm::Wasmtime::GlobalType;
-use Wasm::Wasmtime::TableType;
-use Wasm::Wasmtime::MemoryType;
+
+require Wasm::Wasmtime::FuncType;
+require Wasm::Wasmtime::GlobalType;
+require Wasm::Wasmtime::TableType;
+require Wasm::Wasmtime::MemoryType;
 
 # ABSTRACT: Wasmtime extern type class
 # VERSION
 
+=head1 SYNOPSIS
+
+# EXAMPLE: examples/synopsis/externtype.pl
+
 =head1 DESCRIPTION
 
-This is a private class.  The C<.pm> file for it may be removed in the future.
+This class represents an extern type. This class cannot be created independently, but subclasses of this class can be retrieved from the Wasm::Wasmtime::Module class.
+This is a base class and cannot be instantiated on its own.
+
+=head1 METHODS
+
+=head2 kind
+
+ my $string = $externtype->kind;
+
+Returns the extern type kind as a string.  This will be one of:
+
+=over 4
+
+=item C<functype> L<Wasm::Wasmtime::FuncType>
+
+=item C<globaltype> L<Wasm::Wasmtime::GlobalType>
+
+=item C<tabletype> L<Wasm::Wasmtime::TableType>
+
+=item C<memorytype> L<Wasm::Wasmtime::MemoryType>
+
+=back
+
+=head2 is_functype
+
+ my $bool = $externtype->is_functype;
+
+Returns true if it is a function type.
+
+=head2 is_globaltype
+
+ my $bool = $externtype->is_globaltype;
+
+Returns true if it is a global type.
+
+=head2 is_tabletype
+
+ my $bool = $externtype->is_tabletype;
+
+Returns true if it is a table type.
+
+=head2 is_memorytype
+
+ my $bool = $externtype->is_memorytype;
+
+Returns true if it is a memory type.
 
 =cut
+
+sub kind { die "internal error" };
+use constant is_functype   => 0;
+use constant is_globaltype => 0;
+use constant is_tabletype  => 0;
+use constant is_memorytype => 0;
 
 $ffi_prefix = 'wasm_externtype_';
 
 $ffi->attach( [ kind => '_kind' ] => ['opaque'] => 'uint8' );
 
-my @cast = map {
-  $ffi->function( "as_$_" => ['opaque'] => "wasm_${_}_t" )->sub_ref
-} qw( functype globaltype tabletype memorytype );
+our @cast;
 
+sub _cast
+{
+  my(undef, $index) = @_;
+  my $caller = caller;
+  my($name) = map { lc $_ } $caller =~ /::([a-z]+Type)$/i;
+  $cast[$index] = $ffi->function( "wasm_externtype_as_$name" => ['opaque'] => "wasm_${name}_t" )->sub_ref;
+}
 
 $ffi->custom_type('wasm_externtype_t' => {
   native_type => 'opaque',
@@ -37,3 +98,13 @@ $ffi->custom_type('wasm_externtype_t' => {
 });
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=item L<Wasm::Wasmtime>
+
+=back

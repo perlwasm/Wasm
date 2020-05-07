@@ -2,8 +2,11 @@ package Wasm::Wasmtime::MemoryType;
 
 use strict;
 use warnings;
+use base qw( Wasm::Wasmtime::ExternType );
 use Ref::Util qw( is_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
+use constant is_memorytype => 1;
+use constant kind => 'memorytype';
 
 # ABSTRACT: Wasmtime memory type class
 # VERSION
@@ -73,6 +76,7 @@ $ffi->attach( limits => ['wasm_memorytype_t'] => 'uint32[2]' => sub {
   $limits;
 });
 
+__PACKAGE__->_cast(3);
 _generate_destroy();
 
 1;

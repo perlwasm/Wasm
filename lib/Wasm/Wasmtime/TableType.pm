@@ -2,9 +2,12 @@ package Wasm::Wasmtime::TableType;
 
 use strict;
 use warnings;
+use base qw( Wasm::Wasmtime::ExternType );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ValType;
 use Ref::Util qw( is_ref is_plain_arrayref );
+use constant is_tabletype => 1;
+use constant kind => 'tabletype';
 
 # ABSTRACT: Wasmtime table type class
 # VERSION
@@ -100,6 +103,7 @@ $ffi->attach( limits => ['wasm_tabletype_t'] => 'uint32[2]' => sub {
   $xsub->($self);
 });
 
+__PACKAGE__->_cast(2);
 _generate_destroy();
 
 1;
