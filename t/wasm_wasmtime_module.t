@@ -137,12 +137,15 @@ is(
     )
   }),
   object {
-    call [ get_export => 'add' ] => object {
-      call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+    call exports => object {
+      call [ isa => 'Wasm::Wasmtime::Module::Exports' ] => T();
+      call add => object {
+        call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+      };
     };
     call [ get_export => 'foo' ] => U();
     call_list imports => [];
-    call_list exports => array {
+    call_list sub { @{ shift->exports } } => array {
       item object {
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
         call name => 'add';

@@ -217,7 +217,7 @@ sub import
   my $module = Wasm::Wasmtime::Module->new($store, @module);
   my $instance = Wasm::Wasmtime::Instance->new($module, \@imports);
 
-  my @me = $module->exports;
+  my @me = @{ $module->exports };
   my @ie = $instance->exports;
 
   my @function_names;

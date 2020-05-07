@@ -19,7 +19,7 @@ subtest 'module' => sub {
     },
   );
 
-  $module->get_export("add");
+  $module->exports;
 
   memory_cycle_ok $module;
 
