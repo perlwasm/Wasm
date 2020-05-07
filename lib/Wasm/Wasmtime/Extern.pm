@@ -111,3 +111,15 @@ sub kind { die "internal error" };
 _generate_vec_class();
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=item L<Wasm::Wasmtime>
+
+=back
+
+=cut

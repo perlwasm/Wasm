@@ -108,3 +108,5 @@ $ffi->custom_type('wasm_externtype_t' => {
 =item L<Wasm::Wasmtime>
 
 =back
+
+=cut

@@ -88,3 +88,4 @@ _generate_destroy();
 
 =back
 
+=cut
