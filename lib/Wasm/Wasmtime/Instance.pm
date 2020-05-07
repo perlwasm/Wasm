@@ -181,7 +181,7 @@ sub get_export
   my($self, $name) = @_;
   $self->{exports} ||= do {
     my @exports = $self->exports;
-    my @module_exports   = $self->module->exports;
+    my @module_exports   = @{ $self->module->exports };
     my %exports;
     foreach my $i (0..$#exports)
     {
