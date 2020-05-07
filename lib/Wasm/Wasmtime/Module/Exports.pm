@@ -3,6 +3,14 @@ package Wasm::Wasmtime::Module::Exports;
 use strict;
 use warnings;
 use Carp ();
+use overload
+  '%{}' => sub {
+    my $self   = shift;
+    my $module = $$self;
+    $module->{exports};
+  },
+  bool => sub { 1 },
+  fallback => 1;
 
 # ABSTRACT: Wasmtime module exports class
 # VERSION
