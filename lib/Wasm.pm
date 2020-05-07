@@ -84,11 +84,22 @@ As mentioned before as of this writing this dist is a work in progress.  I won't
 stuff if I don't have to, but practicality may demand it in some situations.
 
 This interface is implemented using the bundled L<Wasm::Wasmtime> family of modules, which depends
-on the Wasmtime project.  Because of the way Wasmtime handles out-of-bounds memory errors, large
-C<PROT_NONE> pages are allocated at startup.  While these pages do not consume any actual resources
-(as used by Wasmtime), they can cause out-of-memory errors on Linux systems with virtual memory
-limits (C<ulimit -v>).  Similar techniques are common in modern programming languages, and this
-seems to be more a limitation of the Linux kernel.
+on the Wasmtime project.
+
+The default way of handling out-of-bounds memory errors is to allocate large C<PROT_NONE> pages at
+startup.  While these pages do not consume many resources in practice (at least in the way that they
+are used by Wasmtime), they can cause out-of-memory errors on Linux systems with virtual memory
+limits (C<ulimi -v> in the C<bash> shell).  Similar techniques are common in other modern programming
+languages, and this is more a limitation of the Linux kernel than anything else.  Setting the limits
+on the virtual memory address size probably doesn't do what you think it is doing and you are probably
+better off finding a way to place limits on process memory.
+
+However, as a workaround for environments that choose to set a virtual memory address size limit anyway,
+Wasmtime provides configurations to not allocate the large C<PROT_NONE> pages at some performance
+cost.  The testing plugin L<Test2::Plugin::Wasm> tries to detect environments that have the virtual
+memory address size limits and sets this configuration for you.  For production you can set the
+environment variable C<PERL_WASM_WASMTIME_MEMORY> to tune the appropriate memory settings exactly
+as you want to (see the environment section of L<Wasm::Wasmtime>.
 
 =head1 SEE ALSO
 

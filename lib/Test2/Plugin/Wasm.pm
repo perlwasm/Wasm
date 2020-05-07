@@ -18,7 +18,7 @@ use FFI::C::Util qw( c_to_perl );
 
 This L<Test2> plugin is for testing L<Wasm> extensions.  Right now, it sets C<wasmtime> resource
 limits to work on systems with a low virtual memory address limit.  It may do other thing that
-make sense for all L<Wasm> extensions in the future.
+make sense for all L<Wasm> extensions running in a testing context in the future.
 
 =head1 SEE ALSO
 

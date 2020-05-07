@@ -15,6 +15,7 @@ $modules{$_} = $_ for qw(
   ExtUtils::MakeMaker
   FFI::C
   FFI::C::StructDef
+  FFI::C::Util
   FFI::CheckLib
   FFI::Platypus
   FFI::Platypus::Buffer

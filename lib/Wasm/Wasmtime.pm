@@ -41,6 +41,14 @@ If you are just getting your feet wet with WebAssembly and Perl then you probabl
 take a look at L<Wasm>, which is a simple interface that automatically imports functions
 from Wasm space into Perl space.
 
+=head1 ENVIRONMENT
+
+=head2 PERL_WASM_WASMTIME_MEMORY
+
+This environment variable, if set, should be a colon separated list of values for
+C<static_memory_maximum_size>, C<static_memory_guard_size> and C<dynamic_memory_guard_size>.
+See L<Wasm::Wasmtime::Config> for more details on these limits.
+
 =head1 SEE ALSO
 
 =over 4
