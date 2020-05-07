@@ -2,10 +2,13 @@ package Wasm::Wasmtime::GlobalType;
 
 use strict;
 use warnings;
+use base qw( Wasm::Wasmtime::ExternType );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ValType;
 use Ref::Util qw( is_ref );
 use Carp ();
+use constant is_globaltype => 1;
+use constant kind => 'globaltype';
 
 # ABSTRACT: Wasmtime global type class
 # VERSION
@@ -121,6 +124,7 @@ $ffi->attach( mutability => ['wasm_globaltype_t'] => 'uint8' => sub {
   $mutability[$xsub->($self)];
 });
 
+__PACKAGE__->_cast(1);
 _generate_destroy();
 
 1;

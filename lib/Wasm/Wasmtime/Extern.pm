@@ -41,7 +41,9 @@ sub _cast_body
 
 $ffi->attach( type => ['wasm_extern_t'] => 'wasm_externtype_t' => sub {
   my($xsub, $self) = @_;
-  $xsub->($self);
+  my $type = $xsub->($self);
+  $type->{owner} = $self->{owner} || $self;
+  $type;
 });
 
 my %kind = (

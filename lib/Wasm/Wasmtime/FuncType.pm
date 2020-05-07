@@ -2,9 +2,12 @@ package Wasm::Wasmtime::FuncType;
 
 use strict;
 use warnings;
+use base qw( Wasm::Wasmtime::ExternType );
 use Ref::Util qw( is_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ValType;
+use constant is_functype => 1;
+use constant kind => 'functype';
 
 # ABSTRACT: Wasmtime function type class
 # VERSION
@@ -87,6 +90,7 @@ $ffi->attach( results => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
   $xsub->($self)->to_list;
 });
 
+__PACKAGE__->_cast(0);
 _generate_destroy();
 
 1;
