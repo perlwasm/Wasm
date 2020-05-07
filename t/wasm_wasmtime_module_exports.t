@@ -34,6 +34,20 @@ use YAML qw( Dump );
 
       # test that you can't replace an existing key
       call sub { my $exports = shift; dies { $exports->{add} = 1 } } => D();
+
+      # hopefully we can still modify the values themselves?
+      call sub { my $exports = shift; lives { $exports->{add}->{rando} = 1 } } => T();
+
+      call sub { \@{ shift() } } => array {
+        item object {
+          call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+          call name => 'add';
+          call type => object {
+            call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+          };
+        };
+        end;
+      };
     },
     'exports object looks good'
   );
