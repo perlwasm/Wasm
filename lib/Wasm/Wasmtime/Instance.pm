@@ -73,13 +73,7 @@ sub _cast_import
   {
     return $ii->{ptr};
   }
-  # TODO: if Wasm::Wasmtime::Extern becomes a baseclass for
-  # these four extern classes, then we don't have to check them
-  # in this stupid way.
-  elsif(is_blessed_ref($ii) && (   $ii->isa('Wasm::Wasmtime::Func')
-                                || $ii->isa('Wasm::Wasmtime::Memory')
-                                || $ii->isa('Wasm::Wasmtime::Global')
-                                || $ii->isa('Wasm::Wasmtime::Table')))
+  elsif(is_blessed_ref($ii) && $ii->isa('Wasm::Wasmtime::Extern'))
   {
     return $ii->{ptr};
   }

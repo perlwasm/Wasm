@@ -18,7 +18,7 @@ require Wasm::Wasmtime::MemoryType;
 
 =head1 DESCRIPTION
 
-This class represents an extern type. This class cannot be created independently, but subclasses of this class can be retrieved from the Wasm::Wasmtime::Module class.
+This class represents an extern type. This class cannot be created independently, but subclasses of this class can be retrieved from the L<Wasm::Wasmtime::Module> object.
 This is a base class and cannot be instantiated on its own.
 
 =head1 METHODS
@@ -77,7 +77,7 @@ $ffi_prefix = 'wasm_externtype_';
 
 $ffi->attach( [ kind => '_kind' ] => ['opaque'] => 'uint8' );
 
-our @cast;
+my @cast;
 
 sub _cast
 {

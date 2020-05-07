@@ -2,10 +2,13 @@ package Wasm::Wasmtime::Table;
 
 use strict;
 use warnings;
+use base qw( Wasm::Wasmtime::Extern );
 use Ref::Util qw( is_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::TableType;
+use constant is_table => 1;
+use constant kind => 'table';
 
 # ABSTRACT: Wasmtime table class
 # VERSION
@@ -66,6 +69,7 @@ Returns the size of the table.
 
 $ffi->attach( size => ['wasm_table_t'] => 'uint32' );
 
+__PACKAGE__->_cast(2);
 _generate_destroy();
 
 1;

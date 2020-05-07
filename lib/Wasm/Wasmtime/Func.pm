@@ -2,12 +2,15 @@ package Wasm::Wasmtime::Func;
 
 use strict;
 use warnings;
+use base qw( Wasm::Wasmtime::Extern );
 use Ref::Util qw( is_blessed_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
 use Sub::Install;
 use Carp ();
+use constant is_func => 1;
+use constant kind => 'func';
 use overload
   '&{}' => sub { my $self = shift; sub { $self->call(@_) } },
   bool => sub { 1 },
@@ -225,6 +228,7 @@ $ffi->attach( result_arity => ['wasm_func_t'] => 'size_t' => sub {
   $xsub->($self);
 });
 
+__PACKAGE__->_cast(0);
 _generate_destroy();
 
 1;
