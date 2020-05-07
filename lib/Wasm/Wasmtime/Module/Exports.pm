@@ -10,6 +10,11 @@ use overload
     my $module = $$self;
     $module->{exports};
   },
+  '@{}' => sub {
+    my $self = shift;
+    my $module = $$self;
+    [$module->exports];
+  },
   bool => sub { 1 },
   fallback => 1;
 
