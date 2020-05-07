@@ -41,12 +41,8 @@ $ffi->attach( new => ['wasm_byte_vec_t*', 'opaque'] => 'wasm_exporttype_t' => su
   my $xsub = shift;
   my $class = shift;
 
-  # TODO: Fix this sillyness if ExternType becomes a base class
-  if(defined $_[1] && is_blessed_ref $_[1] && (   $_[1]->isa('Wasm::Wasmtime::ExternType')
-                                               || $_[1]->isa('Wasm::Wasmtime::FuncType')
-                                               || $_[1]->isa('Wasm::Wasmtime::GlobalType')
-                                               || $_[1]->isa('Wasm::Wasmtime::MemoryType')
-                                               || $_[1]->isa('Wasm::Wasmtime::TableType')))
+  # not sure this is actually useful...
+  if(defined $_[1] && is_blessed_ref $_[1] && $_[1]->isa('Wasm::Wasmtime::ExternType'))
   {
     my $name = Wasm::Wasmtime::ByteVec->new(shift);
     my $externtype = shift;
