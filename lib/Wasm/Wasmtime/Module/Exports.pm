@@ -3,6 +3,7 @@ package Wasm::Wasmtime::Module::Exports;
 use strict;
 use warnings;
 use Carp ();
+use Hash::Util ();
 use overload
   '%{}' => sub {
     my $self   = shift;
@@ -40,6 +41,7 @@ sub new
     {
       $exports{$export->name} = $export->type;
     }
+    Hash::Util::lock_hash(%exports);
     \%exports;
   };
 
@@ -50,7 +52,7 @@ sub can
 {
   my($self, $name) = @_;
   my $module = $$self;
-  $module->{exports}->{$name}
+  exists $module->{exports}->{$name}
     ? sub { $self->$name }
     : $self->SUPER::can($name);
 }
@@ -64,9 +66,8 @@ sub AUTOLOAD
   $name=~ s/^.*:://;
 
   my $module = $$self;
-  my $export = $module->{exports}->{$name};
-  Carp::croak("no export $name") unless $export;
-  $export;
+  Carp::croak("no export $name") unless exists $module->{exports}->{$name};
+  $module->{exports}->{$name};
 }
 
 sub DESTROY
