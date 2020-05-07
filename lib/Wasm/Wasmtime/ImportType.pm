@@ -46,13 +46,7 @@ $ffi->attach( new => ['wasm_byte_vec_t*', 'wasm_byte_vec_t*', 'opaque'] => 'wasm
   {
     my $externtype = $_[2];
     # not sure this is actually useful?
-    # doesn't seem to bee a way to new an wasm_externtype_t
-    # TODO: Fix this sillyness if ExternType becomes a base class
-    if(is_blessed_ref($externtype) && (   $externtype->isa('Wasm::Wasmtime::ExternType')
-                                       || $externtype->isa('Wasm::Wasmtime::FuncType')
-                                       || $externtype->isa('Wasm::Wasmtime::GlobalType')
-                                       || $externtype->isa('Wasm::Wasmtime::MemoryType')
-                                       || $externtype->isa('Wasm::Wasmtime::TableType')))
+    if(is_blessed_ref($externtype) && $externtype->isa('Wasm::Wasmtime::ExternType'))
     {
       my $module = Wasm::Wasmtime::ByteVec->new(shift);
       my $name = Wasm::Wasmtime::ByteVec->new(shift);
