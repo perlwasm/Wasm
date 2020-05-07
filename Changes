@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}},
 
 {{$NEXT}}
   - Add Test2::Plugin::Wasm (gh#36)
+  - Add Wasm::Wasmtime::Module::Exports class (gh#38, gh#44)
 
   [Warning: numerous breaking changes]
 

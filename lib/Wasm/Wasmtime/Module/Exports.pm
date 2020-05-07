@@ -33,7 +33,34 @@ use overload
 B<WARNING>: WebAssembly and Wasmtime are a moving target and the interface for these modules
 is under active development.  Use with caution.
 
-TODO
+This class represents the exports from a module.  It can be used in a number of different ways.
+
+=over 4
+
+=item autoload methods
+
+ my $foo = $module->exports->foo;
+
+Calling the name of an export as a method returns the L<Wasm::Wasmtime::ExternType> for the
+export.
+
+=item As a hash reference
+
+ my $foo = $module->exports->{foo};
+
+Using the Exports class as a hash reference allows you to get exports that might clash with
+common Perl methods like C<new>, C<can>, C<DESTROY>, etc.  The L<Wasm::Wasmtime::ExternType>
+will be returned.
+
+=item An array reference
+
+ my $foo = $module->exports->[0];
+
+This will give you the list of exports in the order that they are defined in your WebAssembly.
+The object returned is a L<Wasm::Wasmtime::ExportType>, which is essentially a name and a
+L<Wasm::Wasmtime::ExternType>.
+
+=back
 
 =cut
 
