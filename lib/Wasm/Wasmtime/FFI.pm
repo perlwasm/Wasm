@@ -263,33 +263,4 @@ my %kind = (
   }
 }
 
-# TODO: defaults should go in a base class
-package Wasm::Wasmtime::Func;
-use constant is_func   => 1;
-use constant is_global => 0;
-use constant is_table  => 0;
-use constant is_memory => 0;
-use constant kind      => 'func';
-
-package Wasm::Wasmtime::Global;
-use constant is_func   => 0;
-use constant is_global => 1;
-use constant is_table  => 0;
-use constant is_memory => 0;
-use constant kind      => 'global';
-
-package Wasm::Wasmtime::Table;
-use constant is_func   => 0;
-use constant is_global => 0;
-use constant is_table  => 1;
-use constant is_memory => 0;
-use constant kind      => 'table';
-
-package Wasm::Wasmtime::Memory;
-use constant is_func   => 0;
-use constant is_global => 0;
-use constant is_table  => 0;
-use constant is_memory => 1;
-use constant kind      => 'memory';
-
 1;

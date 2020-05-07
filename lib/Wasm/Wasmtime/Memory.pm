@@ -2,10 +2,13 @@ package Wasm::Wasmtime::Memory;
 
 use strict;
 use warnings;
+use base qw( Wasm::Wasmtime::Extern );
 use Ref::Util qw( is_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::MemoryType;
+use constant is_memory => 1;
+use constant kind => 'memory';
 
 # ABSTRACT: Wasmtime memory class
 # VERSION
@@ -126,6 +129,7 @@ $ffi->attach( grow => ['wasm_memory_t', 'uint32'] => 'bool' => sub {
   $xsub->($self, $delta);
 });
 
+__PACKAGE__->_cast(3);
 _generate_destroy();
 
 1;

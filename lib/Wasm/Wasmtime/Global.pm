@@ -2,10 +2,13 @@ package Wasm::Wasmtime::Global;
 
 use strict;
 use warnings;
+use base qw( Wasm::Wasmtime::Extern );
 use Ref::Util qw( is_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::GlobalType;
+use constant is_global => 1;
+use constant kind => 'global';
 
 # ABSTRACT: Wasmtime global class
 # VERSION
@@ -112,6 +115,7 @@ $ffi->attach( set => ['wasm_global_t','wasm_val_t'] => sub {
   $xsub->($self, $value);
 });
 
+__PACKAGE__->_cast(1);
 _generate_destroy();
 
 1;
