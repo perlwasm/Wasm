@@ -28,6 +28,7 @@ $modules{$_} = $_ for qw(
   Test2::Mock
   Test2::V0
   Test::Alien::Diag
+  YAML
 );
 
 $post_diag = sub {

@@ -20,6 +20,14 @@ use YAML qw( Dump );
       call add => object {
         call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
       };
+
+      # test %{} overload
+      call sub { \%{ shift() } } => hash {
+        field add => object {
+          call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+        };
+        end;
+      };
     },
     'exports object looks good'
   );
