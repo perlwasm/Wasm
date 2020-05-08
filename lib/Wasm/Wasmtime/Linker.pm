@@ -164,6 +164,7 @@ else
 =head2 define_instance
 
  $linker->define_instance(
+   $name,       # string
    $instance,   # Wasm::Wasmtime::Instance
  );
 
