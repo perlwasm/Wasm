@@ -3,6 +3,8 @@ Revision history for {{$dist->name}}},
 {{$NEXT}}
   - Added tie method to Wasm::Wasmtime::Global (gh#46)
   - Added store method to Wasm::Wasmtime::Linker (gh#47)
+  - Wasm.pm uses Wasm::Wasmtime::Linker internally now, which means
+    that Wasm modules can import/export between themselves (gh#47)
 
   [Warning: breaking changes]
 

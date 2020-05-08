@@ -190,7 +190,7 @@ sub import
     }
     elsif($key eq '-imports')
     {
-      Carp::croak("-imports was removed in 0.08");
+      Carp::croak("-imports was removed in Wasm.pm 0.08");
     }
     else
     {
@@ -211,6 +211,8 @@ sub import
       ),
     );
 
+    $linker->allow_shadowing(0);
+
     my $wasi = Wasm::Wasmtime::WasiInstance->new(
       $linker->store,
       'wasi_snapshot_preview1',
@@ -220,7 +222,8 @@ sub import
     $linker;
   };
   my $module = Wasm::Wasmtime::Module->new($linker->store, @module);
-  my $instance = Wasm::Wasmtime::Instance->new($module, []);
+  my $instance = $linker->instantiate($module);
+  $linker->define_instance($package, $instance);
 
   my @me = @{ $module->exports   };
   my @ie = @{ $instance->exports };
