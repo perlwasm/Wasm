@@ -4,6 +4,10 @@ Revision history for {{$dist->name}}},
   - Added tie method to Wasm::Wasmtime::Global (gh#46)
   - Added store method to Wasm::Wasmtime::Linker (gh#47)
 
+  [Warning: breaking changes]
+
+  - The -imports option was removed from Wasm.pm (gh#47)
+
 0.07      2020-05-07 13:52:00 -0600
   - Add Test2::Plugin::Wasm (gh#36)
   - Add Wasm::Wasmtime::Instance::Exports class (gh#38, gh#44)

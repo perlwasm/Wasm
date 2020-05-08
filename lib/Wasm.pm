@@ -50,12 +50,6 @@ or C<@EXPORT_OK> (C<ok>).
 
 Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly binary (.wasm) format.
 
-=head2 -imports
-
- use Wasm -api => 0, -imports => \@imports;
-
-Use the given imports when creating the module instance.
-
 =head2 -package
 
  use Wasm -api => 0, -package => $package;
@@ -134,7 +128,6 @@ sub import
   my $api;
   my $exporter;
   my @module;
-  my @imports;
   my $package = $caller;
 
   while(@_)
@@ -197,7 +190,7 @@ sub import
     }
     elsif($key eq '-imports')
     {
-      @imports = @{ shift() };
+      Carp::croak("-imports was removed in 0.08");
     }
     else
     {
@@ -227,7 +220,7 @@ sub import
     $linker;
   };
   my $module = Wasm::Wasmtime::Module->new($linker->store, @module);
-  my $instance = Wasm::Wasmtime::Instance->new($module, \@imports);
+  my $instance = Wasm::Wasmtime::Instance->new($module, []);
 
   my @me = @{ $module->exports   };
   my @ie = @{ $instance->exports };
