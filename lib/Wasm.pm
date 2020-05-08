@@ -3,6 +3,7 @@ package Wasm;
 use strict;
 use warnings;
 use 5.008001;
+use Ref::Util qw( is_plain_arrayref );
 use Carp ();
 
 # ABSTRACT: Write Perl extensions using Wasm
@@ -125,6 +126,7 @@ Load WebAssembly modules as though they were Perl modules.
 our %WASM;
 my $linker;
 my %inst;
+my @keep;
 
 sub import
 {
@@ -143,6 +145,8 @@ sub import
   my @module;
   my $package = $caller;
   my $file    = $fn;
+
+  my @global;
 
   while(@_)
   {
@@ -204,6 +208,17 @@ sub import
     {
       $package = shift;
     }
+    elsif($key eq '-global')
+    {
+      if(is_plain_arrayref $_[0])
+      {
+        push @global, shift;
+      }
+      else
+      {
+        Carp::croak("-global should be an array reference");
+      }
+    }
     elsif($key eq '-imports')
     {
       Carp::croak("-imports was removed in Wasm.pm 0.08");
@@ -213,10 +228,6 @@ sub import
       Carp::croak("Unknown Wasm option: $key");
     }
   }
-
-  @module = (wat => '(module)') unless @module;
-
-  Carp::croak("Wasm for $package already loaded") if $inst{$package};
 
   require Wasm::Wasmtime;
   $linker ||= do {
@@ -250,20 +261,103 @@ sub import
 
     $linker;
   };
+
+  if(@global)
+  {
+    Carp::croak("Cannot specify both Wasm and -global") if @module;
+    foreach my $spec (@global)
+    {
+      my($name, $content, $mutability, $value) = @$spec;
+      my $global = Wasm::Wasmtime::Global->new(
+        $linker->store,
+        Wasm::Wasmtime::GlobalType->new($content, $mutability),
+        $value,
+      );
+      no strict 'refs';
+      *{"${package}::$name"} = $global->tie;
+    }
+    return;
+  }
+
+  @module = (wat => '(module)') unless @module;
+
+  Carp::croak("Wasm for $package already loaded") if $inst{$package};
+
   my $module = Wasm::Wasmtime::Module->new($linker->store, @module);
 
   foreach my $import (@{ $module->imports })
   {
+
     my $module = $import->module;
     next if $module eq 'wasi_snapshot_preview1';
-    my $pm = "$module.pm";
-    $pm =~ s{::}{/}g;
-    eval { require $pm };
-    if(my $error = $@)
+    if($module ne 'main')
     {
-      $error =~ s/ at (.*?)$//;
-      $error .= " module required by WebAssembly at $file";
-      Carp::croak("$error");
+      my $pm = "$module.pm";
+      $pm =~ s{::}{/}g;
+      eval { require $pm };
+      if(my $error = $@)
+      {
+        $error =~ s/ at (.*?)$//;
+        $error .= " module required by WebAssembly at $file";
+        Carp::croak("$error");
+      }
+    }
+
+    next if $inst{$module};
+
+    my $name = $import->name;
+    my $type = $import->type;
+    my $kind = $type->kind;
+
+    my $extern;
+
+    if($kind eq 'functype')
+    {
+      if(my $f = $module->can("${module}::$name"))
+      {
+        $extern = Wasm::Wasmtime::Func->new(
+          $linker->store,
+          $type,
+          $f,
+        );
+        push @keep, $extern;
+      }
+    }
+    elsif($kind eq 'globaltype')
+    {
+      if(my $global = do { no strict 'refs'; tied ${"${module}::$name"} })
+      {
+        $extern = $global;
+      }
+    }
+
+    if($extern)
+    {
+      # TODO: check that the store is the same?
+      eval {
+        $linker->define(
+          $module,
+          $name,
+          $extern,
+        );
+      };
+      if(my $error = $@)
+      {
+        if(Wasm::Wasmtime::Error->can('new'))
+        {
+          # TODO: if we can do a get on the define that would
+          # be better than doing this regex on the diagnostic.
+          # this is available in the rust api, but not the c api
+          # as of this writing.
+          die $error unless $error =~ /defined twice/;
+        }
+        else
+        {
+          # TODO: also for the prod version of wasmtime we don't
+          # have an error so we end up swallowing other types
+          # of errors, if there are any.
+        }
+      }
     }
   }
 
@@ -293,7 +387,6 @@ sub import
     {
       my $global = $extern;
       no strict 'refs';
-      $DB::single = 1;
       *{"${package}::$name"} = $global->tie;
     }
   }

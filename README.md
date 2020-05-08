@@ -48,6 +48,10 @@ is under active development.  Use with caution.
 
 The `Wasm` Perl dist provides tools for writing Perl bindings using WebAssembly (Wasm).
 
+The current implementation uses [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime), which is itself based on the Rust project
+Wasmtime.  This module doesn't expose the [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime) interface, and implementation
+could be changed in the future.
+
 # OPTIONS
 
 ## -api
