@@ -13,3 +13,4 @@ foreach my $pm (map { $_->relative('lib') } path('lib/Wasm/Wasmtime')->children)
 }
 
 done_testing;
+

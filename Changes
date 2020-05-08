@@ -2,13 +2,15 @@ Revision history for {{$dist->name}}},
 
 {{$NEXT}}
   - Added tie method to Wasm::Wasmtime::Global (gh#46)
-  - Added store method to Wasm::Wasmtime::Linker (gh#47)
+  - Added store method to Wasm::Wasmtime::Linker (gh#31, gh#47)
   - Wasm.pm uses Wasm::Wasmtime::Linker internally now, which means
-    that Wasm modules can import/export between themselves (gh#47)
+    that Wasm modules can import/export between themselves (gh#31, gh#47)
+  - Added %Wasm::WASM hash that maps Wasm modules to the files
+    they were loaded from (gh#31, gh#47)
 
   [Warning: breaking changes]
 
-  - The -imports option was removed from Wasm.pm (gh#47)
+  - The -imports option was removed from Wasm.pm (gh#31, gh#47)
 
 0.07      2020-05-07 13:52:00 -0600
   - Add Test2::Plugin::Wasm (gh#36)

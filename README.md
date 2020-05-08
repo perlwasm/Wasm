@@ -104,6 +104,13 @@ use Wasm -api => 0, -wat => $wat;
 
 String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
+# GLOBALS
+
+## %Wasm::WASM
+
+This hash maps the Wasm module names to the files from which the Wasm was loaded.
+It is roughly analogous to the `@INC` array in Perl.
+
 # CAVEATS
 
 As mentioned before as of this writing this dist is a work in progress.  I won't intentionally break

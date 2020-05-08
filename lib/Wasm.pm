@@ -72,6 +72,13 @@ C<lib/Foo/Bar.wasm>.  If both exist, then it will use the newer of the two.
 
 String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
 
+=head1 GLOBALS
+
+=head2 %Wasm::WASM
+
+This hash maps the Wasm module names to the files from which the Wasm was loaded.
+It is roughly analogous to the C<@INC> array in Perl.
+
 =head1 CAVEATS
 
 As mentioned before as of this writing this dist is a work in progress.  I won't intentionally break
@@ -111,7 +118,9 @@ Load WebAssembly modules as though they were Perl modules.
 
 =cut
 
+our %WASM;
 my $linker;
+my %inst;
 
 sub import
 {
@@ -128,7 +137,8 @@ sub import
   my $api;
   my $exporter;
   my @module;
-  my($package, $file) = $caller;  # note: file used only for diagnostics
+  my $package = $caller;
+  my $file    = $fn;
 
   while(@_)
   {
@@ -202,6 +212,8 @@ sub import
 
   @module = (wat => '(module)') unless @module;
 
+  Carp::croak("Wasm for $package already loaded") if $inst{$package};
+
   require Wasm::Wasmtime;
   $linker ||= do {
     my $linker = Wasm::Wasmtime::Linker->new(
@@ -230,6 +242,7 @@ sub import
           #->preopen_dir ?
       )
     );
+    $WASM{wasi_snapshot_preview1} = __FILE__;
 
     $linker;
   };
@@ -250,8 +263,9 @@ sub import
     }
   }
 
-  my $instance = $linker->instantiate($module);
+  my $instance = $inst{$package} = $linker->instantiate($module);
   $linker->define_instance($package, $instance);
+  $WASM{$package} = "$file";
 
   my @me = @{ $module->exports   };
   my @ie = @{ $instance->exports };
