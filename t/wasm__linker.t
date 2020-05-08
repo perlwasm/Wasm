@@ -13,6 +13,13 @@ is
   'run it!',
 ;
 
+is( dies { require Foo::Bar::X2 }, U(), 'require Foo::Bar::X2');
+is( $Foo::Bar::X1::x1, 42, "global x1 is set to 42");
+is( Foo::Bar::X2::get_x1(), 42, "get_x1() = 42");
+Foo::Bar::X2::inc_x1();
+is( Foo::Bar::X2::get_x1(), 43, "get_x1() = 43");
+is( $Foo::Bar::X1::x1, 43, "global x1 is set to 43");
+
 note Dump(do { no warnings 'once'; \%Wasm::WASM });
 
 done_testing;

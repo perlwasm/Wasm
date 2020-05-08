@@ -7,6 +7,8 @@ Revision history for {{$dist->name}}},
     that Wasm modules can import/export between themselves (gh#31, gh#47)
   - Added %Wasm::WASM hash that maps Wasm modules to the files
     they were loaded from (gh#31, gh#47)
+  - Exported globals of Wasm modules are now imported into the
+    corresponding Perl namespace via a tied scalar (gh#31, gh#47)
 
   [Warning: breaking changes]
 
