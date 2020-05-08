@@ -128,7 +128,7 @@ sub import
   my $api;
   my $exporter;
   my @module;
-  my $package = $caller;
+  my($package, $file) = $caller;  # note: file used only for diagnostics
 
   while(@_)
   {
@@ -159,7 +159,8 @@ sub import
         $path = 'undef' unless defined $path;
         Carp::croak("no such file $path");
       }
-      @module = (file => "$path");
+      $file = "$path";
+      @module = (file => $file);
     }
     elsif($key eq '-self')
     {
@@ -177,7 +178,8 @@ sub import
       }
       else
       {
-        @module = (file => shift @maybe);
+        $file = shift @maybe;
+        @module = (file => $file);
       }
     }
     elsif($key eq '-exporter')
@@ -205,7 +207,8 @@ sub import
     my $linker = Wasm::Wasmtime::Linker->new(
       Wasm::Wasmtime::Store->new(
         Wasm::Wasmtime::Engine->new(
-          Wasm::Wasmtime::Config->new
+          Wasm::Wasmtime::Config
+            ->new
             ->wasm_multi_value(1),
         ),
       ),
@@ -213,15 +216,40 @@ sub import
 
     $linker->allow_shadowing(0);
 
-    my $wasi = Wasm::Wasmtime::WasiInstance->new(
-      $linker->store,
-      'wasi_snapshot_preview1',
-      Wasm::Wasmtime::WasiConfig->new,
+    $linker->define_wasi(
+      Wasm::Wasmtime::WasiInstance->new(
+        $linker->store,
+        'wasi_snapshot_preview1',
+        Wasm::Wasmtime::WasiConfig
+          ->new
+          ->set_argv(@ARGV)
+          ->inherit_env
+          ->inherit_stdin
+          ->inherit_stdout
+          ->inherit_stderr
+          #->preopen_dir ?
+      )
     );
 
     $linker;
   };
   my $module = Wasm::Wasmtime::Module->new($linker->store, @module);
+
+  foreach my $import (@{ $module->imports })
+  {
+    my $module = $import->module;
+    next if $module eq 'wasi_snapshot_preview1';
+    my $pm = "$module.pm";
+    $pm =~ s{::}{/}g;
+    eval { require $pm };
+    if(my $error = $@)
+    {
+      $error =~ s/ at (.*?)$//;
+      $error .= " module required by WebAssembly at $file";
+      Carp::croak("$error");
+    }
+  }
+
   my $instance = $linker->instantiate($module);
   $linker->define_instance($package, $instance);
 

@@ -11,6 +11,7 @@ my $post_diag;
 
 $modules{$_} = $_ for qw(
   Alien::wasmtime
+  Capture::Tiny
   Devel::GlobalDestruction
   ExtUtils::MakeMaker
   FFI::C
