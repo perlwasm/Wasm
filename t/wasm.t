@@ -1,6 +1,7 @@
 use Test2::V0 -no_srand => 1;
 use Test2::Plugin::Wasm;
 use Wasm;
+use YAML qw( Dump );
 
 try_ok  { Wasm->import( -api => 0 );    }                                                   'works with -api => 0 ';
 is(dies { Wasm->import( -api => 2 );    }, match qr/Currently only -api => 0 is supported/, 'dies with non 0 api level');
@@ -8,7 +9,7 @@ is(dies { Wasm->import( -foo => 'bar'); }, match qr/You MUST specify an api leve
                                                                                             'bad key ');
 is(dies { Wasm->import( -api => 0, -api => 0 ) },
                                            match qr/Specified -api more than once/,         'api more than once');
-try_ok  { Wasm->import( -api => 0, -wat => '(module)' ) }                                   'empty module';
+try_ok  { package Empty; Wasm->import( -api => 0, -wat => '(module)' ) }                    'empty module';
 
 {
   package Foo0;
@@ -102,5 +103,7 @@ is( Foo6::subtract(3,2), 1, '3-2=1' );
 
 is( Foo9::add(1,2), 3, '1+2=3' );
 is( Foo9::subtract(3,2), 1, '3-2=1' );
+
+note Dump(\%Wasm::WASM);
 
 done_testing;
