@@ -103,26 +103,4 @@ is( Foo6::subtract(3,2), 1, '3-2=1' );
 is( Foo9::add(1,2), 3, '1+2=3' );
 is( Foo9::subtract(3,2), 1, '3-2=1' );
 
-{
-  # huh?
-  # Exception: trap in wasm function call: wasm trap: call stack exhausted, source location: @- at t/wasm.t line 117
-  # same thing works in t/wasm_wasmtime_instance.t
-  my $it_worked;
-  {
-    package Foo10;
-    use Wasm -api => 0, -imports => [sub { warn 'here'; $it_worked = 1 }], -wat => q{
-      (module
-        (func $hello (import "" "hello"))
-        (func (export "run") (call $hello))
-      )
-    }
-  }
-
-  if(0)
-  {
-    try_ok { Foo10::run() } 'Foo10::run()';
-    is $it_worked, T();
-  }
-}
-
 done_testing;
