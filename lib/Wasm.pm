@@ -28,6 +28,10 @@ is under active development.  Use with caution.
 
 The C<Wasm> Perl dist provides tools for writing Perl bindings using WebAssembly (Wasm).
 
+The current implementation uses L<Wasm::Wasmtime>, which is itself based on the Rust project
+Wasmtime.  This module doesn't expose the L<Wasm::Wasmtime> interface, and implementation
+could be changed in the future.
+
 =head1 OPTIONS
 
 =head2 -api
@@ -278,11 +282,19 @@ sub import
     my $name = $me[$i]->name;
     my $externtype = $exporttype->type;
     my $extern = $ie[$i];
-    if($externtype->kind eq 'functype')
+    my $kind = $extern->kind;
+    if($kind eq 'func')
     {
       my $func = $extern;
       $func->attach($package, $name);
       push @function_names, $name;
+    }
+    elsif($kind eq 'global')
+    {
+      my $global = $extern;
+      no strict 'refs';
+      $DB::single = 1;
+      *{"${package}::$name"} = $global->tie;
     }
   }
 
