@@ -56,7 +56,7 @@ is(
 );
 
 is(
-  Wasm::Wasmtime::Module->new(file => 'examples/gcd.wat'),
+  Wasm::Wasmtime::Module->new(file => 'examples/wasmtime/gcd.wat'),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
     call store => object {
