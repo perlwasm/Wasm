@@ -1,4 +1,4 @@
-package Math;
+package Module2;
 
 use strict;
 use warnings;

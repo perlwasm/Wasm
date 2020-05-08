@@ -76,14 +76,6 @@ use Wasm -api => 0, -file => $file;
 
 Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly binary (.wasm) format.
 
-## -imports
-
-```perl
-use Wasm -api => 0, -imports => \@imports;
-```
-
-Use the given imports when creating the module instance.
-
 ## -package
 
 ```perl
