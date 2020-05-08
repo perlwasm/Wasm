@@ -1,7 +1,12 @@
 use strict;
 use warnings;
-require Wasm;
-Wasm->import(
+
+sub hello
+{
+  print "Hello from Perl!\n";
+}
+
+use Wasm
   -api => 0,
   -wat => q{
     (module
@@ -9,11 +14,6 @@ Wasm->import(
       (func (export "run") (call $hello))
     )
   },
-);
-
-sub hello
-{
-  print "Hello from Perl!\n";
-}
+;
 
 run();
