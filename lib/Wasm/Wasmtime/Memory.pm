@@ -3,7 +3,7 @@ package Wasm::Wasmtime::Memory;
 use strict;
 use warnings;
 use base qw( Wasm::Wasmtime::Extern );
-use Ref::Util qw( is_ref );
+use Ref::Util qw( is_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::MemoryType;
@@ -48,6 +48,8 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' =>
   if(is_ref $_[0])
   {
     my($store, $memorytype) = @_;
+    $memorytype = Wasm::Wasmtime::MemoryType->new($memorytype)
+      if is_plain_arrayref $memorytype;
     return $xsub->($store, $memorytype);
   }
   else

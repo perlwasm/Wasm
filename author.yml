@@ -36,4 +36,5 @@ pod_coverage:
     - Wasm::Wasmtime::Module::Exports#can
     - Wasm::Wasmtime::Module::Imports#new
     - Wasm::Wasmtime::Module::Imports#can
+    - Wasm::Memory#new
     - Test2::Plugin::Wasm

@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Wasm::Wasmtime::Memory constructor can take a array reference in place
+    of the Wasm::Wasmtime::MemoryType (gh#48, gh#49)
+  - Added Wasm::Memory (gh#48, gh#49)
 
 0.08      2020-05-08 18:18:40 -0600
   - Added tie method to Wasm::Wasmtime::Global (gh#46)
