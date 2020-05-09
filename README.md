@@ -173,6 +173,10 @@ exactly as you want to (see the environment section of
 
 # SEE ALSO
 
+- [Wasm::Memory](https://metacpan.org/pod/Wasm::Memory)
+
+    Interface to WebAssembly memory from Perl.
+
 - [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime)
 
     Low level interface to `wasmtime`.
