@@ -286,7 +286,7 @@ sub import
         'wasi_snapshot_preview1',
         Wasm::Wasmtime::WasiConfig
           ->new
-          ->set_argv(@ARGV)
+          ->set_argv($0, @ARGV)
           ->inherit_env
           ->inherit_stdin
           ->inherit_stdout
