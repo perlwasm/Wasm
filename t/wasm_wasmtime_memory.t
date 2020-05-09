@@ -46,4 +46,15 @@ is(
   'standalone',
 );
 
+is(
+  Wasm::Wasmtime::Memory->new(
+    Wasm::Wasmtime::Store->new,
+    [1,2],
+  ),
+  object {
+    call [ isa => 'Wasm::Wasmtime::Memory' ] => T();
+  },
+  'standalone (ii)',
+);
+
 done_testing;
