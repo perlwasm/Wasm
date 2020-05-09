@@ -144,6 +144,10 @@ L<Wasm::Wasmtime>.
 
 =over 4
 
+=item L<Wasm::Memory>
+
+Interface to WebAssembly memory from Perl.
+
 =item L<Wasm::Wasmtime>
 
 Low level interface to C<wasmtime>.
