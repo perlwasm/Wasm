@@ -389,6 +389,13 @@ sub import
       no strict 'refs';
       *{"${package}::$name"} = $global->tie;
     }
+    elsif($kind eq 'memory')
+    {
+      require Wasm::Memory;
+      my $memory = Wasm::Memory->new($extern);
+      no strict 'refs';
+      *{"${package}::$name"} = \$memory;
+    }
   }
 
   if($exporter)
