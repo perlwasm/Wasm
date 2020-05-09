@@ -124,6 +124,20 @@ $ffi->attach( mutability => ['wasm_globaltype_t'] => 'uint8' => sub {
   $mutability[$xsub->($self)];
 });
 
+=head2 to_string
+
+ my $string = $globaltype->to_string;
+
+Converts the type into a string for diagnostics.
+
+=cut
+
+sub to_string
+{
+  my($self) = @_;
+  return sprintf("(%s %s)", $self->mutability, $self->content->to_string);
+}
+
 __PACKAGE__->_cast(1);
 _generate_destroy();
 

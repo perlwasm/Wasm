@@ -115,6 +115,23 @@ $ffi->attach( module => ['wasm_importtype_t'] => 'wasm_byte_vec_t*' => sub {
   $name->get;
 });
 
+=head2 to_string
+
+ my $string = $importtype->to_string;
+
+Converts the type into a string for diagnostics.
+
+=cut
+
+sub to_string
+{
+  my($self) = @_;
+  my $kind   = $self->type->kind;
+  $kind =~ s/type$//;
+  # TODO: escape strings ?
+  sprintf '(%s (import "%s" "%s") %s)', $kind, $self->module, $self->name, $self->type->to_string;
+}
+
 _generate_destroy();
 _generate_vec_class();
 

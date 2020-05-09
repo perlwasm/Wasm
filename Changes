@@ -6,6 +6,8 @@ Revision history for {{$dist->name}}},
   - Added Wasm::Func (gh#50, gh#51)
   - Added Wasm::Global (gh#50, gh#51)
   - Added Wasm::Memory (gh#48, gh#49)
+  - Added to_string method to all Wasm::Wasmtime::*Type classes
+    and Wasm::Wasmtime::Module (gh#52)
 
 0.08      2020-05-08 18:18:40 -0600
   - Added tie method to Wasm::Wasmtime::Global (gh#46)

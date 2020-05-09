@@ -21,6 +21,7 @@ is(
         call type => object {
           call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
         };
+        call to_string => '(func (export "foo") (param i32 i32) (result i32))';
       };
       item object {
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
@@ -28,6 +29,7 @@ is(
         call type => object {
           call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
         };
+        call to_string => '(memory (export "bar") 2 3)';
       };
       end;
     };
