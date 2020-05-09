@@ -43,14 +43,35 @@ print subtract(3,2), "\n", # prints 1
 
 # DESCRIPTION
 
-**WARNING**: WebAssembly and Wasmtime are a moving target and the interface for these modules
-is under active development.  Use with caution.
+**WARNING**: WebAssembly and Wasmtime are a moving target and the
+interface for these modules is under active development.  Use with
+caution.
 
-The `Wasm` Perl dist provides tools for writing Perl bindings using WebAssembly (Wasm).
+The goal of this project is for Perl and WebAssembly to be able to call
+each other transparently without having to know or care which module is
+implemented in which language.  Perl and WebAssembly functions and
+global variables can be imported/exported between Perl and WebAssembly.
+WebAssembly global variables are imported into Perl space as tied scalar
+variables of the same name.  [Wasm::Memory](https://metacpan.org/pod/Wasm::Memory) provides a Perl interface
+into WebAssembly memory.  [Wasm::Hook](https://metacpan.org/pod/Wasm::Hook) provides a hook for loading
+WebAssembly files directly with zero Perl wrappers.
 
-The current implementation uses [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime), which is itself based on the Rust project
-Wasmtime.  This module doesn't expose the [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime) interface, and implementation
-could be changed in the future.
+The example above shows inline WebAssembly Text (WAT) inlined into the
+Perl code for readability. In most cases you will want to compile your
+WebAssembly from a higher level language (Rust, C, Go, etc.), and
+install it alongside your Perl Module (.pm file) and use the `-self`
+option below.  That is for `lib/Math.pm` you would install the Wasm
+file into `lib/Math.wasm`, and use the `-self` option.
+
+[Wasm](https://metacpan.org/pod/Wasm) can optionally [Exporter](https://metacpan.org/pod/Exporter) to export WebAssembly functions into
+other modules.  Using `-export 'ok'` functions can be imported from a
+calling module on requests.  `-export 'all'` will export all exported
+functions by default.
+
+The current implementation uses [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime), which is itself based
+on the Rust project Wasmtime.  This module doesn't expose the
+[Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime) interface, and implementation could be changed in the
+future.
 
 # OPTIONS
 
@@ -60,7 +81,8 @@ could be changed in the future.
 use Wasm -api => 0;
 ```
 
-As of this writing, since the API is subject to change, this must be provided and set to `0`.
+As of this writing, since the API is subject to change, this must be
+provided and set to `0`.
 
 ## -exporter
 
@@ -69,8 +91,8 @@ use Wasm -api => 0, -exporter => 'all';
 use Wasm -api => 0, -exporter => 'ok';
 ```
 
-Configure the caller as an [Exporter](https://metacpan.org/pod/Exporter), with all the functions in the WebAssembly either `@EXPORT` (`all`)
-or `@EXPORT_OK` (`ok`).
+Configure the caller as an [Exporter](https://metacpan.org/pod/Exporter), with all the functions in the
+WebAssembly either `@EXPORT` (`all`) or `@EXPORT_OK` (`ok`).
 
 ## -file
 
@@ -78,7 +100,8 @@ or `@EXPORT_OK` (`ok`).
 use Wasm -api => 0, -file => $file;
 ```
 
-Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly binary (.wasm) format.
+Path to a WebAssembly file in either WebAssembly Text (.wat) or
+WebAssembly binary (.wasm) format.
 
 ## -package
 
@@ -86,7 +109,8 @@ Path to a WebAssembly file in either WebAssembly Text (.wat) or WebAssembly bina
 use Wasm -api => 0, -package => $package;
 ```
 
-Install subroutines in to `$package` namespace instead of the calling namespace.
+Install subroutines in to `$package` namespace instead of the calling
+namespace.
 
 ## -self
 
@@ -94,11 +118,12 @@ Install subroutines in to `$package` namespace instead of the calling namespace.
 use Wasm -api => 0, -self;
 ```
 
-Look for a WebAssembly Text (.wat) or WebAssembly binary (.wasm) file with the same base name as
-the Perl source this is called from.
+Look for a WebAssembly Text (.wat) or WebAssembly binary (.wasm) file
+with the same base name as the Perl source this is called from.
 
-For example if you are calling this from `lib/Foo/Bar.pm`, it will look for `lib/Foo/Bar.wat` and
-`lib/Foo/Bar.wasm`.  If both exist, then it will use the newer of the two.
+For example if you are calling this from `lib/Foo/Bar.pm`, it will look
+for `lib/Foo/Bar.wat` and `lib/Foo/Bar.wasm`.  If both exist, then it
+will use the newer of the two.
 
 ## -wat
 
@@ -106,37 +131,45 @@ For example if you are calling this from `lib/Foo/Bar.pm`, it will look for `lib
 use Wasm -api => 0, -wat => $wat;
 ```
 
-String containing WebAssembly Text (WAT).  Helpful for inline WebAssembly inside your Perl source file.
+String containing WebAssembly Text (WAT).  Helpful for inline
+WebAssembly inside your Perl source file.
 
 # GLOBALS
 
 ## %Wasm::WASM
 
-This hash maps the Wasm module names to the files from which the Wasm was loaded.
-It is roughly analogous to the `@INC` array in Perl.
+This hash maps the Wasm module names to the files from which the Wasm
+was loaded. It is roughly analogous to the `@INC` array in Perl.
 
 # CAVEATS
 
-As mentioned before as of this writing this dist is a work in progress.  I won't intentionally break
-stuff if I don't have to, but practicality may demand it in some situations.
+As mentioned before as of this writing this dist is a work in progress.
+I won't intentionally break stuff if I don't have to, but practicality
+may demand it in some situations.
 
-This interface is implemented using the bundled [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime) family of modules, which depends
-on the Wasmtime project.
+This interface is implemented using the bundled [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime) family
+of modules, which depends on the Wasmtime project.
 
-The default way of handling out-of-bounds memory errors is to allocate large `PROT_NONE` pages at
-startup.  While these pages do not consume many resources in practice (at least in the way that they
-are used by Wasmtime), they can cause out-of-memory errors on Linux systems with virtual memory
-limits (`ulimi -v` in the `bash` shell).  Similar techniques are common in other modern programming
-languages, and this is more a limitation of the Linux kernel than anything else.  Setting the limits
-on the virtual memory address size probably doesn't do what you think it is doing and you are probably
-better off finding a way to place limits on process memory.
+The default way of handling out-of-bounds memory errors is to allocate
+large `PROT_NONE` pages at startup.  While these pages do not consume
+many resources in practice (at least in the way that they are used by
+Wasmtime), they can cause out-of-memory errors on Linux systems with
+virtual memory limits (`ulimi -v` in the `bash` shell).  Similar
+techniques are common in other modern programming languages, and this is
+more a limitation of the Linux kernel than anything else.  Setting the
+limits on the virtual memory address size probably doesn't do what you
+think it is doing and you are probably better off finding a way to place
+limits on process memory.
 
-However, as a workaround for environments that choose to set a virtual memory address size limit anyway,
-Wasmtime provides configurations to not allocate the large `PROT_NONE` pages at some performance
-cost.  The testing plugin [Test2::Plugin::Wasm](https://metacpan.org/pod/Test2::Plugin::Wasm) tries to detect environments that have the virtual
-memory address size limits and sets this configuration for you.  For production you can set the
-environment variable `PERL_WASM_WASMTIME_MEMORY` to tune the appropriate memory settings exactly
-as you want to (see the environment section of [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime).
+However, as a workaround for environments that choose to set a virtual
+memory address size limit anyway, Wasmtime provides configurations to
+not allocate the large `PROT_NONE` pages at some performance cost.  The
+testing plugin [Test2::Plugin::Wasm](https://metacpan.org/pod/Test2::Plugin::Wasm) tries to detect environments that
+have the virtual memory address size limits and sets this configuration
+for you.  For production you can set the environment variable
+`PERL_WASM_WASMTIME_MEMORY` to tune the appropriate memory settings
+exactly as you want to (see the environment section of
+[Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime).
 
 # SEE ALSO
 
