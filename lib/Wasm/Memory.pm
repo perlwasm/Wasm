@@ -13,7 +13,8 @@ use warnings;
 =head1 DESCRIPTION
 
 This class represents a region of memory exported from a WebAssembly
-module.
+module.  A L<Wasm::Memory> instance is automatically imported into
+Perl space for each WebAssembly memory region with the same name.
 
 =cut
 
@@ -74,3 +75,13 @@ sub grow
 }
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Wasm>
+
+=back
+
+=cut
