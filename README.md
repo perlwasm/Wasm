@@ -56,7 +56,7 @@ variables of the same name.  [Wasm::Memory](https://metacpan.org/pod/Wasm::Memor
 into WebAssembly memory.  [Wasm::Hook](https://metacpan.org/pod/Wasm::Hook) provides a hook for loading
 WebAssembly files directly with zero Perl wrappers.
 
-The example above shows inline WebAssembly Text (WAT) inlined into the
+The example above shows WebAssembly Text (WAT) inlined into the
 Perl code for readability. In most cases you will want to compile your
 WebAssembly from a higher level language (Rust, C, Go, etc.), and
 install it alongside your Perl Module (.pm file) and use the `-self`
