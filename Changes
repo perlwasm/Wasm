@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.08      2020-05-08 18:18:40 -0600
   - Added tie method to Wasm::Wasmtime::Global (gh#46)
   - Added store method to Wasm::Wasmtime::Linker (gh#31, gh#47)
   - Wasm.pm uses Wasm::Wasmtime::Linker internally now, which means
@@ -9,6 +11,7 @@ Revision history for {{$dist->name}}},
     they were loaded from (gh#31, gh#47)
   - Exported globals of Wasm modules are now imported into the
     corresponding Perl namespace via a tied scalar (gh#31, gh#47)
+  - Functions and globals can be imported into Wasm (gh#31, gh47)
 
   [Warning: breaking changes]
 
