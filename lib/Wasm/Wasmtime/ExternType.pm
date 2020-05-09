@@ -97,6 +97,19 @@ $ffi->custom_type('wasm_externtype_t' => {
   },
 });
 
+=head2 to_string
+
+ my $string = $externtype->to_string;
+
+Converts the type into a string for diagnostics.
+
+=cut
+
+sub to_string
+{
+  die "internal error";  # pure virtual ish
+}
+
 1;
 
 =head1 SEE ALSO

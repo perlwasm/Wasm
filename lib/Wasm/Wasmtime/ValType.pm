@@ -119,6 +119,18 @@ Returns the number used internally to represent the type.
 
 $ffi->attach( [kind => 'kind_num'] => ['wasm_valtype_t'] => 'uint8' );
 
+=head2 to_string
+
+ my $string = $valtype->to_string;
+
+Converts the type into a string for diagnostics.
+For this class, this does the same thing as the kind
+method.
+
+=cut
+
+*to_string = \&kind;
+
 _generate_destroy();
 _generate_vec_class( delete => 0 );
 

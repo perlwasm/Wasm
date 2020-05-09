@@ -12,6 +12,7 @@ is(
     call store => object {
       call ['isa', 'Wasm::Wasmtime::Store'] => T();
     };
+    call to_string => "(module)\n";
   },
   'autocreate store',
 );
@@ -62,6 +63,12 @@ is(
     call store => object {
       call ['isa', 'Wasm::Wasmtime::Store'] => T();
     };
+    call to_string => join("\n",
+                        '(module',
+                        '  (func (export "gcd") (param i32 i32) (result i32))',
+                        ')',
+                        '',
+                      )
   },
   'file key',
 );

@@ -10,6 +10,7 @@ is(
       call kind => 'i32';
     };
     call mutability => 'const';
+    call to_string => "(const i32)";
 
     call is_functype   => F();
     call is_globaltype => T();
@@ -29,6 +30,7 @@ is(
       call kind => 'i64';
     };
     call mutability => 'var';
+    call to_string => "(var i64)";
   },
   'i64,var',
 );
@@ -42,6 +44,7 @@ is(
       call kind => 'f32';
     };
     call mutability => 'var';
+    call to_string => "(var f32)";
   },
   '(i64),var',
 );

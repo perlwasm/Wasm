@@ -236,6 +236,27 @@ Returns the L<Wasm::Wasmtime::Store> object used by this module.
 
 sub store { shift->{store} }
 
+=head2 to_string
+
+ my $string = $module->to_string;
+
+Converts the module imports and exports into a string for diagnostics.
+
+=cut
+
+sub to_string
+{
+  my($self) = @_;
+  my @externs = (@{ $self->imports }, @{ $self->exports });
+  return "(module)\n" unless @externs;
+  my $string = "(module\n";
+  foreach my $extern (@externs)
+  {
+    $string .= "  " . $extern->to_string . "\n";
+  }
+  $string .= ")\n";
+}
+
 _generate_destroy();
 
 1;

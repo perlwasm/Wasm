@@ -38,6 +38,8 @@ is(
       end;
     };
 
+    call to_string => "(param i32 f64) (result i64 f32)";
+
     call is_functype   => T();
     call is_globaltype => F();
     call is_tabletype  => F();

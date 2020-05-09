@@ -76,6 +76,23 @@ $ffi->attach( limits => ['wasm_memorytype_t'] => 'uint32[2]' => sub {
   $limits;
 });
 
+=head2 to_string
+
+ my $string = $memorytype->to_string;
+
+Converts the type into a string for diagnostics.
+
+=cut
+
+sub to_string
+{
+  my($self) = @_;
+  my($min, $max) = @{ $self->limits };
+  my $string = "$min";
+  $string .= " $max" if $max != 0xffffffff;
+  return $string;
+}
+
 __PACKAGE__->_cast(3);
 _generate_destroy();
 

@@ -19,6 +19,7 @@ is(
         call is_tabletype  => F();
         call is_memorytype => T();
         call kind          => 'memorytype';
+        call to_string     => '2 6';
       };
     };
   },
@@ -29,7 +30,8 @@ is(
   Wasm::Wasmtime::MemoryType->new([2,3]),
   object {
     call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
-    call limits => [2,3];
+    call limits    => [2,3];
+    call to_string => '2 3';
   },
   'standalone',
 );

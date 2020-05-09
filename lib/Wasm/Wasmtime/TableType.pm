@@ -103,6 +103,23 @@ $ffi->attach( limits => ['wasm_tabletype_t'] => 'uint32[2]' => sub {
   $xsub->($self);
 });
 
+=head2 to_string
+
+ my $string = $tabletype->to_string;
+
+Converts the type into a string for diagnostics.
+
+=cut
+
+sub to_string
+{
+  my($self) = @_;
+  my($min, $max) = @{ $self->limits };
+  my $string = "$min ";
+  $string .= "$max " if $max != 0xffffffff;
+  $string .= $self->element->to_string;
+}
+
 __PACKAGE__->_cast(2);
 _generate_destroy();
 

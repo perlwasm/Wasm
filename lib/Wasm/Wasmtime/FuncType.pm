@@ -90,6 +90,27 @@ $ffi->attach( results => ['wasm_functype_t'] => 'wasm_valtype_vec_t*' => sub {
   $xsub->($self)->to_list;
 });
 
+=head2 to_string
+
+ my $string = $functype->to_string;
+
+Converts the type into a string for diagnostics.
+
+=cut
+
+sub to_string
+{
+  my($self) = @_;
+  my @params  = map { $_->to_string } $self->params;
+  my @results = map { $_->to_string } $self->results;
+
+  my $string = '';
+  $string .= "(param @params)" if @params;
+  $string .= ' ' if $string && @results;
+  $string .= "(result @results)" if @results;
+  $string;
+}
+
 __PACKAGE__->_cast(0);
 _generate_destroy();
 
