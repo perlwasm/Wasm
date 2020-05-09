@@ -30,6 +30,14 @@ try_ok  { package Empty; Wasm->import( -api => 0, -wat => '(module)' ) }        
 
 is( Foo0::add(1,2), 3, '1+2=3' );
 is( Foo0::subtract(3,2), 1, '3-2=1' );
+is(
+  $Foo0::frooble,
+  object {
+    call [ isa => 'Wasm::Memory' ] => T();
+    call_list limits => [ 2, 2, 3 ];
+  },
+  'memory region exported',
+);
 
 {
   package Foo1;
