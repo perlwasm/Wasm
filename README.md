@@ -105,6 +105,17 @@ use Wasm -api => 0, -file => $file;
 Path to a WebAssembly file in either WebAssembly Text (.wat) or
 WebAssembly binary (.wasm) format.
 
+## -global
+
+```perl
+use Wasm -api => 0, -global => [ $name, $type, $mutability, $init ];
+```
+
+Creates a global variable for the calling Pure-Perl module that can
+be imported into WebAssembly.  If you use this option you cannot
+specify the `-wat` or `-file` or `-self` options.  For a detailed
+example see [Wasm::Global](https://metacpan.org/pod/Wasm::Global).
+
 ## -package
 
 ```perl

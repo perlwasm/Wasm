@@ -80,6 +80,15 @@ WebAssembly either C<@EXPORT> (C<all>) or C<@EXPORT_OK> (C<ok>).
 Path to a WebAssembly file in either WebAssembly Text (.wat) or
 WebAssembly binary (.wasm) format.
 
+=head2 -global
+
+ use Wasm -api => 0, -global => [ $name, $type, $mutability, $init ];
+
+Creates a global variable for the calling Pure-Perl module that can
+be imported into WebAssembly.  If you use this option you cannot
+specify the C<-wat> or C<-file> or C<-self> options.  For a detailed
+example see L<Wasm::Global>.
+
 =head2 -package
 
  use Wasm -api => 0, -package => $package;
