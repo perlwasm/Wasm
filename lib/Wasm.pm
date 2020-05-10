@@ -30,12 +30,14 @@ caution.
 
 The goal of this project is for Perl and WebAssembly to be able to call
 each other transparently without having to know or care which module is
-implemented in which language.  Perl and WebAssembly functions and
-global variables can be imported/exported between Perl and WebAssembly.
-WebAssembly global variables are imported into Perl space as tied scalar
-variables of the same name.  L<Wasm::Memory> provides a Perl interface
-into WebAssembly memory.  L<Wasm::Hook> provides a hook for loading
-WebAssembly files directly with zero Perl wrappers.
+implemented in which language.  Perl subroutines and WebAssembly functions
+can easily be imported and exported between Perl and WebAssembly
+(see L<Wasm::Func> for details).  WebAssembly global variables can be
+imported into Perl using tied scalars (see L<Wasm::Global> for details).
+WebAssembly linear memory can be queried and manipulated by Perl
+(see L<Wasm::Memory> for details).  WebAssembly can optionally be loaded
+directly by Perl without writing any Perl wrappers at all (see L<Wasm::Hook>
+for details).
 
 The example above shows WebAssembly Text (WAT) inlined into the
 Perl code for readability. In most cases you will want to compile your
@@ -44,10 +46,10 @@ install it alongside your Perl Module (.pm file) and use the C<-self>
 option below.  That is for C<lib/Math.pm> you would install the Wasm
 file into C<lib/Math.wasm>, and use the C<-self> option.
 
-L<Wasm> can optionally L<Exporter> to export WebAssembly functions into
-other modules.  Using C<-export 'ok'> functions can be imported from a
-calling module on requests.  C<-export 'all'> will export all exported
-functions by default.
+Modules using L<Wasm> can optionally use L<Exporter> to export WebAssembly
+functions into other modules.  Using C<-export 'ok'> functions can be
+imported from a calling module on requests.  C<-export 'all'> will
+export all exported functions by default.
 
 The current implementation uses L<Wasm::Wasmtime>, which is itself based
 on the Rust project Wasmtime.  This module doesn't expose the
@@ -144,9 +146,24 @@ L<Wasm::Wasmtime>.
 
 =over 4
 
+=item L<Wasm::Func>
+
+Interface to WebAssembly functions from Perl, and Perl subroutines
+from WebAssembly.
+
+=item L<Wasm::Global>
+
+Interface to WebAssembly globals from Perl, and Perl globals from
+WebAssembly.
+
 =item L<Wasm::Memory>
 
 Interface to WebAssembly memory from Perl.
+
+=item L<plasm>
+
+Perl WebAssembly command line tool.  Run WebAssembly programs from
+the command line, or dump their export/import interfaces.
 
 =item L<Wasm::Wasmtime>
 
