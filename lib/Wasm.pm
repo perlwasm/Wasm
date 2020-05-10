@@ -163,6 +163,7 @@ Load WebAssembly modules as though they were Perl modules.
 our %WASM;
 my $linker;
 my %inst;
+my $wasi;
 my @keep;
 
 sub import
@@ -266,6 +267,8 @@ sub import
     }
   }
 
+  Carp::croak("The wasm_ namespace is reserved for internal use") if $package =~ /^wasi_/;
+
   require Wasm::Wasmtime;
   $linker ||= do {
     my $linker = Wasm::Wasmtime::Linker->new(
@@ -279,22 +282,6 @@ sub import
     );
 
     $linker->allow_shadowing(0);
-
-    $linker->define_wasi(
-      Wasm::Wasmtime::WasiInstance->new(
-        $linker->store,
-        'wasi_snapshot_preview1',
-        Wasm::Wasmtime::WasiConfig
-          ->new
-          ->set_argv($0, @ARGV)
-          ->inherit_env
-          ->inherit_stdin
-          ->inherit_stdout
-          ->inherit_stderr
-          #->preopen_dir ?
-      )
-    );
-    $WASM{wasi_snapshot_preview1} = __FILE__;
 
     $linker;
   };
@@ -326,7 +313,27 @@ sub import
   {
 
     my $module = $import->module;
-    next if $module eq 'wasi_snapshot_preview1';
+
+    if($module =~ /^(wasi_unstable|wasi_snapshot_preview1)$/)
+    {
+      $linker->define_wasi(
+        $wasi ||= Wasm::Wasmtime::WasiInstance->new(
+          $linker->store,
+          $module,
+          Wasm::Wasmtime::WasiConfig
+            ->new
+            ->set_argv($0, @ARGV)
+            ->inherit_env
+            ->inherit_stdin
+            ->inherit_stdout
+            ->inherit_stderr
+            ->preopen_dir("/", "/"),
+        )
+      );
+      $WASM{$module} = __FILE__;  # Maybe Wasi::Snapshot::Preview1 etc.
+      next;
+    }
+
     if($module ne 'main')
     {
       my $pm = "$module.pm";
