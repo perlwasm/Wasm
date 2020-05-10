@@ -284,6 +284,34 @@ if(Wasm::Wasmtime::Error->can('new'))
     }
     $self;
   });
+
+=head2 cache_config_load
+
+ $config->cache_config_load($toml_config);
+
+Path to the cache configuration TOML file.
+
+=head2 cache_config_default
+
+ $config->cache_config_default;
+
+Enable the default caching configuration.
+
+=cut
+
+  $ffi->attach( [ 'wasmtime_config_cache_config_load' => 'cache_config_load' ] => [ 'wasm_config_t', 'string' ] => sub {
+    my($xsub, $self, $value) = @_;
+    Carp::croak("undef passed in as cache config") unless defined $value;
+    $xsub->($self, $value);
+    $self;
+  });
+
+  $ffi->attach( [ 'wasmtime_config_cache_config_load' => 'cache_config_default' ] => [ 'wasm_config_t', 'string' ] => sub {
+    my($xsub, $self) = @_;
+    $xsub->($self, undef);
+    $self;
+  });
+
 }
 else
 {
@@ -302,6 +330,15 @@ else
     }
     $self;
   });
+
+  *cache_config_load    = sub { Carp::croak("property cache_config_load is not available")    };
+
+  *cache_config_default = sub
+  {
+    # silenty ignore
+    my($self) = @_;
+    $self;
+  };
 }
 
 1;

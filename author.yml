@@ -21,6 +21,7 @@ pod_spelling_system:
     - ie
     - libc
     - WASI
+    - TOML
 
 pod_coverage:
   skip: 0
