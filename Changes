@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.09      2020-05-10 15:59:01 -0600
   - Wasm::Wasmtime::Memory constructor can take a array reference in place
     of the Wasm::Wasmtime::MemoryType (gh#48, gh#49)
   - Added Wasm::Func (gh#50, gh#51)
@@ -92,5 +94,3 @@ Revision history for {{$dist->name}}},
 
 0.01      2020-04-10 17:41:13 -0600
   - initial version
-
-
