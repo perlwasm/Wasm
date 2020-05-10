@@ -13,8 +13,6 @@ use Wasm
   ]
 ;
 
-BEGIN { $INC{'Foo.pm'} = __FILE__ };
-
 package Bar;
 
 use Wasm

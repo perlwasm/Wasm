@@ -180,6 +180,7 @@ Load WebAssembly modules as though they were Perl modules.
 our %WASM;
 my $linker;
 my %inst;
+my %pp;
 my $wasi;
 my @keep;
 
@@ -284,8 +285,6 @@ sub import
     }
   }
 
-  Carp::croak("The wasm_ namespace is reserved for internal use") if $package =~ /^wasi_/;
-
   require Wasm::Wasmtime;
   $linker ||= do {
     my $linker = Wasm::Wasmtime::Linker->new(
@@ -315,12 +314,14 @@ sub import
       );
       no strict 'refs';
       *{"${package}::$name"} = $global->tie;
+      $pp{$package} = $file;
     }
     return;
   }
 
   @module = (wat => '(module)') unless @module;
 
+  Carp::croak("The wasm_ namespace is reserved for internal use") if $package =~ /^wasi_/;
   Carp::croak("Wasm for $package already loaded") if $inst{$package};
 
   my $module = Wasm::Wasmtime::Module->new($linker->store, @module);
@@ -360,7 +361,7 @@ sub import
       next;
     }
 
-    if($module ne 'main')
+    if($module ne 'main' && !$inst{$module} && !$pp{$module})
     {
       my $pm = "$module.pm";
       $pm =~ s{::}{/}g;
