@@ -316,6 +316,7 @@ sub import
 
     if($module =~ /^(wasi_unstable|wasi_snapshot_preview1)$/)
     {
+      next if $WASM{$module};
       $linker->define_wasi(
         $wasi ||= Wasm::Wasmtime::WasiInstance->new(
           $linker->store,
