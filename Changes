@@ -9,7 +9,7 @@ Revision history for {{$dist->name}}},
   - Added to_string method to all Wasm::Wasmtime::*Type classes
     and Wasm::Wasmtime::Module (gh#52)
   - Added cache_config_load and cache_config_default methods to
-    Wasm::Wasmtime::Config
+    Wasm::Wasmtime::Config (gh#39, gh#54)
 
 0.08      2020-05-08 18:18:40 -0600
   - Added tie method to Wasm::Wasmtime::Global (gh#46)

@@ -281,9 +281,7 @@ sub import
         ),
       ),
     );
-
     $linker->allow_shadowing(0);
-
     $linker;
   };
 
@@ -332,6 +330,15 @@ sub import
             ->preopen_dir("/", "/"),
         )
       );
+      $linker->allow_shadowing(1);
+      my $proc_exit = Wasm::Wasmtime::Func->new(
+        $linker->store,
+        ['i32'], [],
+        sub { _wasi_proc_exit($_[0]) },
+      );
+      push @keep, $proc_exit;
+      $linker->define($module, "proc_exit", $proc_exit);
+      $linker->allow_shadowing(0);
       $WASM{$module} = __FILE__;  # Maybe Wasi::Snapshot::Preview1 etc.
       next;
     }
@@ -458,6 +465,16 @@ sub import
       push @{ "${package}::EXPORT_OK" }, @function_names;
     }
   }
+}
+
+# nothing non-standard here right now,
+# but one day we migh want to be able
+# to intercept this and exit out of
+# Wasm, but not out of Perl.
+sub _wasi_proc_exit
+{
+  my($value) = @_;
+  exit($value);
 }
 
 1;
