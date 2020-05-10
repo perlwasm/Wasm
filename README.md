@@ -49,12 +49,14 @@ caution.
 
 The goal of this project is for Perl and WebAssembly to be able to call
 each other transparently without having to know or care which module is
-implemented in which language.  Perl and WebAssembly functions and
-global variables can be imported/exported between Perl and WebAssembly.
-WebAssembly global variables are imported into Perl space as tied scalar
-variables of the same name.  [Wasm::Memory](https://metacpan.org/pod/Wasm::Memory) provides a Perl interface
-into WebAssembly memory.  [Wasm::Hook](https://metacpan.org/pod/Wasm::Hook) provides a hook for loading
-WebAssembly files directly with zero Perl wrappers.
+implemented in which language.  Perl subroutines and WebAssembly functions
+can easily be imported and exported between Perl and WebAssembly
+(see [Wasm::Func](https://metacpan.org/pod/Wasm::Func) for details).  WebAssembly global variables can be
+imported into Perl using tied scalars (see [Wasm::Global](https://metacpan.org/pod/Wasm::Global) for details).
+WebAssembly linear memory can be queried and manipulated by Perl
+(see [Wasm::Memory](https://metacpan.org/pod/Wasm::Memory) for details).  WebAssembly can optionally be loaded
+directly by Perl without writing any Perl wrappers at all (see [Wasm::Hook](https://metacpan.org/pod/Wasm::Hook)
+for details).
 
 The example above shows WebAssembly Text (WAT) inlined into the
 Perl code for readability. In most cases you will want to compile your
@@ -63,10 +65,10 @@ install it alongside your Perl Module (.pm file) and use the `-self`
 option below.  That is for `lib/Math.pm` you would install the Wasm
 file into `lib/Math.wasm`, and use the `-self` option.
 
-[Wasm](https://metacpan.org/pod/Wasm) can optionally [Exporter](https://metacpan.org/pod/Exporter) to export WebAssembly functions into
-other modules.  Using `-export 'ok'` functions can be imported from a
-calling module on requests.  `-export 'all'` will export all exported
-functions by default.
+Modules using [Wasm](https://metacpan.org/pod/Wasm) can optionally use [Exporter](https://metacpan.org/pod/Exporter) to export WebAssembly
+functions into other modules.  Using `-export 'ok'` functions can be
+imported from a calling module on requests.  `-export 'all'` will
+export all exported functions by default.
 
 The current implementation uses [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime), which is itself based
 on the Rust project Wasmtime.  This module doesn't expose the
@@ -173,9 +175,24 @@ exactly as you want to (see the environment section of
 
 # SEE ALSO
 
+- [Wasm::Func](https://metacpan.org/pod/Wasm::Func)
+
+    Interface to WebAssembly functions from Perl, and Perl subroutines
+    from WebAssembly.
+
+- [Wasm::Global](https://metacpan.org/pod/Wasm::Global)
+
+    Interface to WebAssembly globals from Perl, and Perl globals from
+    WebAssembly.
+
 - [Wasm::Memory](https://metacpan.org/pod/Wasm::Memory)
 
     Interface to WebAssembly memory from Perl.
+
+- [plasm](https://metacpan.org/pod/plasm)
+
+    Perl WebAssembly command line tool.  Run WebAssembly programs from
+    the command line, or dump their export/import interfaces.
 
 - [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime)
 

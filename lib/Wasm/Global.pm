@@ -8,14 +8,24 @@ use warnings;
 
 =head1 SYNOPSIS
 
+Import globals into Perl from WebAssembly
+
 # EXAMPLE: examples/synopsis/global2.pl
+
+Import globals from Perl into WebAssembly
+
+# EXAMPLE: examples/synopsis/global3.pl
 
 =head1 DESCRIPTION
 
-This class represents a global variable exported from a WebAssembly
-module.  Each global variable exported from WebAssembly is automatically
+This documents the interface to global variables for L<Wasm>.
+Each global variable exported from WebAssembly is automatically
 imported into Perl space as a tied scalar, which allows you to get
-and set the variable easily from Perl.
+and set the variable easily from Perl.  Going the other way
+requires a bit more boilerplate, but is almost as easy.  Using
+the C<-global> option on the L<Wasm> module, you can define global
+variables in Pure Perl modules that can be imported into WebAssembly
+from Perl.
 
 =head1 CAVEATS
 
