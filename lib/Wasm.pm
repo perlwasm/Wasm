@@ -276,7 +276,8 @@ sub import
         Wasm::Wasmtime::Engine->new(
           Wasm::Wasmtime::Config
             ->new
-            ->wasm_multi_value(1),
+            ->wasm_multi_value(1)
+            ->cache_config_default,
         ),
       ),
     );
