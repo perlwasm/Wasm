@@ -135,56 +135,27 @@ a useful diagnostic for why it was invalid.
 
 =cut
 
-if(Wasm::Wasmtime::Error->can('new'))
-{
+$ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_store_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
+  my $xsub = shift;
+  my $class = shift;
+  my($store, $wasm, $data) = _args(@_);
+  my $ptr;
+  if(my $error = $xsub->($store, $$wasm, \$ptr))
+  {
+    Carp::croak("error creating module: " . $error->message);
+  }
+  bless { ptr => $ptr, store => $store }, $class;
+});
 
-  $ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_store_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
-    my $xsub = shift;
-    my $class = shift;
-    my($store, $wasm, $data) = _args(@_);
-    my $ptr;
-    if(my $error = $xsub->($store, $$wasm, \$ptr))
-    {
-      Carp::croak("error creating module: " . $error->message);
-    }
-    bless { ptr => $ptr, store => $store }, $class;
-  });
-
-  $ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
-    my $xsub = shift;
-    my $class = shift;
-    my($store, $wasm, $data) = _args(@_);
-    my $error = $xsub->($store, $$wasm);
-    wantarray  ## no critic (Freenode::Wantarray)
-      ? $error ? (0, $error->message) : (1, '')
-      : $error ? 0 : 1;
-  });
-
-}
-else
-{
-
-  $ffi->attach( new => ['wasm_store_t','wasm_byte_vec_t*'] => 'wasm_module_t' => sub {
-    my $xsub = shift;
-    my $class = shift;
-    my($store, $wasm, $data) = _args(@_);
-    my $self = $xsub->($store, $$wasm);
-    Carp::croak("error creating module") unless $self;
-    $self->{store} = $store;
-    $self;
-  });
-
-  $ffi->attach( validate => ['wasm_store_t','wasm_byte_vec_t*'] => 'bool' => sub {
-    my $xsub = shift;
-    my $class = shift;
-    my($store, $wasm, $data) = _args(@_);
-    my $ok = $xsub->($store, $$wasm);
-    wantarray  ## no critic (Freenode::Wantarray)
-      ? $ok ? (1, '') : (0, 'unknown error')
-      : $ok ? 1 : 0;
-  });
-
-}
+$ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
+  my $xsub = shift;
+  my $class = shift;
+  my($store, $wasm, $data) = _args(@_);
+  my $error = $xsub->($store, $$wasm);
+  wantarray  ## no critic (Freenode::Wantarray)
+    ? $error ? (0, $error->message) : (1, '')
+    : $error ? 0 : 1;
+});
 
 =head2 exports
 

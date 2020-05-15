@@ -40,7 +40,9 @@ our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
 
 sub _lib
 {
-  find_lib lib => 'wasmtime', alien => 'Alien::wasmtime';
+  my $lib = find_lib lib => 'wasmtime';
+  return $lib if $lib;
+  return find_lib lib => 'wasmtime', alien => 'Alien::wasmtime';
 }
 
 our $ffi_prefix = 'wasm_';

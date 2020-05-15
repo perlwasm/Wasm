@@ -120,22 +120,26 @@ Configure the dynamic memory guard size.
 
 =cut
 
+outer:
 foreach my $prop (qw( static_memory_maximum_size static_memory_guard_size dynamic_memory_guard_size ))
 {
-  my $f = eval { $ffi->function( "wasmtime_config_${prop}_set" => [ 'wasm_config_t', 'uint64' ] => 'void' => sub {
-    my($xsub, $self, $value) = @_;
-    $xsub->($self, $value);
-    $self;
-  }) };
-  if($f)
+  foreach my $suffix ('_set', '')
   {
-    $f->attach($prop);
+    # not sure why, but this didn't make it into 0.16.0 :/
+    # https://github.com/bytecodealliance/wasmtime/pull/1662
+    my $f = eval { $ffi->function( "wasmtime_config_${prop}${suffix}" => [ 'wasm_config_t', 'uint64' ] => 'void' => sub {
+      my($xsub, $self, $value) = @_;
+      $xsub->($self, $value);
+      $self;
+    }) };
+    if($f)
+    {
+      $f->attach($prop);
+      next outer;
+    }
   }
-  else
-  {
-    no strict 'refs';
-    *$prop = sub { Carp::croak("property $prop is not available") };
-  }
+
+  Carp::croak("unable to find either wasmtime_config_${prop} or wasmtime_config_${prop}_set");
 }
 
 =head2 strategy
@@ -166,42 +170,21 @@ my %strategy = (
   lightbeam => 2,
 );
 
-if(Wasm::Wasmtime::Error->can('new'))
-{
-  $ffi->attach( [ 'wasmtime_config_strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'wasmtime_error_t' => sub {
-    my($xsub, $self, $value) = @_;
-    if(defined $strategy{$value})
+$ffi->attach( [ 'wasmtime_config_strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'wasmtime_error_t' => sub {
+  my($xsub, $self, $value) = @_;
+  if(defined $strategy{$value})
+  {
+    if(my $error = $xsub->($self, $strategy{$value}))
     {
-      if(my $error = $xsub->($self, $strategy{$value}))
-      {
-        Carp::croak($error->message);
-      }
+      Carp::croak($error->message);
     }
-    else
-    {
-      Carp::croak("unknown strategy: $value");
-    }
-    $self;
-  });
-}
-else
-{
-  $ffi->attach( [ 'wasmtime_config_strategy_set' => 'strategy' ] => [ 'wasm_config_t', 'uint8' ] => 'bool' => sub {
-    my($xsub, $self, $value) = @_;
-    if(defined $strategy{$value})
-    {
-      unless(my $ret = $xsub->($self, $strategy{$value}))
-      {
-        Carp::croak("error setting strategy $value");
-      }
-    }
-    else
-    {
-      Carp::croak("unknown strategy: $value");
-    }
-    $self;
-  });
-}
+  }
+  else
+  {
+    Carp::croak("unknown strategy: $value");
+  }
+  $self;
+});
 
 =head2 cranelift_opt_level
 
@@ -267,23 +250,21 @@ my %profiler = (
   jitdump => 1,
 );
 
-if(Wasm::Wasmtime::Error->can('new'))
-{
-  $ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'wasmtime_error_t' => sub {
-    my($xsub, $self, $value) = @_;
-    if(defined $profiler{$value})
+$ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'wasmtime_error_t' => sub {
+  my($xsub, $self, $value) = @_;
+  if(defined $profiler{$value})
+  {
+    if(my $error = $xsub->($self, $profiler{$value}))
     {
-      if(my $error = $xsub->($self, $profiler{$value}))
-      {
-        Carp::croak($error->message);
-      }
+      Carp::croak($error->message);
     }
-    else
-    {
-      Carp::croak("unknown profiler: $value");
-    }
-    $self;
-  });
+  }
+  else
+  {
+    Carp::croak("unknown profiler: $value");
+  }
+  $self;
+});
 
 =head2 cache_config_load
 
@@ -299,47 +280,18 @@ Enable the default caching configuration.
 
 =cut
 
-  $ffi->attach( [ 'wasmtime_config_cache_config_load' => 'cache_config_load' ] => [ 'wasm_config_t', 'string' ] => sub {
-    my($xsub, $self, $value) = @_;
-    Carp::croak("undef passed in as cache config") unless defined $value;
-    $xsub->($self, $value);
-    $self;
-  });
+$ffi->attach( [ 'wasmtime_config_cache_config_load' => 'cache_config_load' ] => [ 'wasm_config_t', 'string' ] => sub {
+  my($xsub, $self, $value) = @_;
+  Carp::croak("undef passed in as cache config") unless defined $value;
+  $xsub->($self, $value);
+  $self;
+});
 
-  $ffi->attach( [ 'wasmtime_config_cache_config_load' => 'cache_config_default' ] => [ 'wasm_config_t', 'string' ] => sub {
-    my($xsub, $self) = @_;
-    $xsub->($self, undef);
-    $self;
-  });
-
-}
-else
-{
-  $ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'bool' => sub {
-    my($xsub, $self, $value) = @_;
-    if(defined $profiler{$value})
-    {
-      unless(my $ret = $xsub->($self, $profiler{$value}))
-      {
-        Carp::croak("error setting profiler $value");
-      }
-    }
-    else
-    {
-      Carp::croak("unknown profiler: $value");
-    }
-    $self;
-  });
-
-  *cache_config_load    = sub { Carp::croak("property cache_config_load is not available")    };
-
-  *cache_config_default = sub
-  {
-    # silenty ignore
-    my($self) = @_;
-    $self;
-  };
-}
+$ffi->attach( [ 'wasmtime_config_cache_config_load' => 'cache_config_default' ] => [ 'wasm_config_t', 'string' ] => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self, undef);
+  $self;
+});
 
 1;
 
