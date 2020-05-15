@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Bump required Alien::wasmtime 0.09 and wasmtime to 0.16.0 (gh#57)
+  - Added interruptable and max_wasm_stack to Wasm::Wasmtime::Config (gh#57)
 
 0.09      2020-05-10 15:59:01 -0600
   - Wasm::Wasmtime::Memory constructor can take a array reference in place

@@ -47,6 +47,18 @@ _generate_destroy();
 Configures whether DWARF debug information is emitted for the generated
 code. This can improve profiling and the debugging experience.
 
+=head2 interruptable
+
+ $config->interruptable($bool);
+
+Configures whether functions and loops will be interruptable.
+
+=head2 max_wasm_stack
+
+ $config->max_wasm_stack($size);
+
+Configures the maximum amount of native stack space available to executing WebAssembly code
+
 =head2 wasm_threads
 
  $config->wasm_threads($bool);
@@ -89,11 +101,29 @@ L<https://github.com/webassembly/multi-value>
 
 =cut
 
-foreach my $prop (qw( debug_info wasm_threads wasm_reference_types
-                      wasm_simd wasm_bulk_memory wasm_multi_value
-                      cranelift_debug_verifier ))
+foreach my $prop (qw(
+  cranelift_debug_verifier
+  debug_info
+  interruptable
+  wasm_bulk_memory
+  wasm_reference_types
+  wasm_multi_value
+  wasm_simd
+  wasm_threads
+))
 {
   $ffi->attach( [ "wasmtime_config_${prop}_set" => $prop ] => [ 'wasm_config_t', 'bool' ] => sub {
+    my($xsub, $self, $value) = @_;
+    $xsub->($self, $value);
+    $self;
+  });
+}
+
+foreach my $prop (qw(
+  max_wasm_stack
+))
+{
+  $ffi->attach( [ "wasmtime_config_${prop}_set" => $prop ] => [ 'wasm_config_t', 'size_t' ] => sub {
     my($xsub, $self, $value) = @_;
     $xsub->($self, $value);
     $self;
