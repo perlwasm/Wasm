@@ -241,6 +241,8 @@ Acceptable values for C<$profiler> are:
 
 =item C<jitdump>
 
+=item C<vtune>
+
 =back
 
 =cut
@@ -248,6 +250,7 @@ Acceptable values for C<$profiler> are:
 my %profiler = (
   none    => 0,
   jitdump => 1,
+  vtune   => 2,
 );
 
 $ffi->attach( ['wasmtime_config_profiler_set' => 'profiler' ] => ['wasm_config_t', 'uint8'] => 'wasmtime_error_t' => sub {
