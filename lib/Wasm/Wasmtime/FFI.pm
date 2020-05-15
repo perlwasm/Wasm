@@ -169,9 +169,7 @@ sub _generate_destroy
   $ffi->attach( [ delete => join('::', $caller, 'DESTROY') ] => [ $type ] => \&_wrapper_destroy);
 }
 
-if($ffi->find_symbol('wasmtime_error_message'))
-{
-  package Wasm::Wasmtime::Error;
+{ package Wasm::Wasmtime::Error;
 
   $ffi_prefix = 'wasmtime_error_';
   $ffi->custom_type(
