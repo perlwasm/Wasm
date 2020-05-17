@@ -1,4 +1,4 @@
-# Wasm::Hook [![Build Status](https://secure.travis-ci.org/perlwasm/Wasm-Hook.png)](http://travis-ci.org/perlwasm/Wasm-Hook) ![windows](https://github.com/perlwasm/Wasm-Hook/workflows/windows/badge.svg) ![macos](https://github.com/perlwasm/Wasm-Hook/workflows/macos/badge.svg)
+# Wasm::Hook [![Build Status](https://travis-ci.org/perlwasm/Wasm-Hook.svg)](http://travis-ci.org/perlwasm/Wasm-Hook) ![windows](https://github.com/perlwasm/Wasm-Hook/workflows/windows/badge.svg) ![macos](https://github.com/perlwasm/Wasm-Hook/workflows/macos/badge.svg)
 
 Automatically load WebAssembly modules without a Perl wrapper
 
