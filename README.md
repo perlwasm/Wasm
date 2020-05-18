@@ -157,8 +157,8 @@ was loaded. It is roughly analogous to the `@INC` array in Perl.
 # CAVEATS
 
 As mentioned before as of this writing this dist is a work in progress.
-I won't intentionally break stuff if I don't have to, but practicality
-may demand it in some situations.
+I won't intentionally break stuff without a compelling reason, but
+practicality may demand it in some situations.
 
 This interface is implemented using the bundled [Wasm::Wasmtime](https://metacpan.org/pod/Wasm::Wasmtime) family
 of modules, which depends on the Wasmtime project.
