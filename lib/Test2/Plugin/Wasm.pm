@@ -7,7 +7,7 @@ use Test2::Mock;
 use Data::Dumper ();
 use FFI::C::Util qw( c_to_perl );
 
-# ABSTRACT: Test2 plugin for Wasm extensions
+# ABSTRACT: Test2 plugin for WebAssembly extensions
 # VERSION
 
 =head1 SYNOPSIS
@@ -26,7 +26,7 @@ make sense for all L<Wasm> extensions running in a testing context in the future
 
 =item L<Wasm>
 
-Write Perl extensions using Web Assembly.
+Write Perl extensions using WebAssembly.
 
 =back
 

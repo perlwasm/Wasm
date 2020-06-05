@@ -3,7 +3,7 @@ package Wasm::Table;
 use strict;
 use warnings;
 
-# ABSTRACT: Interface to Web Assembly Tables
+# ABSTRACT: Interface to WebAssembly Tables
 # VERSION
 
 =head1 DESCRIPTION
