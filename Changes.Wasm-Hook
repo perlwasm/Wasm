@@ -1,6 +1,6 @@
-Revision history for {{$dist->name}}},
+Revision history for Wasm-Hook
 
-{{$NEXT}}
+After 0.02 Wasm-Hook was merged with Wasm
 
 0.02      2020-04-11 11:08:56 -0600
   - Wasm subroutines are exportable using Exporter (gh#2)
