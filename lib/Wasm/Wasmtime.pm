@@ -2,6 +2,7 @@ package Wasm::Wasmtime;
 
 use strict;
 use warnings;
+use Wasm::Wasmtime::Caller;
 use Wasm::Wasmtime::Config;
 use Wasm::Wasmtime::Engine;
 use Wasm::Wasmtime::ExportType;

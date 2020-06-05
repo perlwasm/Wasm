@@ -61,7 +61,7 @@ signature.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaque'] => 'wasm_func_t' => sub {
+$ffi->attach( [ wasmtime_func_new => 'new' ] => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque,opaque)->opaque'] => 'wasm_func_t' => sub {
   my $xsub = shift;
   my $class = shift;
   if(is_blessed_ref $_[0] && $_[0]->isa('Wasm::Wasmtime::Store'))
@@ -74,8 +74,11 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
     my $param_arity  = scalar $functype->params;
     my $result_arity = scalar$functype->results;
 
+    require Wasm::Wasmtime::Caller;
     my $wrapper = $ffi->closure(sub {
-      my($params, $results) = @_;
+      my($caller, $params, $results) = @_;
+      $caller = Wasm::Wasmtime::Caller->new($caller);
+      unshift @Wasm::Wasmtime::Caller::callers, $caller;
 
       my @args = $param_arity ? do {
         my $args = Wasm::Wasmtime::ValVec->from_c($params);
@@ -90,6 +93,8 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
       if(my $error = $@)
       {
         my $trap = Wasm::Wasmtime::Trap->new($store, "$error\0");
+        delete $caller->{ptr};
+        shift @Wasm::Wasmtime::Caller::callers;
         return delete $trap->{ptr};
       }
       else
@@ -106,6 +111,8 @@ $ffi->attach( new => ['wasm_store_t', 'wasm_functype_t', '(opaque,opaque)->opaqu
             $result->of->$kind(shift @ret);
           }
         }
+        delete $caller->{ptr};
+        shift @Wasm::Wasmtime::Caller::callers;
         return undef;
       }
     });
