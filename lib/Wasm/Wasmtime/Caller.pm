@@ -41,6 +41,8 @@ C<$index> is given, then that indicates how many WebAssembly call frames to go b
 before the current one.  (This is vaguely similar to how the Perl C<caller> function
 works).
 
+This function is exported by default using L<Exporter>.
+
 =cut
 
 our @callers;
