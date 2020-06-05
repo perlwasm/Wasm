@@ -23,9 +23,6 @@ use Scalar::Util qw( refaddr );
 This module installs an C<@INC> hook that automatically loads WebAssembly (Wasm)
 files so that they can be used like a Perl module, without:
 
-The functions inside the WebAssembly module are exportable via the L<Exporter>
-module.  C<@EXPORT_OK> is used, so you will need to explicitly export functions.
-
 =over 4
 
 =item
@@ -38,7 +35,7 @@ The caller needing to even know or care that the module is implemented in someth
 
 =back
 
-This module will only load a WebAssembly module if there is now Perl Module (C<.pm> file) with the appropriate name.
+This module will only load a WebAssembly module if there is no Perl Module (C<.pm> file) with the appropriate name.
 
 =head1 SEE ALSO
 
@@ -49,6 +46,9 @@ This module will only load a WebAssembly module if there is now Perl Module (C<.
 =item L<Wasm::Wasmtime>
 
 =back
+
+The functions inside the WebAssembly module are exportable via the L<Exporter>
+module.  C<@EXPORT_OK> is used, so you will need to explicitly export functions.
 
 =cut
 
