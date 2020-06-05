@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.11      2020-06-05 16:43:31 -0600
   - Added Wasm::Wasmtime::Caller (gh#63)
   - Merged Wasm::Hook into this dist (gh#64)
 
