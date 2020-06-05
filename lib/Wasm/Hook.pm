@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use autodie;
 use 5.008001;
-use Wasm 0.02;
+use Wasm;
 use Ref::Util qw( is_ref );
 use Path::Tiny qw( path );
 use Scalar::Util qw( refaddr );
