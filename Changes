@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Added Wasm::Wasmtime::Caller (gh#63)
 
 0.10      2020-05-15 14:08:03 -0600
   - Bump required Alien::wasmtime 0.09 and wasmtime to 0.16.0 (gh#57)
