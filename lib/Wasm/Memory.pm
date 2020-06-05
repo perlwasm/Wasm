@@ -3,7 +3,7 @@ package Wasm::Memory;
 use strict;
 use warnings;
 
-# ABSTRACT: Interface to Web Assembly Memory
+# ABSTRACT: Interface to WebAssembly Memory
 # VERSION
 
 =head1 SYNOPSIS
