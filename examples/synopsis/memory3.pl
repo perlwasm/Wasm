@@ -1,7 +1,6 @@
 use strict;
 use warnings;
-use Wasm::Wasmtime;
-use Wasm::Wasmtime::Caller qw( wasmtime_caller );
+use Wasm::Memory qw( wasm_caller_memory );
 
 {
   # this just uses Platypus to create a utility function
@@ -14,15 +13,15 @@ use Wasm::Wasmtime::Caller qw( wasmtime_caller );
 sub print_wasm_string
 {
   my $ptr = shift;
-  my $caller = wasmtime_caller;
-  my $memory = $caller->export_get('memory');
-  print cstring($ptr + $memory->data);
+  my $memory = wasm_caller_memory;
+  print cstring($ptr + $memory->address);
 }
 
-my $instance = Wasm::Wasmtime::Instance->new(
-  Wasm::Wasmtime::Module->new(wat => q{
+use Wasm
+  -api => 0,
+  -wat => q{
     (module
-      (import "" "print_wasm_string" (func $print_wasm_string (param i32)))
+      (import "main" "print_wasm_string" (func $print_wasm_string (param i32)))
       (func (export "run")
         i32.const 0
         call $print_wasm_string
@@ -30,8 +29,7 @@ my $instance = Wasm::Wasmtime::Instance->new(
       (memory (export "memory") 1)
       (data (i32.const 0) "Hello, world!\n\00")
     )
-  }),
-  [\&print_wasm_string],
-);
+  },
+;
 
-$instance->exports->run->();
+run();
