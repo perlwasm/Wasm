@@ -2,13 +2,23 @@ package Wasm::Memory;
 
 use strict;
 use warnings;
+use Wasm::Wasmtime::Caller ();
+use base qw( Exporter );
+
+our @EXPORT_OK = qw( wasm_caller_memory );
 
 # ABSTRACT: Interface to WebAssembly Memory
 # VERSION
 
 =head1 SYNOPSIS
 
+Use WebAssembly memory from plain Perl:
+
 # EXAMPLE: examples/synopsis/memory2.pl
+
+Use WebAssembly memory from Perl in callback from WebAssembly:
+
+# EXAMPLE: examples/synopsis/memory3.pl
 
 =head1 DESCRIPTION
 
@@ -16,7 +26,30 @@ This class represents a region of memory exported from a WebAssembly
 module.  A L<Wasm::Memory> instance is automatically imported into
 Perl space for each WebAssembly memory region with the same name.
 
+=head1 FUNCTIONS
+
+=head2 wasm_caller_memory
+
+ my $memory = wasm_caller_memory;
+
+Returns the memory region of the WebAssembly caller, if Perl has been
+called by Wasm, otherwise it returns C<undef>.
+
+This function can be exported by request via L<Exporter>.
+
 =cut
+
+sub wasm_caller_memory
+{
+  my $caller = Wasm::Wasmtime::Caller::wasmtime_caller();
+  defined $caller
+    ? do {
+      my $wm = $caller->export_get('memory');
+      defined $wm && $wm->is_memory
+        ? __PACKAGE__->new($wm)
+        : undef;
+    } : undef;
+}
 
 sub new
 {
