@@ -1,4 +1,5 @@
 use Test2::V0 -no_srand => 1;
+use Test2::Plugin::Wasm;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Memory;
 use Wasm::Memory qw( wasm_caller_memory );

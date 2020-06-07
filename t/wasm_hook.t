@@ -1,4 +1,5 @@
 use Test2::V0 -no_srand => 1;
+use Test2::Plugin::Wasm;
 use Wasm::Hook;
 use lib 'corpus/wasm_hook/lib';
 use Foo::Bar::Baz::Math;
