@@ -2,6 +2,7 @@ package Wasm::Wasmtime::Global;
 
 use strict;
 use warnings;
+use 5.008004;
 use base qw( Wasm::Wasmtime::Extern );
 use Ref::Util qw( is_ref );
 use Wasm::Wasmtime::FFI;

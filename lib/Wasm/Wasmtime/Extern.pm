@@ -2,6 +2,7 @@ package Wasm::Wasmtime::Extern;
 
 use strict;
 use warnings;
+use 5.008004;
 use Wasm::Wasmtime::FFI;
 
 require Wasm::Wasmtime::Func;

@@ -3,7 +3,7 @@ package Wasm::Hook;
 use strict;
 use warnings;
 use autodie;
-use 5.008001;
+use 5.008004;
 use Wasm;
 use Ref::Util qw( is_ref );
 use Path::Tiny qw( path );

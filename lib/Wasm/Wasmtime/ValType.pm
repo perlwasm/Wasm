@@ -2,6 +2,7 @@ package Wasm::Wasmtime::ValType;
 
 use strict;
 use warnings;
+use 5.008004;
 use Wasm::Wasmtime::FFI;
 
 # ABSTRACT: Wasmtime value type class

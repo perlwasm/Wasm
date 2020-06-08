@@ -2,6 +2,7 @@ package Wasm::Wasmtime::Wat2Wasm;
 
 use strict;
 use warnings;
+use 5.008004;
 use Wasm::Wasmtime::FFI;
 use base qw( Exporter );
 

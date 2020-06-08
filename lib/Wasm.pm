@@ -2,7 +2,7 @@ package Wasm;
 
 use strict;
 use warnings;
-use 5.008001;
+use 5.008004;
 use Ref::Util qw( is_plain_arrayref );
 use Carp ();
 

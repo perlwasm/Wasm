@@ -2,6 +2,7 @@ package Wasm::Wasmtime::Linker;
 
 use strict;
 use warnings;
+use 5.008004;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Extern;

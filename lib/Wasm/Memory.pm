@@ -2,6 +2,7 @@ package Wasm::Memory;
 
 use strict;
 use warnings;
+use 5.008004;
 use Wasm::Wasmtime::Caller ();
 use base qw( Exporter );
 

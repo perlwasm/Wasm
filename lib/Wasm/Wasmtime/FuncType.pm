@@ -2,6 +2,7 @@ package Wasm::Wasmtime::FuncType;
 
 use strict;
 use warnings;
+use 5.008004;
 use base qw( Wasm::Wasmtime::ExternType );
 use Ref::Util qw( is_arrayref );
 use Wasm::Wasmtime::FFI;

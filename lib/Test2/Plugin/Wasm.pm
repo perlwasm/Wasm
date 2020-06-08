@@ -2,6 +2,7 @@ package Test2::Plugin::Wasm;
 
 use strict;
 use warnings;
+use 5.008004;
 use Test2::API qw( context );
 use Test2::Mock;
 use Data::Dumper ();

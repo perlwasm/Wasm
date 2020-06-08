@@ -2,6 +2,7 @@ package Wasm::Wasmtime::GlobalType;
 
 use strict;
 use warnings;
+use 5.008004;
 use base qw( Wasm::Wasmtime::ExternType );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ValType;
