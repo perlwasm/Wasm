@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.14      2020-06-07 21:03:13 -0600
   - Require minimum Perl 5.8.4.  This was already the case in practice
     since 0.11 when Wasm::Hook was merged, as it uses autodie (gh#69)
   - Fix a couple of tests that needed Test2::Plugin::Wasm (gh#68)
