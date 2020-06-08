@@ -2,6 +2,7 @@ package Wasm::Wasmtime;
 
 use strict;
 use warnings;
+use 5.008004;
 use Wasm::Wasmtime::Caller;
 use Wasm::Wasmtime::Config;
 use Wasm::Wasmtime::Engine;

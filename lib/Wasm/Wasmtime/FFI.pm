@@ -2,6 +2,7 @@ package Wasm::Wasmtime::FFI;
 
 use strict;
 use warnings;
+use 5.008004;
 use FFI::C 0.05;
 use FFI::Platypus 1.26;
 use FFI::Platypus::Buffer ();

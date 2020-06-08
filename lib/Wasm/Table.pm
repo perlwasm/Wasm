@@ -2,6 +2,7 @@ package Wasm::Table;
 
 use strict;
 use warnings;
+use 5.008004;
 
 # ABSTRACT: Interface to WebAssembly Tables
 # VERSION

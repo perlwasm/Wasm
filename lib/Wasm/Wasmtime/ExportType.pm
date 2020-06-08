@@ -2,6 +2,7 @@ package Wasm::Wasmtime::ExportType;
 
 use strict;
 use warnings;
+use 5.008004;
 use Ref::Util qw( is_blessed_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::ExternType;

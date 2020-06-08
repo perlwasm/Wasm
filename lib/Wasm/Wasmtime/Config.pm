@@ -2,6 +2,7 @@ package Wasm::Wasmtime::Config;
 
 use strict;
 use warnings;
+use 5.008004;
 use Wasm::Wasmtime::FFI;
 
 # ABSTRACT: Global configuration for Wasm::Wasmtime::Engine

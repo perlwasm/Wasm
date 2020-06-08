@@ -2,6 +2,7 @@ package Wasm::Wasmtime::ImportType;
 
 use strict;
 use warnings;
+use 5.008004;
 use Carp ();
 use Ref::Util qw( is_blessed_ref );
 use Wasm::Wasmtime::FFI;

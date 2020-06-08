@@ -2,6 +2,7 @@ package Wasm::Func;
 
 use strict;
 use warnings;
+use 5.008004;
 
 # ABSTRACT: Interface to WebAssembly Memory
 # VERSION
