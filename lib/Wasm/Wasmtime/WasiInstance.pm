@@ -27,7 +27,7 @@ To configure if and how the WASI accesses program argument, environment, standar
 and file system directories, see L<Wasm::Wasmtime::WasiConfig>.
 
 For a complete example of using WASI from WebAssembly, see the synopsis for
-L<Wasm::WebAssembly::Linker>.
+L<Wasm::Wasmtime::Linker>.
 
 =cut
 
