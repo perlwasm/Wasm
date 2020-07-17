@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use 5.008004;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::Engine;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module::Exports;
 use Wasm::Wasmtime::Module::Imports;
@@ -136,12 +137,12 @@ a useful diagnostic for why it was invalid.
 
 =cut
 
-$ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_store_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
+$ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
   my $class = shift;
   my($store, $wasm, $data) = _args(@_);
   my $ptr;
-  if(my $error = $xsub->($store, $$wasm, \$ptr))
+  if(my $error = $xsub->($store->engine, $$wasm, \$ptr))
   {
     Carp::croak("error creating module: " . $error->message);
   }
