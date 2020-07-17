@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use 5.008004;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::Engine;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module::Exports;
 use Wasm::Wasmtime::Module::Imports;
@@ -32,7 +33,26 @@ $ffi->load_custom_type('::PtrObject' => 'wasm_module_t' => __PACKAGE__);
 
 sub _args
 {
-  my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
+  my $engine_or_store_class = shift;
+  $engine_or_store_class = "Wasm::Wasmtime::$engine_or_store_class";
+
+  my $engine_or_store;
+  if(defined $_[0] && ref($_[0]) eq $engine_or_store_class)
+  {
+    $engine_or_store = shift;
+  }
+  elsif(defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store')
+  {
+    # if the thing passed in was a store but we were expecting an engine,
+    # that means this is for the constructor, and not validate.  Get
+    # the engine from the store.
+    $engine_or_store = shift->engine;
+  }
+  else
+  {
+    $engine_or_store = $engine_or_store_class->new;
+  }
+
   my $wasm;
   my $data;
   if(@_ == 1)
@@ -71,7 +91,7 @@ sub _args
       }
     }
   }
-  ($store, \$wasm, \$data);
+  ($engine_or_store, \$wasm, \$data);
 }
 
 =head1 CONSTRUCTOR
@@ -79,15 +99,15 @@ sub _args
 =head2 new
 
  my $module = Wasm::Wasmtime::Module->new(
-   $store,        # Wasm::Wasmtime::Store
+   $engine,       # Wasm::Wasmtime::Engine
    wat => $wat,   # WebAssembly Text
  );
  my $module = Wasm::Wasmtime::Module->new(
-   $store,        # Wasm::Wasmtime::Store
+   $engine,       # Wasm::Wasmtime::Engine
    wasm => $wasm, # WebAssembly binary
  );
  my $module = Wasm::Wasmtime::Module->new(
-   $store,        # Wasm::Wasmtime::Store
+   $engine,       # Wasm::Wasmtime::Engine
    file => $path, # Filename containing WebAssembly binary (.wasm) or WebAssembly Text (.wat)
  );
  my $module = Wasm::Wasmtime::Module->new(
@@ -101,7 +121,7 @@ sub _args
  );
 
 Create a new WebAssembly module object.  You must provide either WebAssembly Text (WAT), WebAssembly binary (Wasm), or a
-filename of a file that contains WebAssembly binary (Wasm).  If the optional L<Wasm::Wasmtime::Store> object is not provided
+filename of a file that contains WebAssembly binary (Wasm).  If the optional L<Wasm::Wasmtime::Engine> object is not provided
 one will be created for you.
 
 =head1 METHODS
@@ -136,22 +156,22 @@ a useful diagnostic for why it was invalid.
 
 =cut
 
-$ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_store_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
+$ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my($store, $wasm, $data) = _args(@_);
+  my($engine, $wasm, $data) = _args('Engine', @_);
   my $ptr;
-  if(my $error = $xsub->($store, $$wasm, \$ptr))
+  if(my $error = $xsub->($engine, $$wasm, \$ptr))
   {
     Carp::croak("error creating module: " . $error->message);
   }
-  bless { ptr => $ptr, store => $store }, $class;
+  bless { ptr => $ptr, engine => $engine }, $class;
 });
 
 $ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my($store, $wasm, $data) = _args(@_);
+  my($store, $wasm, $data) = _args('Store', @_);
   my $error = $xsub->($store, $$wasm);
   wantarray  ## no critic (Freenode::Wantarray)
     ? $error ? (0, $error->message) : (1, '')
@@ -198,15 +218,15 @@ $ffi->attach( [ imports => '_imports' ] => [ 'wasm_module_t', 'wasm_importtype_v
   $imports->to_list;
 });
 
-=head2 store
+=head2 engine
 
- my $store = $module->store;
+ my $engine = $module->engine;
 
-Returns the L<Wasm::Wasmtime::Store> object used by this module.
+Returns the L<Wasm::Wasmtime::Engine> object used by this module.
 
 =cut
 
-sub store { shift->{store} }
+sub engine { shift->{engine} }
 
 =head2 to_string
 

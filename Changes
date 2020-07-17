@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  [Warning: breaking changes]
+
+  - The Wasm::Wasmtime::Module constructor now takes an Engine as an
+    optional first argument, instead of a Store (gh#75, gh#76)
 
 0.14      2020-06-07 21:03:13 -0600
   - Require minimum Perl 5.8.4.  This was already the case in practice

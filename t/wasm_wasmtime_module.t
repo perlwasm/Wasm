@@ -2,6 +2,7 @@ use 5.008004;
 use Test2::V0 -no_srand => 1;
 use lib 't/lib';
 use Test2::Tools::Wasm;
+use Wasm::Wasmtime::Engine;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Wat2Wasm;
@@ -10,12 +11,12 @@ is(
   Wasm::Wasmtime::Module->new(wat2wasm('(module)')),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
-    call store => object {
-      call ['isa', 'Wasm::Wasmtime::Store'] => T();
+    call engine => object {
+      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
     };
     call to_string => "(module)\n";
   },
-  'autocreate store',
+  'autocreate engine',
 );
 
 is(
@@ -25,22 +26,22 @@ is(
 );
 
 is(
-  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Store->new, wat2wasm('(module)')),
+  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, wat2wasm('(module)')),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
-    call store => object {
-      call ['isa', 'Wasm::Wasmtime::Store'] => T();
+    call engine => object {
+      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
     };
   },
-  'explicit store',
+  'explicit engine',
 );
 
 is(
   Wasm::Wasmtime::Module->new(wat => '(module)'),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
-    call store => object {
-      call ['isa', 'Wasm::Wasmtime::Store'] => T();
+    call engine => object {
+      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
     };
   },
   'wat key',
@@ -50,8 +51,8 @@ is(
   Wasm::Wasmtime::Module->new(wasm => wat2wasm('(module)')),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
-    call store => object {
-      call ['isa', 'Wasm::Wasmtime::Store'] => T();
+    call engine => object {
+      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
     };
   },
   'wasm key',
@@ -61,8 +62,8 @@ is(
   Wasm::Wasmtime::Module->new(file => 'examples/wasmtime/gcd.wat'),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
-    call store => object {
-      call ['isa', 'Wasm::Wasmtime::Store'] => T();
+    call engine => object {
+      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
     };
     call to_string => join("\n",
                         '(module',
