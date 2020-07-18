@@ -37,7 +37,7 @@ This is a private class used internally by L<Wasm::Wasmtime> classes.
 
 =cut
 
-our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
+our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy _ver_0_19_0 );
 
 sub _lib
 {
@@ -55,6 +55,15 @@ $ffi->mangler(sub {
   return $name if $name =~ /^(wasm|wasmtime|wasi)_/;
   return $ffi_prefix . $name;
 });
+
+sub _ver_0_19_0
+{
+  # ugly hack.  Since wasmtime doesn't have an interface for giving us its version
+  # we look for symbols that were in 0.19.0 but not in 0.18.0.  We can remove this
+  # when we later require 0.19.0.
+  # See also: https://github.com/perlwasm/Wasm/issues/75
+  !!$ffi->find_symbol('wasmtime_func_as_funcref');
+}
 
 { package Wasm::Wasmtime::Vec;
   use FFI::Platypus::Record;
