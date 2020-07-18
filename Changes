@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.16      2020-07-18 06:07:45 -0600
   - Instance constructor may return a more useful error message on failure (gh#73, gh#79)
   - Added get_default method for Wasm::Wasmtime::Linker (gh#73, gh#79)
 
