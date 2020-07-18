@@ -16,7 +16,7 @@ my $instance = wasm_instance_ok( [], q{
       local.get 0
       local.get 1
       i64.sub)
-    (memory (export "frooble") 2 3)
+    (memory (export "memory") 2 3)
   )
 });
 
@@ -48,6 +48,11 @@ is(
     };
     call store => object {
       call [ isa => 'Wasm::Wasmtime::Store' ] => T();
+    };
+
+    call [ get_default => 'foo' ] => object {
+      call [ isa => 'Wasm::Wasmtime::Func' ] => T();
+      call call  => undef;
     };
   },
   'basics'

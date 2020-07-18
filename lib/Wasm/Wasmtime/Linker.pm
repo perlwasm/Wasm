@@ -8,6 +8,7 @@ use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::Instance;
 use Wasm::Wasmtime::WasiInstance;
+use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::Trap;
 use Ref::Util qw( is_blessed_ref );
 use Carp ();
@@ -169,6 +170,28 @@ $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*','opa
   else
   {
     Carp::croak("unknown instantiate error");
+  }
+});
+
+=head2 get_default
+
+ my $func = $linker->get_default($name);
+
+Acquires the "default export" of the named module in this linker.  Returns a L<Wasm::Wasmtime::Func>.
+
+=cut
+
+$ffi->attach( get_default => ['wasmtime_linker_t','wasm_byte_vec_t*','opaque*'] => 'wasmtime_error_t' => sub {
+  my($xsub, $self, $name) = @_;
+  my $vname = Wasm::Wasmtime::ByteVec->new($name);
+  my $ptr;
+  if(my $error = $xsub->($self, $vname, \$ptr))
+  {
+    Carp::croak($error->message);
+  }
+  else
+  {
+    return $ptr ? Wasm::Wasmtime::Func->new($ptr, $self) : undef;
   }
 });
 
