@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Instance constructor may return a more useful error message on failure (gh#73, gh#79)
 
 0.15      2020-07-18 04:18:31 -0600
   - Compatability with wasmtime 0.19.0 (gh#75, gh#77)
