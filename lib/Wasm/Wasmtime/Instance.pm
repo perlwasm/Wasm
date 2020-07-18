@@ -108,7 +108,7 @@ sub _cast_import
   Carp::croak("Non-extern object as import");
 }
 
-$ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque[]','opaque*'] => 'wasm_instance_t' => sub {
+$ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module_t','opaque[]','size_t','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
   my $class = shift;
   my $module = shift;
@@ -145,21 +145,26 @@ $ffi->attach( new => ['wasm_store_t','wasm_module_t','opaque[]','opaque*'] => 'w
       @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
     }
 
-    my $self = $xsub->($store, $module, \@imports, \$trap);
-    if($self)
+    my $ptr;
+    if(my $error = $xsub->($store, $module, \@imports, scalar(@imports), \$ptr, \$trap))
     {
-      $self->{module} = $module;
-      $self->{keep}   = \@keep;
-      return $self;
+      Carp::croak("error creating module: " . $error->message);
     }
     else
     {
-     if($trap)
-     {
+      if($trap)
+      {
         $trap = Wasm::Wasmtime::Trap->new($trap);
         Carp::croak($trap->message);
       }
-      Carp::croak("error creating Wasm::Wasmtime::Instance ");
+      else
+      {
+        return bless {
+          ptr    => $ptr,
+          module => $module,
+          keep   => \@keep,
+        }, $class;
+      }
     }
   }
 
