@@ -152,7 +152,7 @@ WebAssembly inside your Perl source file.
 ## %Wasm::WASM
 
 This hash maps the Wasm module names to the files from which the Wasm
-was loaded. It is roughly analogous to the `@INC` array in Perl.
+was loaded. It is roughly analogous to the `%INC` hash in Perl.
 
 # CAVEATS
 
@@ -167,7 +167,7 @@ The default way of handling out-of-bounds memory errors is to allocate
 large `PROT_NONE` pages at startup.  While these pages do not consume
 many resources in practice (at least in the way that they are used by
 Wasmtime), they can cause out-of-memory errors on Linux systems with
-virtual memory limits (`ulimi -v` in the `bash` shell).  Similar
+virtual memory limits (`ulimit -v` in the `bash` shell).  Similar
 techniques are common in other modern programming languages, and this is
 more a limitation of the Linux kernel than anything else.  Setting the
 limits on the virtual memory address size probably doesn't do what you
