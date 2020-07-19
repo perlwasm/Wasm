@@ -36,6 +36,15 @@ $ffi->load_custom_type('::PtrObject' => 'wasm_instance_t' => __PACKAGE__);
 =head2 new
 
  my $instance = Wasm::Wasmtime::Instance->new(
+   $module,    # Wasm::Wasmtime::Module
+   $store      # Wasm::Wasmtime::Store
+ );
+ my $instance = Wasm::Wasmtime::Instance->new(
+   $module,    # Wasm::Wasmtime::Module
+   $store,     # Wasm::Wasmtime::Store
+   \@imports,  # array reference of Wasm::Wasmtime::Extern
+ );
+ my $instance = Wasm::Wasmtime::Instance->new(
    $module     # Wasm::Wasmtime::Module
  );
  my $instance = Wasm::Wasmtime::Instance->new(
@@ -112,6 +121,12 @@ $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module
   my $xsub = shift;
   my $class = shift;
   my $module = shift;
+  my $store = is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Store')
+    ? shift
+    : do {
+      no warnings 'deprecated';
+      $module->store;
+    };
 
   my $ptr;
   my @keep;
@@ -133,7 +148,6 @@ $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module
     Carp::confess("imports is not an array reference") unless ref($imports) eq 'ARRAY';
     my @imports = @$imports;
     my $trap;
-    my $store = $module->store;
 
     {
       my @mi = @{ $module->imports };
