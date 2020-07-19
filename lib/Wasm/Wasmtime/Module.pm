@@ -199,15 +199,35 @@ $ffi->attach( [ imports => '_imports' ] => [ 'wasm_module_t', 'wasm_importtype_v
   $imports->to_list;
 });
 
+=head2 engine
+
+ my $engine = $module->engine;
+
+Returns the L<Wasm::Wasmtime::Engine> object used by this module.
+
+=cut
+
+sub engine { shift->{store}->engine }
+
 =head2 store
 
  my $store = $module->store;
+
+[B<Deprecated>: Will be removed in a future version of L<Wasm::Wasmtime>]
 
 Returns the L<Wasm::Wasmtime::Store> object used by this module.
 
 =cut
 
-sub store { shift->{store} }
+sub store
+{
+  my($self) = @_;
+  if(warnings::enabled("deprecated"))
+  {
+    Carp::carp('The store method for the Wasm::Wasmtime::Module class is deprecated and will be removed in a future version of Wasm::Wasmtime');
+  }
+  $self->{store};
+}
 
 =head2 to_string
 

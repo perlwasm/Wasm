@@ -21,7 +21,7 @@ my $instance = wasm_instance_ok( [], q{
 });
 
 my $module = $instance->module;
-my $store  = $module->store;
+my $store  = wasm_store();
 my $wasi   = Wasm::Wasmtime::WasiInstance->new(
   $store, "wasi_snapshot_preview1",
 );
