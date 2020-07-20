@@ -65,8 +65,7 @@ $ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'opaque*'] => '
   {
     if($trap)
     {
-      my $message = Wasm::Wasmtime::Trap->new($trap)->message;
-      Carp::croak($message);
+      die Wasm::Wasmtime::Trap->new($trap);
     }
     Carp::croak("failed to create wasi instance");
   }

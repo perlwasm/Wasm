@@ -93,7 +93,9 @@ $ffi->attach( [ wasmtime_func_new => 'new' ] => ['wasm_store_t', 'wasm_functype_
       };
       if(my $error = $@)
       {
-        my $trap = Wasm::Wasmtime::Trap->new($store, "$error\0");
+        my $trap = is_blessed_ref $error && $error->isa('Wasm::Wasmtime::Trap')
+          ? $error
+          : Wasm::Wasmtime::Trap->new($store, "$error\0");
         delete $caller->{ptr};
         shift @Wasm::Wasmtime::Caller::callers;
         return delete $trap->{ptr};
@@ -157,11 +159,7 @@ $ffi->attach( call => ['wasm_func_t', 'wasm_val_vec_t', 'wasm_val_vec_t'] => 'wa
 
   my $trap = $xsub->($self, $args, $results);
 
-  if($trap)
-  {
-    my $message = $trap->message;
-    Carp::croak("trap in wasm function call: $message");
-  }
+  die $trap if $trap;
   return unless defined $results;
   my @results = $results->to_perl;
   wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)

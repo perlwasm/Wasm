@@ -159,7 +159,7 @@ $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*','opa
   if($trap)
   {
     $trap = Wasm::Wasmtime::Trap->new($trap);
-    Carp::croak($trap->message);
+    die $trap;
   }
   elsif($ptr)
   {

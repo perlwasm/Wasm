@@ -182,7 +182,7 @@ $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module
       if($trap)
       {
         $trap = Wasm::Wasmtime::Trap->new($trap);
-        Carp::croak($trap->message);
+        die $trap;
       }
       else
       {

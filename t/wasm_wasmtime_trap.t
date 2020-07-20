@@ -8,6 +8,7 @@ is(
   object {
     call [isa => 'Wasm::Wasmtime::Trap'] => T();
     call message => 'foo';
+    call sub { my $trap = shift; "$trap" } => 'foo';
   },
   'created trap ok',
 );
