@@ -7,6 +7,10 @@ Revision history for {{$dist->name}}},
   - Creating a Wasm::Wasmtime::Instance instance without a
     Wasm::Wasmtime::Store object is now deprecated and will be removed
     from a future version of Wasm::Wasmtime (gh#73, gh#83)
+  - Wasm::Wasmtime::Trap objects are thrown directly via die instead of
+    being converted into Perl string exceptions.  (gh#73, gh#85)
+  - Wasm::Wasmtime::Trap stringifies to its message for easy to read
+    diagnostics. (gh#73, gh#85)
 
 0.16      2020-07-18 06:07:45 -0600
   - Instance constructor may return a more useful error message on failure (gh#73, gh#79)

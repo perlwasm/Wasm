@@ -5,6 +5,10 @@ use warnings;
 use 5.008004;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
+use overload
+  '""' => \&message,
+  bool => sub { 1 },
+  fallback => 1;
 
 # ABSTRACT: Wasmtime trap class
 # VERSION
