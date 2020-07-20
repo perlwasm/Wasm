@@ -6,7 +6,7 @@ use 5.008004;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use overload
-  '""' => \&message,
+  '""' => sub { shift->message . "\n" },
   bool => sub { 1 },
   fallback => 1;
 
@@ -80,6 +80,23 @@ $ffi->attach( message => ['wasm_trap_t', 'wasm_byte_vec_t*'] => sub {
   $ret =~ s/\0$//;
   $message->delete;
   $ret;
+});
+
+=head2 exit_status
+
+ my $status = $trap->exit_status;
+
+If the trap was triggered by an C<exit> call, this will return the exist status code.
+If it wasn't triggered by an C<exit> call it will return C<undef>.
+
+=cut
+
+$ffi->attach( [ wasmtime_trap_exit_status => 'exit_status' ] => ['wasm_trap_t', 'int*'] => 'bool' => sub {
+  my($xsub, $self) = @_;
+  my $status;
+  $xsub->($self, \$status)
+    ? $status
+    : undef;
 });
 
 _generate_destroy();
