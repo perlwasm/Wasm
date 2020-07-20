@@ -11,6 +11,7 @@ Revision history for {{$dist->name}}},
     being converted into Perl string exceptions.  (gh#73, gh#85)
   - Wasm::Wasmtime::Trap stringifies to its message for easy to read
     diagnostics. (gh#73, gh#85)
+  - Added exit_status method on Wasm::Wasmtime::Trap class (gh#73, gh#85)
 
 0.16      2020-07-18 06:07:45 -0600
   - Instance constructor may return a more useful error message on failure (gh#73, gh#79)
