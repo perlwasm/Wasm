@@ -173,6 +173,32 @@ $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*','opa
   }
 });
 
+=head2 get_one_by_name
+
+ my $extern = $linker->get_one_by_name($module,$name);
+
+Returns the L<Wasm::Wasmtime::Extern> for the given C<$module> and C<$name>.
+C<undef> is returned if there is no such extern with that C<$name>.
+
+=cut
+
+$ffi->attach( get_one_by_name => ['wasmtime_linker_t','wasm_byte_vec_t*','wasm_byte_vec_t*','opaque*'] => 'wasmtime_error_t' => sub {
+  my($xsub, $self, $module, $name) = @_;
+  my $vmodule = Wasm::Wasmtime::ByteVec->new($module);
+  my $vname = Wasm::Wasmtime::ByteVec->new($name);
+  my $ptr;
+  if(my $error = $xsub->($self, $vmodule, $vname, \$ptr))
+  {
+    Carp::croak($error->message);
+  }
+  else
+  {
+    $ptr
+      ? $ffi->cast('opaque','wasm_extern_t',$ptr)
+      : undef;
+  }
+});
+
 =head2 get_default
 
  my $func = $linker->get_default($name);
