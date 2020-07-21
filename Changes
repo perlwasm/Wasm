@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.18      2020-07-21 17:26:23 -0600
   - Added get_one_by_name method to Wasm::Wasmtime::Linker class (gh#73, gh#87)
   - Added Wasm::Trap class (gh#86, gh#89)
 
