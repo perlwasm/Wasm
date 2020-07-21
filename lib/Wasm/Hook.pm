@@ -20,6 +20,10 @@ use Scalar::Util qw( refaddr );
 
 =head1 DESCRIPTION
 
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the
+interface for these modules is under active development.  Use with
+caution.
+
 This module installs an C<@INC> hook that automatically loads WebAssembly (Wasm)
 files so that they can be used like a Perl module, without:
 

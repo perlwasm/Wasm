@@ -19,6 +19,10 @@ Call Perl from Wasm:
 
 =head1 DESCRIPTION
 
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the
+interface for these modules is under active development.  Use with
+caution.
+
 This documents the interface to functions for L<Wasm>.
 Each function exported from WebAssembly is automatically
 imported into Perl space as a Perl subroutine.  Wasm modules

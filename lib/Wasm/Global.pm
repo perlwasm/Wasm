@@ -19,6 +19,10 @@ Import globals from Perl into WebAssembly
 
 =head1 DESCRIPTION
 
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the
+interface for these modules is under active development.  Use with
+caution.
+
 This documents the interface to global variables for L<Wasm>.
 Each global variable exported from WebAssembly is automatically
 imported into Perl space as a tied scalar, which allows you to get
