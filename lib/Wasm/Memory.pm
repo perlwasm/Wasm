@@ -23,6 +23,10 @@ Use WebAssembly memory from Perl in callback from WebAssembly:
 
 =head1 DESCRIPTION
 
+B<WARNING>: WebAssembly and Wasmtime are a moving target and the
+interface for these modules is under active development.  Use with
+caution.
+
 This class represents a region of memory exported from a WebAssembly
 module.  A L<Wasm::Memory> instance is automatically imported into
 Perl space for each WebAssembly memory region with the same name.

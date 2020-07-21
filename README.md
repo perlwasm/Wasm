@@ -54,9 +54,10 @@ can easily be imported and exported between Perl and WebAssembly
 (see [Wasm::Func](https://metacpan.org/pod/Wasm::Func) for details).  WebAssembly global variables can be
 imported into Perl using tied scalars (see [Wasm::Global](https://metacpan.org/pod/Wasm::Global) for details).
 WebAssembly linear memory can be queried and manipulated by Perl
-(see [Wasm::Memory](https://metacpan.org/pod/Wasm::Memory) for details).  WebAssembly can optionally be loaded
-directly by Perl without writing any Perl wrappers at all (see [Wasm::Hook](https://metacpan.org/pod/Wasm::Hook)
-for details).
+(see [Wasm::Memory](https://metacpan.org/pod/Wasm::Memory) for details).  Perl can throw or catch traps into
+or out of WebAssembly (see [Wasm::Trap](https://metacpan.org/pod/Wasm::Trap) for details).  WebAssembly can
+optionally be loaded directly by Perl without writing any Perl wrappers
+at all (see [Wasm::Hook](https://metacpan.org/pod/Wasm::Hook) for details).
 
 The example above shows WebAssembly Text (WAT) inlined into the
 Perl code for readability. In most cases you will want to compile your
@@ -199,6 +200,10 @@ exactly as you want to (see the environment section of
 - [Wasm::Memory](https://metacpan.org/pod/Wasm::Memory)
 
     Interface to WebAssembly memory from Perl.
+
+- [Wasm::Trap](https://metacpan.org/pod/Wasm::Trap)
+
+    Interface to WebAssembly traps.
 
 - [plasm](https://metacpan.org/pod/plasm)
 
