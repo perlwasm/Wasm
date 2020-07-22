@@ -3,6 +3,7 @@ package Wasm::Wasmtime::Module;
 use strict;
 use warnings;
 use 5.008004;
+use Ref::Util qw( is_blessed_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Engine;
 use Wasm::Wasmtime::Store;
@@ -75,7 +76,7 @@ sub _args
   (\$wasm, \$data);
 }
 
-=head1 CONSTRUCTOR
+=head1 CONSTRUCTORS
 
 =head2 new
 
@@ -124,6 +125,64 @@ You can provide a L<Wasm::Wasmtime::Store> instance instead of a L<Wasm::Wasmtim
 instance is no longer required internally to create a module instance, the engine object which is needed can
 be found from the store.  This form will be removed in a future version.
 
+=cut
+
+$ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
+  my $xsub = shift;
+  my $class = shift;
+  my $store;
+  my $engine;
+  if(defined $_[0] && is_blessed_ref $_[0])
+  {
+    if($_[0]->isa('Wasm::Wasmtime::Engine'))
+    {
+      $engine = shift;
+    }
+    elsif($_[0]->isa('Wasm::Wasmtime::Store'))
+    {
+      Carp::carp("Passing a Wasm::Wasmtime::Store into the module constructor is deprecated, please pass a Wasm::Wasmtime::Engine object instead");
+      $store = shift;
+      $engine = $store->engine;
+    }
+  }
+  $engine ||= Wasm::Wasmtime::Engine->new;
+  my($wasm, $data) = _args(@_);
+  my $ptr;
+  if(my $error = $xsub->($engine, $$wasm, \$ptr))
+  {
+    Carp::croak("error creating module: " . $error->message);
+  }
+  bless { ptr => $ptr, engine => $engine, store => $store }, $class;
+});
+
+=head2 deserialize
+
+ my $module = Wasm::Wasmtime::Module->deserialize(
+   $engine,       # Wasm::Wasmtime::Engine
+   $serialized,   # serialized module
+ );
+ my $module = Wasm::Wasmtime::Module->deserialize(
+   $serialized,   # serialized module
+ );
+
+Build a module from serialized data.  The serialized data can be gotten from the C<serialize> method documented below.
+
+=cut
+
+$ffi->attach( [ wasmtime_module_deserialize => 'deserialize' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
+  my $xsub  = shift;
+  my $class = shift;
+  my $engine;
+  $engine = defined $_[0] && is_blessed_ref $_[0] && $_[0]->isa('Wasm::Wasmtime::Engine') ? shift : Wasm::Wasmtime::Engine->new;
+  my $serialized = Wasm::Wasmtime::ByteVec->new($_[0]);
+  my $ptr;
+  if(my $error = $xsub->($engine, $serialized, \$ptr))
+  {
+    Carp::croak("error creating module: " . $error->message);
+  }
+  bless { ptr => $ptr, store => undef, engine => $engine }, $class;
+});
+
 =head1 METHODS
 
 =head2 validate
@@ -155,34 +214,6 @@ which is true if the WebAssembly is valid, and false otherwise.  For invalid Web
 a useful diagnostic for why it was invalid.
 
 =cut
-
-$ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
-  my $xsub = shift;
-  my $class = shift;
-  my $store;
-  my $engine;
-  if(defined $_[0] && is_blessed_ref $_[0])
-  {
-    if($_[0]->isa('Wasm::Wasmtime::Engine'))
-    {
-      $engine = shift;
-    }
-    elsif($_[0]->isa('Wasm::Wasmtime::Store'))
-    {
-      Carp::carp("Passing a Wasm::Wasmtime::Store into the module constructor is deprecated, please pass a Wasm::Wasmtime::Engine object instead");
-      $store = shift;
-      $engine = $store->engine;
-    }
-  }
-  $engine ||= Wasm::Wasmtime::Engine->new;
-  my($wasm, $data) = _args(@_);
-  my $ptr;
-  if(my $error = $xsub->($engine, $$wasm, \$ptr))
-  {
-    Carp::croak("error creating module: " . $error->message);
-  }
-  bless { ptr => $ptr, engine => $engine, store => $store }, $class;
-});
 
 $ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
@@ -233,6 +264,30 @@ $ffi->attach( [ imports => '_imports' ] => [ 'wasm_module_t', 'wasm_importtype_v
   my $imports = Wasm::Wasmtime::ImportTypeVec->new;
   $xsub->($self, $imports);
   $imports->to_list;
+});
+
+=head2 serialize
+
+ my $serialized = $module->serialize;
+
+This function serializes compiled module artifacts as blob data.  This data can be reconstituted with the
+C<deserialize> constructor method documented above.
+
+=cut
+
+$ffi->attach( [ 'wasmtime_module_serialize' => 'serialize' ] => [ 'wasm_module_t', 'wasm_byte_vec_t*' ] => 'wasmtime_error_t' => sub {
+  my($xsub, $self) = @_;
+  my $s = Wasm::Wasmtime::ByteVec->new;
+  if(my $error = $xsub->($self, $s))
+  {
+    Carp::croak("error serializing module: " . $error->message);
+  }
+  else
+  {
+    my $s2 = $s->get;
+    $s->delete;
+    return $s2;
+  }
 });
 
 =head2 engine
