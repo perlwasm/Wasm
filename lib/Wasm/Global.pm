@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008004;
 
-# ABSTRACT: Interface to WebAssembly Memory
+# ABSTRACT: Interface to WebAssembly global variables
 # VERSION
 
 =head1 SYNOPSIS
