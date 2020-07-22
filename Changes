@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Added gc method to Wasm::Wasmtime::Store class (gh#90)
 
 0.19      2020-08-17 02:55:34 -0600
   - The deprecated store method on Wasm::Wasmtime::Module has been removed (gh#93)
