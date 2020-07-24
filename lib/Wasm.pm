@@ -151,7 +151,7 @@ have the virtual memory address size limits and sets this configuration
 for you.  For production you can set the environment variable
 C<PERL_WASM_WASMTIME_MEMORY> to tune the appropriate memory settings
 exactly as you want to (see the environment section of
-L<Wasm::Wasmtime>.
+L<Wasm::Wasmtime>).
 
 =head1 SEE ALSO
 
