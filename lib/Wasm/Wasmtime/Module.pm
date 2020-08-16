@@ -209,26 +209,6 @@ Returns the L<Wasm::Wasmtime::Engine> object used by this module.
 
 sub engine { shift->{store}->engine }
 
-=head2 store
-
- my $store = $module->store;
-
-[B<Deprecated>: Will be removed in a future version of L<Wasm::Wasmtime>]
-
-Returns the L<Wasm::Wasmtime::Store> object used by this module.
-
-=cut
-
-sub store
-{
-  my($self) = @_;
-  if(warnings::enabled("deprecated"))
-  {
-    Carp::carp('The store method for the Wasm::Wasmtime::Module class is deprecated and will be removed in a future version of Wasm::Wasmtime');
-  }
-  $self->{store};
-}
-
 =head2 to_string
 
  my $string = $module->to_string;
