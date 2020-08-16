@@ -33,7 +33,6 @@ $ffi->load_custom_type('::PtrObject' => 'wasm_module_t' => __PACKAGE__);
 
 sub _args
 {
-  my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
   my $wasm;
   my $data;
   if(@_ == 1)
@@ -72,7 +71,7 @@ sub _args
       }
     }
   }
-  ($store, \$wasm, \$data);
+  (\$wasm, \$data);
 }
 
 =head1 CONSTRUCTOR
@@ -140,7 +139,8 @@ a useful diagnostic for why it was invalid.
 $ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my($store, $wasm, $data) = _args(@_);
+  my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
+  my($wasm, $data) = _args(@_);
   my $ptr;
   if(my $error = $xsub->($store->engine, $$wasm, \$ptr))
   {
@@ -152,7 +152,8 @@ $ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_engine_t', 'wasm_byte_v
 $ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  my($store, $wasm, $data) = _args(@_);
+  my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
+  my($wasm, $data) = _args(@_);
   my $error = $xsub->($store, $$wasm);
   wantarray  ## no critic (Freenode::Wantarray)
     ? $error ? (0, $error->message) : (1, '')
