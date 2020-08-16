@@ -219,48 +219,6 @@ is(
   'exports',
 );
 
-# test deprecation warnings on store method
-{
-  my $module = Wasm::Wasmtime::Module->new(wat => '(module)');
-  my @warnings;
-
-  isa_ok do {
-    local $SIG{__WARN__} = sub {
-      push @warnings, @_;
-    };
-    $module->store;
-  }, 'Wasm::Wasmtime::Store';
-
-  note '$module->store';
-  note "warning:$_" for @warnings;
-
-  is
-    \@warnings,
-    bag {
-      item match qr/The store method for the Wasm::Wasmtime::Module class is deprecated and will be removed in a future version of Wasm::Wasmtime/;
-      etc;
-    },
-    'deprecation warning',
-  ;
-
-  no warnings 'deprecated';
-  @warnings = ();
-  $module->store;
-
-  note 'no warnings \'deprecated\'; $module->store';
-  note "warning:$_" for @warnings;
-
-  is
-    \@warnings,
-    array {
-      all_items !match qr/The store method for the Wasm::Wasmtime::Module class is deprecated and will be removed in a future version of Wasm::Wasmtime/;
-      etc;
-    },
-    'can turn off deprecation warning',
-  ;
-
-}
-
 wasm_module_ok '(module)';
 
 done_testing;
