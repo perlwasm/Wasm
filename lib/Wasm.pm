@@ -344,7 +344,7 @@ sub import
   Carp::croak("The wasm_ namespace is reserved for internal use") if $package =~ /^wasi_/;
   Carp::croak("Wasm for $package already loaded") if $inst{$package};
 
-  my $module = Wasm::Wasmtime::Module->new($linker->store, @module);
+  my $module = Wasm::Wasmtime::Module->new($linker->store->engine, @module);
 
   foreach my $import (@{ $module->imports })
   {

@@ -2,6 +2,7 @@ use 5.008004;
 use Test2::V0 -no_srand => 1;
 use lib 't/lib';
 use Test2::Tools::Wasm;
+use Wasm::Wasmtime::Engine;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Wat2Wasm;
@@ -25,7 +26,7 @@ is(
 );
 
 is(
-  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Store->new, wat2wasm('(module)')),
+  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, wat2wasm('(module)')),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
     call engine => object {
@@ -34,6 +35,34 @@ is(
   },
   'explicit engine',
 );
+
+{
+  my @warnings;
+  local $SIG{__WARN__} = sub {
+    push @warnings, @_;
+  };
+
+  is(
+    Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Store->new, wat2wasm('(module)')),
+    object {
+      call ['isa', 'Wasm::Wasmtime::Module'] => T();
+      call engine => object {
+        call ['isa', 'Wasm::Wasmtime::Engine'] => T();
+      };
+    },
+    'explicit store',
+  );
+
+  note "warning:$_" for @warnings;
+  is
+    \@warnings,
+    bag {
+      item match qr/Passing a Wasm::Wasmtime::Store into the module constructor is deprecated, please pass a Wasm::Wasmtime::Engine object instead/;
+      etc;
+    },
+    'deprecation warning',
+  ;
+}
 
 is(
   Wasm::Wasmtime::Module->new(wat => '(module)'),
