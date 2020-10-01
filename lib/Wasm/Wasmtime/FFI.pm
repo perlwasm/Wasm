@@ -41,9 +41,17 @@ our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
 
 sub _lib
 {
-  my $lib = find_lib lib => 'wasmtime', symbol => ['wasmtime_func_as_funcref'];
+  my @symbols = (
+    # 0.19.0
+    'wasmtime_func_as_funcref',
+    # 0.20.0
+    'wasmtime_module_serialize',
+    'wasmtime_module_deserialize',
+    'wasmtime_store_gc',
+  );
+  my $lib = find_lib lib => 'wasmtime', symbol => \@symbols;
   return $lib if $lib;
-  $lib = find_lib lib => 'wasmtime', alien => 'Alien::wasmtime', symbol => ['wasmtime_func_as_funcref'];
+  $lib = find_lib lib => 'wasmtime', alien => 'Alien::wasmtime', symbol => \@symbols;
   return $lib if $lib;
   die 'unable to find wasmtime 0.19.0 or better';
 }
