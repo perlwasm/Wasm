@@ -1,4 +1,4 @@
-# Wasm [![Build Status](https://travis-ci.org/perlwasm/Wasm.svg)](http://travis-ci.org/perlwasm/Wasm) ![windows](https://github.com/perlwasm/Wasm/workflows/windows/badge.svg) ![macos](https://github.com/perlwasm/Wasm/workflows/macos/badge.svg)
+# Wasm [![Build Status](https://api.travis-ci.com/perlwasm/Wasm.svg?branch=main)](https://travis-ci.com/github/perlwasm/Wasm) ![windows](https://github.com/perlwasm/Wasm/workflows/windows/badge.svg) ![macos](https://github.com/perlwasm/Wasm/workflows/macos/badge.svg)
 
 Write Perl extensions using Wasm
 
