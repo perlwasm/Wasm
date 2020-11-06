@@ -44,7 +44,7 @@ sub _lib
   my @symbols = (
     # 0.19.0
     'wasmtime_func_as_funcref',
-    # 0.20.0
+    # 0.20.0 / 0.21.0
     'wasmtime_module_serialize',
     'wasmtime_module_deserialize',
     'wasmtime_store_gc',
