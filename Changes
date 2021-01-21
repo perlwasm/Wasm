@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+  - Require Alien::wasmtime 0.16 or wasmtime 0.22.1 (gh#98)
 
 0.21      2020-11-06 03:57:12 -0700
   - Require Alien::wasmtime 0.15 or wasmtime 0.21.0 (gh#96)
