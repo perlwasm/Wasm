@@ -31,6 +31,10 @@ jobs:
     - env: CIP_TAG=5.12
     - env: CIP_TAG=5.10
     - env: CIP_TAG=5.8
+  allow_failures:
+    - env: CIP_TAG=5.32 ALIEN_WASMTIME_VERSION=dev
+    - env: CIP_TAG=5.18 ALIEN_WASMTIME_VERSION=dev
+
 branches:
   only:
     - main
