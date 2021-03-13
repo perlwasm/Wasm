@@ -12,25 +12,10 @@ script:
   - cip script
 jobs:
   include:
-    - env: CIP_TAG=static
-    - env: CIP_TAG=5.33
     - env: CIP_TAG=5.32-buster-arm64v8
       arch: arm64
     - env: CIP_TAG=5.32 ALIEN_WASMTIME_VERSION=dev
-    - env: CIP_TAG=5.32
-    - env: CIP_TAG=5.30
-    - env: CIP_TAG=5.28
-    - env: CIP_TAG=5.26
-    - env: CIP_TAG=5.24
-    - env: CIP_TAG=5.22
-    - env: CIP_TAG=5.20
-    - env: CIP_TAG=5.18
     - env: CIP_TAG=5.18 ALIEN_WASMTIME_VERSION=dev
-    - env: CIP_TAG=5.16
-    - env: CIP_TAG=5.14
-    - env: CIP_TAG=5.12
-    - env: CIP_TAG=5.10
-    - env: CIP_TAG=5.8
   allow_failures:
     - env: CIP_TAG=5.32 ALIEN_WASMTIME_VERSION=dev
     - env: CIP_TAG=5.18 ALIEN_WASMTIME_VERSION=dev
