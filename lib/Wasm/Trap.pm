@@ -28,7 +28,7 @@ relying on that is undefined behavior.  In order to catch a trap from
 WebAssembly, use this class name like so:
 
  use Ref::Util qw( is_blessed_ref );
-
+ 
  local $@ = '';
  eval {
    web_assembly_func();
@@ -47,7 +47,7 @@ WebAssembly, use this class name like so:
 To throw from Perl:
 
  use Wasm::Trap;
-
+ 
  sub perl_from_wasm
  {
    die Wasm::Trap->new("diagnostic\0");

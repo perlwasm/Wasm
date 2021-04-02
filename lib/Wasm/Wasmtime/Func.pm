@@ -151,19 +151,26 @@ any) is returned.
 
 =cut
 
-$ffi->attach( call => ['wasm_func_t', 'wasm_val_vec_t', 'wasm_val_vec_t'] => 'wasm_trap_t' => sub {
-  my $xsub = shift;
-  my $self = shift;
-  my $args = Wasm::Wasmtime::ValVec->from_perl(\@_, [$self->type->params]);
-  my $results = $self->result_arity ? Wasm::Wasmtime::ValVec->new($self->result_arity) : undef;
+if(_v0_23_0())
+{
+  *call = sub { Carp::croak("TODO v0.23.0") };
+}
+else
+{
+  $ffi->attach( call => ['wasm_func_t', 'wasm_val_vec_t', 'wasm_val_vec_t'] => 'wasm_trap_t' => sub {
+    my $xsub = shift;
+    my $self = shift;
+    my $args = Wasm::Wasmtime::ValVec->from_perl(\@_, [$self->type->params]);
+    my $results = $self->result_arity ? Wasm::Wasmtime::ValVec->new($self->result_arity) : undef;
 
-  my $trap = $xsub->($self, $args, $results);
+    my $trap = $xsub->($self, $args, $results);
 
-  die $trap if $trap;
-  return unless defined $results;
-  my @results = $results->to_perl;
-  wantarray ? @results : $results[0]; ## no critic (Community::Wantarray)
-});
+    die $trap if $trap;
+    return unless defined $results;
+    my @results = $results->to_perl;
+    wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
+  });
+}
 
 =head2 attach
 
