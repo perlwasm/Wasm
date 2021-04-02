@@ -9,6 +9,7 @@ use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
 use Sub::Install;
 use Devel::GlobalDestruction ();
+use constant ();
 use base qw( Exporter );
 
 # ABSTRACT: Private class for Wasm::Wasmtime
@@ -37,7 +38,7 @@ This is a private class used internally by L<Wasm::Wasmtime> classes.
 
 =cut
 
-our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
+our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy _v0_23_0 );
 
 sub _lib
 {
@@ -48,6 +49,9 @@ sub _lib
     'wasmtime_module_serialize',
     'wasmtime_module_deserialize',
     'wasmtime_store_gc',
+    ## 0.23.0
+    #'wasmtime_config_consume_fuel_set',
+    #'wasmtime_config_max_instances_set
   );
   my $lib = find_lib lib => 'wasmtime', symbol => \@symbols;
   return $lib if $lib;
@@ -65,6 +69,8 @@ $ffi->mangler(sub {
   return $name if $name =~ /^(wasm|wasmtime|wasi)_/;
   return $ffi_prefix . $name;
 });
+
+constant->import( _v0_23_0 => $ffi->find_symbol('wasmtime_config_consume_fuel_set') ? 1 : 0);
 
 { package Wasm::Wasmtime::Vec;
   use FFI::Platypus::Record;
