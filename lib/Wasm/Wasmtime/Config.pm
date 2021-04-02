@@ -315,6 +315,43 @@ $ffi->attach( [ 'wasmtime_config_cache_config_load' => 'cache_config_default' ] 
   $self;
 });
 
+=head2 consume_fuel
+
+ $config->consume_fuel($bool);
+
+Whether or not fuel is enabled for generated code.
+
+=head2 max_instances
+
+ $confog->max_instances($size);
+
+Configures the maximum number of instances that can be created.
+
+=cut
+
+if(_v0_23_0())
+{
+  $ffi->attach( ['wasmtime_config_consume_fuel_set' => 'consume_fuel' ] => [ 'wasm_config_t', 'bool' ] => sub {
+    my($xsub, $self, $value) = @_;
+    $xsub->($self, $value);
+    $self;
+  });
+  $ffi->attach( ['wasmtime_config_max_instances_set' => 'max_instances' ] => [ 'wasm_config_t', 'size_t' ] => sub {
+    my($xsub, $self, $value) = @_;
+    $xsub->($self, $value);
+    $self;
+  });
+}
+else
+{
+  *consume_fuel = sub {
+    Carp::croak("unimplemented, upgrade wasmtime to 0.23.0");
+  };
+  *max_instances = sub {
+    Carp::croak("unimplemented, upgrade wasmtime to 0.23.0");
+  };
+}
+
 1;
 
 =head1 SEE ALSO

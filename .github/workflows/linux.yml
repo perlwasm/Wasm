@@ -16,25 +16,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cip_tag:
-          - static
-          - "5.33"
-          - "5.32"
-          - "5.30"
-          - "5.28"
-          - "5.26"
-          - "5.24"
-          - "5.22"
-          - "5.20"
-          - "5.18"
-          - "5.16"
-          - "5.14"
-          - "5.12"
-          - "5.10"
-          - "5.8"
+        cip:
+          - tag: static
+          - tag: "5.33"
+          - tag: "5.32"
+          - tag: "5.32"
+            wasmtime: v0.23.0
+          - tag: "5.32"
+            wasmtime: v0.24.0
+          - tag: "5.32"
+            wasmtime: v0.25.0
+          - tag: "5.32"
+            wasmtime: dev
+          - tag: "5.30"
+          - tag: "5.28"
+          - tag: "5.26"
+          - tag: "5.24"
+          - tag: "5.22"
+          - tag: "5.20"
+          - tag: "5.18"
+          - tag: "5.16"
+          - tag: "5.14"
+          - tag: "5.12"
+          - tag: "5.10"
+          - tag: "5.8"
 
     env:
-      CIP_TAG: ${{ matrix.cip_tag }}
+      CIP_TAG: ${{ matrix.cip.tag }}
+      ALIEN_WASMTIME_VERSION: ${{ matrix.cip.wasmtime }}
 
     steps:
       - uses: actions/checkout@v2
@@ -53,9 +62,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cip
-          key: ${{ runner.os }}-build-${{ steps.cache-key.outputs.key }}
+          key: ${{ runner.os }}-build-${{ steps.cache-key.outputs.key }}-${{ matrix.cip.wasmtime }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ steps.cache-key.outputs.key }}
+            ${{ runner.os }}-build-${{ steps.cache-key.outputs.key }}-${{ matrix.cip.wasmtime }}
 
       - name: Start-Container
         run: |
