@@ -44,7 +44,7 @@ $ffi->load_custom_type('::PtrObject' => 'wasm_instance_t' => __PACKAGE__);
    $store,     # Wasm::Wasmtime::Store
    \@imports,  # array reference of Wasm::Wasmtime::Extern
  );
- 
+
 Create a new instance of the instance class.  C<@imports> should match the
 imports specified by C<$module>.  You can use a few shortcuts when specifying
 imports:
@@ -110,69 +110,77 @@ sub _cast_import
   Carp::croak("Non-extern object as import");
 }
 
-$ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module_t','opaque[]','size_t','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
-  my $xsub = shift;
-  my $class = shift;
-  my $module = shift;
-  my $store = is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Store')
-    ? shift
-    : Carp::croak('Creating a Wasm::Wasmtime::Instance instance without a Wasm::Wasmtime::Store object is no longer allowed');
+if(_v0_23_0())
+{
+  *new = sub { Carp::croak("TODO v0.23.0") };
+}
+else
+{
 
-  my $ptr;
-  my @keep;
-
-  if(defined $_[0] && !is_ref($_[0]))
-  {
-    ($ptr) = @_;
-    return bless {
-      ptr    => $ptr,
-      module => $module,
-      keep   => \@keep,
-    }, $class;
-  }
-  else
-  {
-    my($imports) = @_;
-
-    $imports ||= [];
-    Carp::confess("imports is not an array reference") unless ref($imports) eq 'ARRAY';
-    my @imports = @$imports;
-    my $trap;
-
-    {
-      my @mi = @{ $module->imports };
-      if(@mi != @imports)
-      {
-        Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
-      }
-
-      @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
-    }
+  $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module_t','opaque[]','size_t','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my $module = shift;
+    my $store = is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Store')
+      ? shift
+      : Carp::croak('Creating a Wasm::Wasmtime::Instance instance without a Wasm::Wasmtime::Store object is no longer allowed');
 
     my $ptr;
-    if(my $error = $xsub->($store, $module, \@imports, scalar(@imports), \$ptr, \$trap))
+    my @keep;
+
+    if(defined $_[0] && !is_ref($_[0]))
     {
-      Carp::croak("error creating module: " . $error->message);
+      ($ptr) = @_;
+      return bless {
+        ptr    => $ptr,
+        module => $module,
+        keep   => \@keep,
+      }, $class;
     }
     else
     {
-      if($trap)
+      my($imports) = @_;
+
+      $imports ||= [];
+      Carp::confess("imports is not an array reference") unless ref($imports) eq 'ARRAY';
+      my @imports = @$imports;
+      my $trap;
+
       {
-        $trap = Wasm::Wasmtime::Trap->new($trap);
-        die $trap;
+        my @mi = @{ $module->imports };
+        if(@mi != @imports)
+        {
+          Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
+        }
+
+        @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
+      }
+
+      my $ptr;
+      if(my $error = $xsub->($store, $module, \@imports, scalar(@imports), \$ptr, \$trap))
+      {
+        Carp::croak("error creating module: " . $error->message);
       }
       else
       {
-        return bless {
-          ptr    => $ptr,
-          module => $module,
-          keep   => \@keep,
-        }, $class;
+        if($trap)
+        {
+          $trap = Wasm::Wasmtime::Trap->new($trap);
+          die $trap;
+        }
+        else
+        {
+          return bless {
+            ptr    => $ptr,
+            module => $module,
+            keep   => \@keep,
+          }, $class;
+        }
       }
     }
-  }
 
-});
+  });
+}
 
 =head1 METHODS
 
