@@ -19,13 +19,28 @@ jobs:
 
     runs-on: windows-latest
 
+    strategy:
+      fail-fast: false
+
     steps:
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
       - uses: actions/checkout@v2
+
+      - name: Set up Perl
+        run: |
+          choco install strawberryperl
+          echo "C:\cx\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\strawberry\c\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\strawberry\perl\site\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Prepare for cache
         run: |
           perl -V > perlversion.txt
-          ls -l perlversion.txt
 
       - name: Cache CPAN modules
         uses: actions/cache@v1
@@ -37,23 +52,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ hashFiles('perlversion.txt') }}
 
-      - name: Set up Perl
-        run: |
-          choco install strawberryperl
-          echo "C:\cx\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "C:\strawberry\c\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "C:\strawberry\perl\site\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "C:\strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: perl -V
         run: perl -V
+
       - name: Install Static Dependencies
         run: |
           cpanm -n Dist::Zilla
           cpanm -n PeekPoke::FFI Carp::Assert
           dzil authordeps --missing | cpanm -n
           dzil listdeps --missing   | cpanm -n
+
       - name: Install Dynamic Dependencies
         run: dzil run --no-build 'cpanm --installdeps .'
+
       - name: Run Tests
         run: dzil test -v
 
