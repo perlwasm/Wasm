@@ -315,6 +315,31 @@ $ffi->attach( [ 'wasmtime_config_cache_config_load' => 'cache_config_default' ] 
   $self;
 });
 
+=head2 consume_fuel
+
+ $config->consume_fuel($bool);
+
+Whether or not fuel is enabled for generated code.
+
+=head2 max_instances
+
+ $confog->max_instances($size);
+
+Configures the maximum number of instances that can be created.
+
+=cut
+
+{
+  local $@ = '';
+  eval {
+    $ffi->attach( ['wasmtime_config_consume_fuel_set' => 'consume_fuel' ] => [ 'wasm_config_t', 'bool' ] => sub {
+      my($xsub, $self, $value) = @_;
+      $xsub->($self, $value);
+      $self;
+    });
+  };
+}
+
 1;
 
 =head1 SEE ALSO
