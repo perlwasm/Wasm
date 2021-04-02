@@ -6,6 +6,9 @@ use 5.008004;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Engine;
 
+# TODO: wasmtime_store_add_fuel
+# TODO: wasmtime_store_fuel_consumed
+
 # ABSTRACT: Wasmtime store class
 # VERSION
 
