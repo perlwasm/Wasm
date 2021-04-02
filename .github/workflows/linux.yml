@@ -58,9 +58,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cip
-          key: ${{ runner.os }}-build-${{ steps.cache-key.outputs.key }}
+          key: ${{ runner.os }}-build-${{ steps.cache-key.outputs.key }}-${{ matrix.cip.wasmtime }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ steps.cache-key.outputs.key }}
+            ${{ runner.os }}-build-${{ steps.cache-key.outputs.key }}-${{ matrix.cip.wasmtime }}
 
       - name: Start-Container
         run: |
