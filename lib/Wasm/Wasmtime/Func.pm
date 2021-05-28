@@ -162,7 +162,7 @@ $ffi->attach( call => ['wasm_func_t', 'wasm_val_vec_t', 'wasm_val_vec_t'] => 'wa
   die $trap if $trap;
   return unless defined $results;
   my @results = $results->to_perl;
-  wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
+  wantarray ? @results : $results[0]; ## no critic (Community::Wantarray)
 });
 
 =head2 attach
