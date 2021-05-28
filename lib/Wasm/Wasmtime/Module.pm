@@ -221,7 +221,7 @@ $ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wa
   my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
   my($wasm, $data) = _args(@_);
   my $error = $xsub->($store, $$wasm);
-  wantarray  ## no critic (Freenode::Wantarray)
+  wantarray  ## no critic (Community::Wantarray)
     ? $error ? (0, $error->message) : (1, '')
     : $error ? 0 : 1;
 });
