@@ -1,4 +1,4 @@
-Revision history for {{$dist->name}}},
+Revision history for {{$dist->name}},
 
 {{$NEXT}}
   - Require Alien::wasmtime 0.16 or wasmtime 0.22.1 (gh#98)
