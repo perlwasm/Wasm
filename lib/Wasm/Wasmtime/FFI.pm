@@ -42,6 +42,7 @@ our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy _v0_23_
 
 sub _lib
 {
+  return $ENV{WASM_WASMTIME_FFI} if defined $ENV{WASM_WASMTIME_FFI};
   my @symbols = (
     # 0.19.0
     'wasmtime_func_as_funcref',

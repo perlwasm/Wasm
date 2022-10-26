@@ -8,7 +8,7 @@ use Ref::Util qw( is_blessed_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::FuncType;
 use Wasm::Wasmtime::Trap;
-use FFI::C::Util qw( set_array_count );
+use FFI::C::Util qw( set_array_count addressof );
 use Sub::Install;
 use Carp ();
 use constant is_func => 1;
@@ -153,7 +153,30 @@ any) is returned.
 
 if(_v0_23_0())
 {
-  *call = sub { Carp::croak("TODO v0.23.0") };
+  $ffi->attach( call => ['wasm_func_t', 'record(Wasm::Wasmtime::Vec)*', 'record(Wasm::Wasmtime::Vec)*'] => 'wasm_trap_t' => sub {
+    my $xsub = shift;
+    my $self = shift;
+    my @params = $self->type->params;
+    my $args = Wasm::Wasmtime::ValVec->from_perl(\@_, \@params);
+    my $results = $self->result_arity ? Wasm::Wasmtime::ValVec->new($self->result_arity) : undef;
+
+    my $args_vec = Wasm::Wasmtime::Vec->new(
+      size => scalar @params,
+      data => defined $args ? addressof($args) : undef,
+    );
+
+    my $results_vec = Wasm::Wasmtime::Vec->new(
+      size => $self->result_arity,
+      data => defined $results ? addressof($results) : undef,
+    );
+
+    my $trap = $xsub->($self, $args_vec, $results_vec);
+
+    die $trap if $trap;
+    return unless defined $results;
+    my @results = $results->to_perl;
+    wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
+  });
 }
 else
 {

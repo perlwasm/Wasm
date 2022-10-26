@@ -112,7 +112,84 @@ sub _cast_import
 
 if(_v0_23_0())
 {
-  *new = sub { Carp::croak("TODO v0.23.0") };
+  require FFI::Platypus::Memory;
+
+  $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module_t','record(Wasm::Wasmtime::Vec)*','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my $module = shift;
+    my $store = is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Store')
+      ? shift
+      : Carp::croak('Creating a Wasm::Wasmtime::Instance instance without a Wasm::Wasmtime::Store object is no longer allowed');
+
+    my $ptr;
+    my @keep;
+
+    if(defined $_[0] && !is_ref($_[0]))
+    {
+      ($ptr) = @_;
+      return bless {
+        ptr    => $ptr,
+        module => $module,
+        keep   => \@keep,
+      }, $class;
+    }
+    else
+    {
+      my($imports) = @_;
+
+      $imports ||= [];
+      Carp::confess("imports is not an array reference") unless ref($imports) eq 'ARRAY';
+      my @imports = @$imports;
+      my $trap;
+
+      {
+        my @mi = @{ $module->imports };
+        if(@mi != @imports)
+        {
+          Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
+        }
+
+        @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
+      }
+
+      my $imports_vec = Wasm::Wasmtime::Vec->new(
+        size => scalar @imports,
+        data => scalar(@imports) > 0 ? do {
+          my $count = scalar @imports;
+          my $ptr = FFI::Platypus::Memory::malloc($ffi->sizeof('opaque') * $count);
+          # void *memcpy(void *dest, const void *src, size_t n)
+          FFI::Platypus->new( lib => [undef] )->function( 'memcpy' => [ 'opaque', "opaque[$count]", 'size_t' ] => 'opaque' )->call($ptr, \@imports, $ffi->sizeof('opaque') * $count);
+        } : undef,
+      );
+
+      my $ptr;
+      if(my $error = $xsub->($store, $module, $imports_vec, \$ptr, \$trap))
+      {
+        FFI::Platypus::Memory::free($imports_vec->data) if defined $imports_vec->data;
+        Carp::croak("error creating module: " . $error->message);
+      }
+      else
+      {
+        FFI::Platypus::Memory::free($imports_vec->data) if defined $imports_vec->data;
+        if($trap)
+        {
+          $trap = Wasm::Wasmtime::Trap->new($trap);
+          die $trap;
+        }
+        else
+        {
+          return bless {
+            ptr    => $ptr,
+            module => $module,
+            keep   => \@keep,
+          }, $class;
+        }
+      }
+    }
+
+  });
+
 }
 else
 {
