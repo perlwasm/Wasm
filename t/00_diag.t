@@ -20,6 +20,7 @@ $modules{$_} = $_ for qw(
   FFI::CheckLib
   FFI::Platypus
   FFI::Platypus::Buffer
+  FFI::Platypus::Memory
   FFI::Platypus::Record
   FFI::Platypus::Type::PtrObject
   Path::Tiny

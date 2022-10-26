@@ -175,7 +175,7 @@ if(_v0_23_0())
     die $trap if $trap;
     return unless defined $results;
     my @results = $results->to_perl;
-    wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
+    wantarray ? @results : $results[0]; ## no critic (Community::Wantarray)
   });
 }
 else
@@ -191,7 +191,7 @@ else
     die $trap if $trap;
     return unless defined $results;
     my @results = $results->to_perl;
-    wantarray ? @results : $results[0]; ## no critic (Freenode::Wantarray)
+    wantarray ? @results : $results[0]; ## no critic (Community::Wantarray)
   });
 }
 

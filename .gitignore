@@ -4,3 +4,4 @@
 /.tmp/
 *.wasm
 /jit-*
+/.teset-script*
