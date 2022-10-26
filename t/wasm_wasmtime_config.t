@@ -42,8 +42,15 @@ if(Wasm::Wasmtime::FFI::_v0_23_0())
   $config->consume_fuel(1);
   pass 'consume_fuel';
 
-  $config->max_instances(100);
-  pass 'max_instances';
+  eval { $config->max_instances(100) };
+  if(my $error = $@)
+  {
+    is $error, match qr/^removed in 0.27.0/, 'max_instances';
+  }
+  else
+  {
+    pass 'max_instances';
+  }
 }
 else
 {

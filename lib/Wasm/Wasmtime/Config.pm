@@ -336,11 +336,21 @@ if(_v0_23_0())
     $xsub->($self, $value);
     $self;
   });
-  $ffi->attach( ['wasmtime_config_max_instances_set' => 'max_instances' ] => [ 'wasm_config_t', 'size_t' ] => sub {
-    my($xsub, $self, $value) = @_;
-    $xsub->($self, $value);
-    $self;
-  });
+  if($ffi->find_symbol('wasmtime_config_max_instances_set'))
+  {
+    # TODO: remove once we upgrade to 0.27.0
+    $ffi->attach( ['wasmtime_config_max_instances_set' => 'max_instances' ] => [ 'wasm_config_t', 'size_t' ] => sub {
+      my($xsub, $self, $value) = @_;
+      $xsub->($self, $value);
+      $self;
+    });
+  }
+  else
+  {
+    *max_instances = sub {
+      Carp::croak("removed in 0.27.0");
+    };
+  }
 }
 else
 {
