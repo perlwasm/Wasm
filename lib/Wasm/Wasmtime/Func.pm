@@ -83,7 +83,7 @@ $ffi->attach( [ wasmtime_func_new => 'new' ] => ['wasm_store_t', 'wasm_functype_
 
       my @args = $param_arity ? do {
         my $args = Wasm::Wasmtime::ValVec->from_c($params);
-        set_array_count($args, $param_arity);
+        set_array_count($args, $param_arity) unless _v0_23_0();
         $args->to_perl;
       } : ();
 

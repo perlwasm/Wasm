@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use 5.008004;
 use FFI::C 0.05;
+use FFI::C::Util ();
 use FFI::Platypus 1.26;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
@@ -274,10 +275,32 @@ my %kind = (
     map { $_->to_perl } @$self
   }
 
-  $ffi->attach_cast('from_c', 'opaque', 'wasm_val_vec_t', sub {
-    my($xsub, undef, $ptr) = @_;
-    $xsub->($ptr);
-  });
+  if(Wasm::Wasmtime::FFI::_v0_23_0())
+  {
+    {
+      package Wasm::Wasmtime::ValVecWrapper;
+      FFI::C->struct(wasm_val_vec_wrapper_t => [
+        size => 'size_t',
+        data => 'opaque',
+      ]);
+
+    }
+
+    $ffi->attach_cast('from_c', 'opaque', 'wasm_val_vec_wrapper_t', sub {
+      my($xsub, undef, $ptr) = @_;
+      my $wrapper = $xsub->($ptr);
+      my $inner = $ffi->cast('opaque', 'wasm_val_vec_t', $wrapper->data);
+      FFI::C::Util::set_array_count($inner, $wrapper->size);
+      return $inner;
+    });
+  }
+  else
+  {
+    $ffi->attach_cast('from_c', 'opaque', 'wasm_val_vec_t', sub {
+      my($xsub, undef, $ptr) = @_;
+      $xsub->($ptr);
+    });
+  }
 
   sub from_perl
   {
