@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}},
 
 {{$NEXT}}
+  - removed wasmtime_config_max_instances_set from Wasm::Wasmtime::Config
+    (gh#117)
 
 0.22      2022-10-26 13:13:48 -0600
   - Require Alien::wasmtime 0.16 or wasmtime 0.22.1 (gh#98)
