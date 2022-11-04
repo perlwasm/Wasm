@@ -43,6 +43,9 @@ $post_diag = sub {
     };
     diag "error requiring Wasm::Wasmtime::FFI: $@" if $@;
   };
+  spacer();
+  require Wasm::Wasmtime::FFI;
+  diag "is _ver = ", Wasm::Wasmtime::FFI::_ver();
 };
 
 my @modules = sort keys %modules;

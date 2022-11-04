@@ -46,11 +46,11 @@ sub _lib
   return $ENV{WASM_WASMTIME_FFI} if defined $ENV{WASM_WASMTIME_FFI};
   my @symbols = (
     # 0.19.0
-    'wasmtime_func_as_funcref',
+    #'wasmtime_func_as_funcref',           # removed in 0.28.0
     # 0.20.0 / 0.21.0
     'wasmtime_module_serialize',
     'wasmtime_module_deserialize',
-    'wasmtime_store_gc',
+    #'wasmtime_store_gc',                  # removed in 0.28.0
     ## 0.23.0
     'wasmtime_config_consume_fuel_set',
     #'wasmtime_config_max_instances_set',  # removed in 0.27.0
@@ -71,6 +71,19 @@ $ffi->mangler(sub {
   return $name if $name =~ /^(wasm|wasmtime|wasi)_/;
   return $ffi_prefix . $name;
 });
+
+if($ffi->find_symbol('wasmtime_config_wasm_multi_memory_set'))
+{
+  constant->import(_ver => '0.29.0');
+}
+elsif($ffi->find_symbol('wasmtime_store_gc'))
+{
+  constant->import(_ver => '0.27.0');
+}
+else
+{
+  constant->import(_ver => '0.28.0');
+}
 
 { package Wasm::Wasmtime::Vec;
   use FFI::Platypus::Record;

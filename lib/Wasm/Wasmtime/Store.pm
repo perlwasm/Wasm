@@ -50,18 +50,6 @@ $ffi->attach( new => ['wasm_engine_t'] => 'wasm_store_t' => sub {
   $self;
 });
 
-=head2 gc
-
- $store->gc;
-
-Garbage collects C<externref>s that are used within this store. Any
-C<externref>s that are discovered to be unreachable by other code or objects
-will have their finalizers run.
-
-=cut
-
-$ffi->attach( [ wasmtime_store_gc => 'gc' ] => ['wasm_store_t'] => 'void' );
-
 =head2 engine
 
  my $engine = $store->engine;

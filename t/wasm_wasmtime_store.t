@@ -10,7 +10,6 @@ is(
     call engine => object {
       call ['isa','Wasm::Wasmtime::Engine'] => T();
     };
-    call_list 'gc' => [];
   },
   'default engine',
 );
