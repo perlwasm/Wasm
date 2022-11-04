@@ -4,6 +4,8 @@ use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::WasiConfig;
 use Wasm::Wasmtime::WasiInstance;
 
+skip_all '0.27.0 and earlier only' unless Wasm::Wasmtime::FFI::_ver eq '0.27.0';
+
 is(
   Wasm::Wasmtime::WasiInstance->new(Wasm::Wasmtime::Store->new, "wasi_snapshot_preview1"),
   object {

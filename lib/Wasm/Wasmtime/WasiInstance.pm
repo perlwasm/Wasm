@@ -52,29 +52,36 @@ Create a new WASI instance.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'opaque*'] => 'wasi_instance_t' => sub {
-  my $xsub = shift;
-  my $class = shift;
-  my $store = shift;
-  my $name = shift;
-  my $config = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::WasiConfig' ? shift : Wasm::Wasmtime::WasiConfig->new;
-  my $trap;
-  my $instance = $xsub->($store, $name, $config, \$trap);
-  delete $config->{ptr};
-  unless($instance)
-  {
-    if($trap)
+if(_ver ne '0.27.0')
+{
+  *new = sub {
+    Carp::croak("WasiInstance is unavailable in 0.28.0 and newer");
+  };
+}
+else
+{
+  $ffi->attach( new => ['wasm_store_t', 'string', 'wasi_config_t', 'opaque*'] => 'wasi_instance_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my $store = shift;
+    my $name = shift;
+    my $config = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::WasiConfig' ? shift : Wasm::Wasmtime::WasiConfig->new;
+    my $trap;
+    my $instance = $xsub->($store, $name, $config, \$trap);
+    delete $config->{ptr};
+    unless($instance)
     {
-      die Wasm::Wasmtime::Trap->new($trap);
+      if($trap)
+      {
+        die Wasm::Wasmtime::Trap->new($trap);
+      }
+      Carp::croak("failed to create wasi instance");
     }
-    Carp::croak("failed to create wasi instance");
-  }
-  $instance;
-});
+    $instance;
+  });
 
-# TODO: bind_import
-
-_generate_destroy();
+  _generate_destroy();
+}
 
 1;
 

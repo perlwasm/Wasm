@@ -9,6 +9,7 @@ is(
     call ['isa','Wasm::Wasmtime::Store'] => T();
     call engine => object {
       call ['isa','Wasm::Wasmtime::Engine'] => T();
+      call gc => U();
     };
   },
   'default engine',

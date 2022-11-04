@@ -1,8 +1,10 @@
 Revision history for {{$dist->name}},
 
 {{$NEXT}}
-  - removed gc method from Wasm::Wasmtime::Store as the method was
-    removed from wasmtime (gh#118)
+  - Deprecate gc method from Wasm::Wasmtime::Store.  $store->context->gc
+    should be called instead (gh#118)
+  - Deprecate get_one_by_name method from Wasm::Wasmtime::Linker (gh#118)
+  - Added Wasm::Wasmtime::Context class (gh#118)
 
 0.23      2022-11-04 06:33:12 -0600
   - removed wasmtime_config_max_instances_set from Wasm::Wasmtime::Config
