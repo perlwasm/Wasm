@@ -52,8 +52,8 @@ sub _lib
     'wasmtime_module_deserialize',
     'wasmtime_store_gc',
     ## 0.23.0
-    #'wasmtime_config_consume_fuel_set',
-    #'wasmtime_config_max_instances_set
+    'wasmtime_config_consume_fuel_set',
+    #'wasmtime_config_max_instances_set',  # removed in 0.27.0
   );
   my $lib = find_lib lib => 'wasmtime', symbol => \@symbols;
   return $lib if $lib;
