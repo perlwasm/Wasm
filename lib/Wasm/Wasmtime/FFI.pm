@@ -191,6 +191,10 @@ sub _generate_destroy
   {
     $type =~ s/^.*::wasi(.*)$/wasi_${1}_t/g;
   }
+  elsif($type =~ /::moduletype/)
+  {
+    $type = 'wasmtime_moduletype_t';
+  }
   else
   {
     $type =~ s/^.*:://;

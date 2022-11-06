@@ -9,6 +9,7 @@ use Wasm::Wasmtime::Engine;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module::Exports;
 use Wasm::Wasmtime::Module::Imports;
+use Wasm::Wasmtime::ModuleType;
 use Wasm::Wasmtime::ImportType;
 use Wasm::Wasmtime::ExportType;
 use Ref::Util qw( is_blessed_ref );
@@ -249,20 +250,39 @@ Build a module from serialized data.  The serialized data can be gotten from the
 
 =cut
 
-# TODO remove prefix when bump to 0.28.0
-$ffi->attach( [ wasmtime_module_deserialize => 'deserialize' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
-  my $xsub  = shift;
-  my $class = shift;
-  my $engine;
-  $engine = defined $_[0] && is_blessed_ref $_[0] && $_[0]->isa('Wasm::Wasmtime::Engine') ? shift : Wasm::Wasmtime::Engine->new;
-  my $serialized = Wasm::Wasmtime::ByteVec->new($_[0]);
-  my $ptr;
-  if(my $error = $xsub->($engine, $serialized, \$ptr))
-  {
-    Carp::croak("error creating module: " . $error->message);
-  }
-  bless { ptr => $ptr, store => undef, engine => $engine }, $class;
-});
+if(_ver ne '0.27.0')
+{
+  require FFI::Platypus::Buffer;
+  $ffi->attach( deserialize => ['wasm_engine_t', 'opaque', 'size_t', 'opaque*'] => 'wasmtime_error_t' => sub {
+    my $xsub  = shift;
+    my $class = shift;
+    my $engine;
+    $engine = defined $_[0] && is_blessed_ref $_[0] && $_[0]->isa('Wasm::Wasmtime::Engine') ? shift : Wasm::Wasmtime::Engine->new;
+    my($serialized_ptr, $serialized_len) = FFI::Platypus::Buffer::scalar_to_buffer($_[0]);
+    my $module_ptr;
+    if(my $error = $xsub->($engine, $serialized_ptr, $serialized_len, \$module_ptr))
+    {
+      Carp::croak("error creating module: " . $error->message);
+    }
+    bless { ptr => $module_ptr, store => undef, engine => $engine }, $class;
+  });
+}
+else
+{
+  $ffi->attach( [ wasmtime_module_deserialize => 'deserialize' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
+    my $xsub  = shift;
+    my $class = shift;
+    my $engine;
+    $engine = defined $_[0] && is_blessed_ref $_[0] && $_[0]->isa('Wasm::Wasmtime::Engine') ? shift : Wasm::Wasmtime::Engine->new;
+    my $serialized = Wasm::Wasmtime::ByteVec->new($_[0]);
+    my $ptr;
+    if(my $error = $xsub->($engine, $serialized, \$ptr))
+    {
+      Carp::croak("error creating module: " . $error->message);
+    }
+    bless { ptr => $ptr, store => undef, engine => $engine }, $class;
+  });
+}
 
 =head1 METHODS
 
@@ -324,6 +344,26 @@ else
   });
 }
 
+=head2 type
+
+ my $type = $module->type;
+
+Returns a L<Wasm::Wasmtime::Module::Type> instance that can be used to get the module exports and
+imports.
+
+=cut
+
+if(_ver ne '0.27.0')
+{
+  $ffi->attach( type => ['wasm_module_t'] => 'wasmtime_moduletype_t');
+}
+else
+{
+  *type = sub {
+    Carp::croak("The Module type method is only available in 0.28.0 and newer");
+  };
+}
+
 =head2 exports
 
  my $exports = $module->exports;
@@ -332,16 +372,20 @@ Returns a L<Wasm::Wasmtime::Module::Exports> object that can be used to query th
 
 =cut
 
-sub exports
-{
-  Wasm::Wasmtime::Module::Exports->new(shift);
-}
-
 if(_ver ne '0.27.0')
 {
+  *exports = sub {
+    my($self) = @_;
+    $self->type->exports;
+  };
 }
 else
 {
+  *exports = sub
+  {
+    Wasm::Wasmtime::Module::Exports->new(shift);
+  };
+
   $ffi->attach( [ exports => '_exports' ]=> [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
     my($xsub, $self) = @_;
     my $exports = Wasm::Wasmtime::ExportTypeVec->new;
@@ -358,16 +402,20 @@ Returns a list of L<Wasm::Wasmtime::ImportType> objects for the objects imported
 
 =cut
 
-sub imports
-{
-  Wasm::Wasmtime::Module::Imports->new(shift);
-}
-
 if(_ver ne '0.27.0')
 {
+  *imports = sub {
+    my($self) = @_;
+    $self->type->imports;
+  };
 }
 else
 {
+  *imports = sub
+  {
+    Wasm::Wasmtime::Module::Imports->new(shift);
+  };
+
   $ffi->attach( [ imports => '_imports' ] => [ 'wasm_module_t', 'wasm_importtype_vec_t*' ] => sub {
     my($xsub, $self) = @_;
     my $imports = Wasm::Wasmtime::ImportTypeVec->new;
@@ -447,3 +495,4 @@ _generate_destroy();
 =back
 
 =cut
+

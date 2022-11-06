@@ -86,6 +86,12 @@ is(
   Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, $wasm_binary),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
+    if(Wasm::Wasmtime::FFI::_ver ne '0.27.0')
+    {
+      call type => object {
+        call ['isa', 'Wasm::Wasmtime::ModuleType' ] => T();
+      };
+    }
   },
   'basic create',
 );
