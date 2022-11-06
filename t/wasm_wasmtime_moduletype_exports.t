@@ -13,7 +13,7 @@ use YAML qw( Dump );
         i32.add)
     )
   });
-  my $exports = Wasm::Wasmtime::ModuleType::Exports->new($module);
+  my $exports = $module->type->exports;
   is(
     $exports,
     object {

@@ -29,8 +29,8 @@ my %wt_tests = map { $_ => 1 } qw(
   t/wasm_wasmtime_memory.t
   t/wasm_wasmtime_memorytype.t
   t/wasm_wasmtime_module.t
-  t/wasm_wasmtime_module_exports.t
-  t/wasm_wasmtime_module_imports.t
+  t/wasm_wasmtime_moduletype_exports.t
+  t/wasm_wasmtime_moduletype_imports.t
   t/wasm_wasmtime_moduletype.t
   t/wasm_wasmtime_store.t
   t/wasm_wasmtime_table.t
@@ -43,8 +43,8 @@ my %wt_tests = map { $_ => 1 } qw(
 );
 
 delete $wt_tests{$_} for qw( t/wasm_wasmtime_caller.t t/wasm_wasmtime_extern.t t/wasm_wasmtime_func.t t/wasm_wasmtime_global.t t/wasm_wasmtime_instance.t
-                             t/wasm_wasmtime_instance_exports.t t/wasm_wasmtime_linker.t t/wasm_wasmtime_memory.t t/wasm_wasmtime_module_exports.t
-                             t/wasm_wasmtime_module_imports.t t/wasm_wasmtime_table.t t/wasm_wasmtime_trap.t );
+                             t/wasm_wasmtime_instance_exports.t t/wasm_wasmtime_linker.t t/wasm_wasmtime_memory.t t/wasm_wasmtime_table.t
+                             t/wasm_wasmtime_trap.t );
 
 my @wt_tests = sort keys %wt_tests;
 

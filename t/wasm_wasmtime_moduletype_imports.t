@@ -10,7 +10,7 @@ use YAML qw( Dump );
       (func $hello (import "" "add"))
     )
   });
-  my $imports = Wasm::Wasmtime::ModuleType::Imports->new($module);
+  my $imports = $module->type->imports;
   is(
     $imports,
     object {
