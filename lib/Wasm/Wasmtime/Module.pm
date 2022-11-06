@@ -30,50 +30,97 @@ This class represents a WebAssembly module.
 
 =cut
 
-$ffi_prefix = 'wasm_module_';
 $ffi->load_custom_type('::PtrObject' => 'wasm_module_t' => __PACKAGE__);
 
-sub _args
+if(_ver ne '0.27.0')
 {
-  my $wasm;
-  my $data;
-  if(@_ == 1)
+  $ffi_prefix = 'wasmtime_module_';
+
+  require FFI::Platypus::Buffer;
+  *_args = sub
   {
-    $data = shift;
-    $wasm = Wasm::Wasmtime::ByteVec->new($data);
-  }
-  else
-  {
-    my $key = shift;
-    if($key eq 'wat')
+    my $data;
+    if(@_ == 1)
     {
-      require Wasm::Wasmtime::Wat2Wasm;
-      $data = Wasm::Wasmtime::Wat2Wasm::wat2wasm(shift);
-      $wasm = Wasm::Wasmtime::ByteVec->new($data);
+      $data = shift;
     }
-    elsif($key eq 'wasm')
+    else
+    {
+      my $key = shift;
+      if($key eq 'wat')
+      {
+        require Wasm::Wasmtime::Wat2Wasm;
+        $data = Wasm::Wasmtime::Wat2Wasm::wat2wasm(shift);
+      }
+      elsif($key eq 'wasm')
+      {
+        $data = shift;
+      }
+      elsif($key eq 'file')
+      {
+        require Wasm::Wasmtime::Wat2Wasm;
+        require Path::Tiny;
+        my $path = Path::Tiny->new(shift);
+        if($path->basename =~ /\.wat/)
+        {
+          $data = Wasm::Wasmtime::Wat2Wasm::wat2wasm($path->slurp_utf8);
+        }
+        else
+        {
+          $data = $path->slurp_raw;
+        }
+      }
+    }
+
+    (FFI::Platypus::Buffer::scalar_to_buffer($data), \$data);  # need to return the data in order to keep it in scope
+  };
+}
+else
+{
+  $ffi_prefix = 'wasm_module_';
+
+  *_args = sub
+  {
+    my $wasm;
+    my $data;
+    if(@_ == 1)
     {
       $data = shift;
       $wasm = Wasm::Wasmtime::ByteVec->new($data);
     }
-    elsif($key eq 'file')
+    else
     {
-      require Wasm::Wasmtime::Wat2Wasm;
-      require Path::Tiny;
-      my $path = Path::Tiny->new(shift);
-      if($path->basename =~ /\.wat/)
+      my $key = shift;
+      if($key eq 'wat')
       {
-        $data = Wasm::Wasmtime::Wat2Wasm::wat2wasm($path->slurp_utf8);
+        require Wasm::Wasmtime::Wat2Wasm;
+        $data = Wasm::Wasmtime::Wat2Wasm::wat2wasm(shift);
         $wasm = Wasm::Wasmtime::ByteVec->new($data);
       }
-      else
+      elsif($key eq 'wasm')
       {
-        $data = $path->slurp_raw;
+        $data = shift;
         $wasm = Wasm::Wasmtime::ByteVec->new($data);
+      }
+      elsif($key eq 'file')
+      {
+        require Wasm::Wasmtime::Wat2Wasm;
+        require Path::Tiny;
+        my $path = Path::Tiny->new(shift);
+        if($path->basename =~ /\.wat/)
+        {
+          $data = Wasm::Wasmtime::Wat2Wasm::wat2wasm($path->slurp_utf8);
+          $wasm = Wasm::Wasmtime::ByteVec->new($data);
+        }
+        else
+        {
+          $data = $path->slurp_raw;
+          $wasm = Wasm::Wasmtime::ByteVec->new($data);
+        }
       }
     }
-  }
-  (\$wasm, \$data);
+    (\$wasm, \$data);
+  };
 }
 
 =head1 CONSTRUCTORS
@@ -127,33 +174,66 @@ be found from the store.  This form will be removed in a future version.
 
 =cut
 
-$ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
-  my $xsub = shift;
-  my $class = shift;
-  my $store;
-  my $engine;
-  if(defined $_[0] && is_blessed_ref $_[0])
-  {
-    if($_[0]->isa('Wasm::Wasmtime::Engine'))
+if(_ver ne '0.27.0')
+{
+  $ffi->attach( new => ['wasm_engine_t', 'opaque', 'size_t', 'opaque*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my $store;
+    my $engine;
+    if(defined $_[0] && is_blessed_ref $_[0])
     {
-      $engine = shift;
+      if($_[0]->isa('Wasm::Wasmtime::Engine'))
+      {
+        $engine = shift;
+      }
+      elsif($_[0]->isa('Wasm::Wasmtime::Store'))
+      {
+        Carp::carp("Passing a Wasm::Wasmtime::Store into the module constructor is deprecated, please pass a Wasm::Wasmtime::Engine object instead");
+        $store = shift;
+        $engine = $store->engine;
+      }
     }
-    elsif($_[0]->isa('Wasm::Wasmtime::Store'))
+    $engine ||= Wasm::Wasmtime::Engine->new;
+    my($wasm_ptr, $wasm_len, $data) = _args(@_);
+    my $module_ptr;
+    if(my $error = $xsub->($engine, $wasm_ptr, $wasm_len, \$module_ptr))
     {
-      Carp::carp("Passing a Wasm::Wasmtime::Store into the module constructor is deprecated, please pass a Wasm::Wasmtime::Engine object instead");
-      $store = shift;
-      $engine = $store->engine;
+      Carp::croak("error creating module: " . $error->message);
     }
-  }
-  $engine ||= Wasm::Wasmtime::Engine->new;
-  my($wasm, $data) = _args(@_);
-  my $ptr;
-  if(my $error = $xsub->($engine, $$wasm, \$ptr))
-  {
-    Carp::croak("error creating module: " . $error->message);
-  }
-  bless { ptr => $ptr, engine => $engine, store => $store }, $class;
-});
+    bless { ptr => $module_ptr, engine => $engine, store => $store }, $class;
+  });
+}
+else
+{
+  $ffi->attach( [ wasmtime_module_new => 'new' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my $store;
+    my $engine;
+    if(defined $_[0] && is_blessed_ref $_[0])
+    {
+      if($_[0]->isa('Wasm::Wasmtime::Engine'))
+      {
+        $engine = shift;
+      }
+      elsif($_[0]->isa('Wasm::Wasmtime::Store'))
+      {
+        Carp::carp("Passing a Wasm::Wasmtime::Store into the module constructor is deprecated, please pass a Wasm::Wasmtime::Engine object instead");
+        $store = shift;
+        $engine = $store->engine;
+      }
+    }
+    $engine ||= Wasm::Wasmtime::Engine->new;
+    my($wasm, $data) = _args(@_);
+    my $ptr;
+    if(my $error = $xsub->($engine, $$wasm, \$ptr))
+    {
+      Carp::croak("error creating module: " . $error->message);
+    }
+    bless { ptr => $ptr, engine => $engine, store => $store }, $class;
+  });
+}
 
 =head2 deserialize
 
@@ -169,6 +249,7 @@ Build a module from serialized data.  The serialized data can be gotten from the
 
 =cut
 
+# TODO remove prefix when bump to 0.28.0
 $ffi->attach( [ wasmtime_module_deserialize => 'deserialize' ] => ['wasm_engine_t', 'wasm_byte_vec_t*', 'opaque*'] => 'wasmtime_error_t' => sub {
   my $xsub  = shift;
   my $class = shift;
@@ -215,16 +296,33 @@ a useful diagnostic for why it was invalid.
 
 =cut
 
-$ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
-  my $xsub = shift;
-  my $class = shift;
-  my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
-  my($wasm, $data) = _args(@_);
-  my $error = $xsub->($store, $$wasm);
-  wantarray  ## no critic (Community::Wantarray)
-    ? $error ? (0, $error->message) : (1, '')
-    : $error ? 0 : 1;
-});
+if(_ver ne '0.27.0')
+{
+  $ffi->attach( validate => ['wasm_engine_t', 'opaque', 'size_t'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    # TODO: we should deprecate passing a store into this
+    my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
+    my($ptr, $len, $data) = _args(@_);
+    my $error = $xsub->($store->engine, $ptr, $len);
+    wantarray  ## no critic (Community::Wantarray)
+      ? $error ? (0, $error->message) : (1, '')
+      : $error ? 0 : 1;
+  });
+}
+else
+{
+  $ffi->attach( [ wasmtime_module_validate => 'validate' ] => ['wasm_store_t', 'wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my $store = defined $_[0] && ref($_[0]) eq 'Wasm::Wasmtime::Store' ? shift : Wasm::Wasmtime::Store->new;
+    my($wasm, $data) = _args(@_);
+    my $error = $xsub->($store, $$wasm);
+    wantarray  ## no critic (Community::Wantarray)
+      ? $error ? (0, $error->message) : (1, '')
+      : $error ? 0 : 1;
+  });
+}
 
 =head2 exports
 
@@ -239,12 +337,18 @@ sub exports
   Wasm::Wasmtime::Module::Exports->new(shift);
 }
 
-$ffi->attach( [ exports => '_exports' ]=> [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
-  my($xsub, $self) = @_;
-  my $exports = Wasm::Wasmtime::ExportTypeVec->new;
-  $xsub->($self, $exports);
-  $exports->to_list;
-});
+if(_ver ne '0.27.0')
+{
+}
+else
+{
+  $ffi->attach( [ exports => '_exports' ]=> [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
+    my($xsub, $self) = @_;
+    my $exports = Wasm::Wasmtime::ExportTypeVec->new;
+    $xsub->($self, $exports);
+    $exports->to_list;
+  });
+}
 
 =head2 imports
 
@@ -259,12 +363,18 @@ sub imports
   Wasm::Wasmtime::Module::Imports->new(shift);
 }
 
-$ffi->attach( [ imports => '_imports' ] => [ 'wasm_module_t', 'wasm_importtype_vec_t*' ] => sub {
-  my($xsub, $self) = @_;
-  my $imports = Wasm::Wasmtime::ImportTypeVec->new;
-  $xsub->($self, $imports);
-  $imports->to_list;
-});
+if(_ver ne '0.27.0')
+{
+}
+else
+{
+  $ffi->attach( [ imports => '_imports' ] => [ 'wasm_module_t', 'wasm_importtype_vec_t*' ] => sub {
+    my($xsub, $self) = @_;
+    my $imports = Wasm::Wasmtime::ImportTypeVec->new;
+    $xsub->($self, $imports);
+    $imports->to_list;
+  });
+}
 
 =head2 serialize
 
@@ -275,7 +385,8 @@ C<deserialize> constructor method documented above.
 
 =cut
 
-$ffi->attach( [ 'wasmtime_module_serialize' => 'serialize' ] => [ 'wasm_module_t', 'wasm_byte_vec_t*' ] => 'wasmtime_error_t' => sub {
+# TODO remove prefix when bump to 0.28.0
+$ffi->attach( [ wasmtime_module_serialize => 'serialize' ] => [ 'wasm_module_t', 'wasm_byte_vec_t*' ] => 'wasmtime_error_t' => sub {
   my($xsub, $self) = @_;
   my $s = Wasm::Wasmtime::ByteVec->new;
   if(my $error = $xsub->($self, $s))

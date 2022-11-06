@@ -4,8 +4,10 @@ use Wasm::Wasmtime::Wat2Wasm;
 
 imported_ok 'wat2wasm';
 
+my $binary;
+
 is(
-  wat2wasm('(module)'),
+  $binary = wat2wasm('(module)'),
   D(),
   'okay with good module',
 );
@@ -15,5 +17,8 @@ is(
   match qr/wat2wasm error/,
   'dies with bad input',
 );
+
+use YAML();
+note YAML::Dump(\$binary);
 
 done_testing;

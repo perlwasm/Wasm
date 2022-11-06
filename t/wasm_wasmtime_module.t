@@ -7,6 +7,102 @@ use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Wat2Wasm;
 
+my $wasm_binary = "\0asm\x01\0\0\0";
+
+subtest 'validate' => sub {
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate($wasm_binary)),
+    T(),
+    'validate good raw',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))),
+    T(),
+    'validate good from wat2wasm',
+  );
+
+  is(
+    [Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))],
+    array {
+      item T();
+      item '';
+      end;
+    },
+    'validate good, list context',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate( wat => '(module)' )),
+    T(),
+    'validate good, key wat',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat2wasm('(module)'))),
+    T(),
+    'validate good with store',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat => '(module)')),
+    T(),
+    'validate good with store, key wat',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate('f00f')),
+    F(),
+    'validate bad',
+  );
+
+  is(
+    [Wasm::Wasmtime::Module->validate('f00f')],
+    array {
+      item F();
+      item match qr/./;
+      end;
+    },
+    'validate bad, list context',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, 'f00f')),
+    F(),
+    'validate bad with store',
+  );
+};
+
+subtest 'error' => sub {
+  is(
+    dies { Wasm::Wasmtime::Module->new('f00f') },
+    match qr/error creating module/,
+    'exception for bad wasm',
+  );
+};
+
+is(
+  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, $wasm_binary),
+  object {
+    call ['isa', 'Wasm::Wasmtime::Module'] => T();
+  },
+  'basic create',
+);
+
+is(
+  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, wat2wasm('(module)')),
+  object {
+    call ['isa', 'Wasm::Wasmtime::Module'] => T();
+    call engine => object {
+      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
+    };
+    call to_string => "(module)\n";
+    call serialize => match qr/./;
+  },
+  'explicit engine',
+);
+
 is(
   Wasm::Wasmtime::Module->new(wat2wasm('(module)')),
   object {
@@ -42,23 +138,6 @@ is(
     call to_string => "(module)\n";
   },
   'created module from store + serealized',
-);
-
-is(
-  dies { Wasm::Wasmtime::Module->new('f00f') },
-  match qr/error creating module/,
-  'exception for bad wasm',
-);
-
-is(
-  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, wat2wasm('(module)')),
-  object {
-    call ['isa', 'Wasm::Wasmtime::Module'] => T();
-    call engine => object {
-      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
-    };
-  },
-  'explicit engine',
 );
 
 {
@@ -126,62 +205,6 @@ is(
                       )
   },
   'file key',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))),
-  T(),
-  'validate good',
-);
-
-is(
-  [Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))],
-  array {
-    item T();
-    item '';
-    end;
-  },
-  'validate good, list context',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate( wat => '(module)' )),
-  T(),
-  'validate good, key wat',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat2wasm('(module)'))),
-  T(),
-  'validate good with store',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat => '(module)')),
-  T(),
-  'validate good with store, key wat',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate('f00f')),
-  F(),
-  'validate bad',
-);
-
-is(
-  [Wasm::Wasmtime::Module->validate('f00f')],
-  array {
-    item F();
-    item match qr/./;
-    end;
-  },
-  'validate bad, list context',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, 'f00f')),
-  F(),
-  'validate bad with store',
 );
 
 is(

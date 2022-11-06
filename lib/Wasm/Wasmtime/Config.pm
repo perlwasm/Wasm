@@ -37,7 +37,7 @@ Create a new instance of the config class.
 
 $ffi->attach( new => [] => 'wasm_config_t' );
 
-_generate_destroy();
+#_generate_destroy();
 
 =head1 METHODS
 
