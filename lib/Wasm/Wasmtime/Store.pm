@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use 5.008004;
 use Wasm::Wasmtime::FFI;
-use Wasm::Wasmtime::Context;
 use Wasm::Wasmtime::Engine;
 
 # TODO: wasmtime_store_add_fuel
@@ -36,6 +35,7 @@ else
 }
 # TODO: we should change this to a wasmtime_store_t at some point
 $ffi->load_custom_type('::PtrObject' => 'wasm_store_t' => __PACKAGE__);
+$ffi->load_custom_type('::PtrObject' => 'wasmtime_context_t' => 'Wasm::Wasmtime::Context');
 
 =head1 CONSTRUCTOR
 
@@ -53,6 +53,7 @@ isn't provided, then a new one will be created.
 
 if(_ver ne '0.27.0')
 {
+  # TODO: add support for the data and finazlizer here
   $ffi->attach( new => ['wasm_engine_t','opaque','(opaque)->void'] => 'wasm_store_t' => sub {
     my($xsub, $class, $engine) = @_;
     $engine ||= Wasm::Wasmtime::Engine->new;
@@ -84,14 +85,18 @@ if(_ver ne '0.27.0')
 {
   $ffi->attach( context => ['wasm_store_t'] => 'wasmtime_context_t' => sub {
     my($xsub, $self) = @_;
-    $self->{context} || $xsub->($self);
+    $self->{context} || do {
+      require Wasm::Wasmtime::Context;
+      $xsub->($self);
+    };
   });
 }
 else
 {
   *context = sub {
-    require Carp;
-    Carp::croak("Context is not available in 0.27.0");
+    my($self) = @_;
+    require Wasm::Wasmtime::Context;
+    bless { store => $self }, 'Wasm::Wasmtime::Context';
   };
 }
 
@@ -107,16 +112,11 @@ will have their finalizers run.
 
 =cut
 
-if(_ver ne '0.27.0')
+sub gc
 {
-  *gc = sub {
-    my($self) = @_;
-    $self->context->gc;
-  };
-}
-else
-{
-  $ffi->attach( [ wasmtime_store_gc => 'gc' ] => ['wasm_store_t'] => 'void' );
+  my($self) = @_;
+  Carp::carp("Calling gc on a store directly is deprecated, please use \$store->context->gc instead");
+  $self->context->gc;
 }
 
 =head2 engine

@@ -4,30 +4,22 @@ use strict;
 use warnings;
 use 5.008004;
 use Wasm::Wasmtime::FFI;
+use Wasm::Wasmtime::Store;
 
 # ABSTRACT: Wasmtime context class
 # VERSION
 
 $ffi_prefix = 'wasmtime_context_';
-$ffi->load_custom_type('::PtrObject' => 'wasmtime_context_t' => __PACKAGE__);
 
 =head1 SYNOPSIS
 
-# TODO
+# EXAMPLE: examples/synopsis/context.pl
 
 =head1 DESCRIPTION
 
-TODO
+A wasmtime context object.
 
 =head1 METHODS
-
-=head2 get_data
-
-TODO
-
-=head2 set_data
-
-TODO
 
 =head2 gc
 
@@ -39,23 +31,14 @@ will have their finalizers run.
 
 if(_ver ne '0.27.0')
 {
-  $ffi->attach( gc => ['wasmtime_context_t'] => 'void' );
+  $ffi->attach( gc => ['wasmtime_context_t'] );
 }
-
-=head2 add_fuel
-
-TODO
-
-=head2 fuel_consumed
-
-TODO
-
-=head2 set_wasi
-
-TODO
-
-=cut
-
-# TODO: class for wasmtime_interrupt_handler
+else
+{
+  $ffi->attach( [ wasmtime_store_gc => 'gc' ] => ['wasm_store_t'] => sub {
+    my($xsub, $self) = @_;
+    $xsub->($self->{store});
+  });
+}
 
 1;
