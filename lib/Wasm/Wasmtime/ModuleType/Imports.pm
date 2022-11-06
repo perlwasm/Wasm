@@ -1,4 +1,4 @@
-package Wasm::Wasmtime::Module::Imports;
+package Wasm::Wasmtime::ModuleType::Imports;
 
 use strict;
 use warnings;
@@ -40,14 +40,14 @@ This class represents the imports from a module.  It can be used in a number of 
 
 =item autoload methods
 
- my $foo = $module->imports->foo;
+ my $foo = $module->type->imports->foo;
 
 Calling the name of an export as a method returns the L<Wasm::Wasmtime::ExternType> for the
 export.
 
 =item As a hash reference
 
- my $foo = $module->imports->{foo};
+ my $foo = $module->type->imports->{foo};
 
 Using the Imports class as a hash reference allows you to get imports that might clash with
 common Perl methods like C<new>, C<can>, C<DESTROY>, etc.  The L<Wasm::Wasmtime::ExternType>
@@ -55,7 +55,7 @@ will be returned.
 
 =item An array reference
 
- my $foo = $module->imports->[0];
+ my $foo = $module->type->imports->[0];
 
 This will give you the list of imports in the order that they are defined in your WebAssembly.
 The object returned is a L<Wasm::Wasmtime::ExportType>, which is essentially a name and a

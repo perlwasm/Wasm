@@ -15,7 +15,7 @@ is(
     )
   }),
   object {
-    call_list sub { @{ shift->exports } } => array {
+    call_list sub { @{ shift->type->exports } } => array {
       item object {
         call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
         call name => 'foo';

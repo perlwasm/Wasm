@@ -12,8 +12,8 @@ my $module = Wasm::Wasmtime::Module->new(wat => q{
   )
 });
 
-my $foo = $module->exports->foo;
+my $foo = $module->type->exports->foo;
 print $foo->kind, "\n";  # functype
 
-my $bar = $module->exports->bar;
+my $bar = $module->type->exports->bar;
 print $bar->kind, "\n";  # memorytype

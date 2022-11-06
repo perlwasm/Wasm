@@ -142,7 +142,7 @@ $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module
     my $trap;
 
     {
-      my @mi = @{ $module->imports };
+      my @mi = @{ $module->type->imports };
       if(@mi != @imports)
       {
         Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");

@@ -71,7 +71,7 @@ sub new
 
   $instance->{exports} ||= do {
     my @exports = $instance->_exports;
-    my @module_exports   = @{ $instance->module->exports };
+    my @module_exports   = @{ $instance->module->type->exports };
     my %exports;
     foreach my $i (0..$#exports)
     {

@@ -6,6 +6,8 @@ Revision history for {{$dist->name}},
   - Deprecate get_one_by_name method from Wasm::Wasmtime::Linker (gh#118)
   - Added Wasm::Wasmtime::Context class (gh#118)
   - Added Wasm::Wasmtime::ModuleType class (gh#118)
+  - Wasm::Wasmtime::Module::Imports renamed to Wasm::Wasmtime::ModuleType::Imports (gh#118)
+  - Wasm::Wasmtime::Module::Exports renamed to Wasm::Wasmtime::ModuleType::Exports (gh#118)
 
 0.23      2022-11-04 06:33:12 -0600
   - removed wasmtime_config_max_instances_set from Wasm::Wasmtime::Config

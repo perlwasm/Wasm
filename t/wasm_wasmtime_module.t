@@ -228,75 +228,78 @@ is(
     )
   }),
   object {
-    call exports => object {
-      call [ isa => 'Wasm::Wasmtime::Module::Exports' ] => T();
-      call add => object {
-        call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
-      };
-    };
-    call_list sub { @{ shift->imports } } => [];
-    call_list sub { @{ shift->exports } } => array {
-      item object {
-        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
-        call name => 'add';
-        call type => object {
+    call type => object {
+      call [ isa => 'Wasm::Wasmtime::ModuleType' ] => T();
+      call exports => object {
+        call [ isa => 'Wasm::Wasmtime::ModuleType::Exports' ] => T();
+        call add => object {
           call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
-          call kind => 'functype';
-          call_list params => array {
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i32';
-            };
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i32';
-            };
-            end;
-          };
-          call_list results => array {
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i32';
-            };
-            end;
-          };
         };
       };
-      item object {
-        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
-        call name => 'sub';
-        call type => object {
-          call kind => 'functype';
-          call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
-          call_list params => array {
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i64';
+      call_list sub { @{ shift->imports } } => [];
+      call_list sub { @{ shift->exports } } => array {
+        item object {
+          call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+          call name => 'add';
+          call type => object {
+            call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+            call kind => 'functype';
+            call_list params => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              end;
             };
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i64';
+            call_list results => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              end;
             };
-            end;
-          };
-          call_list results => array {
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i64';
-            };
-            end;
           };
         };
-      };
-      item object {
-        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
-        call name => 'frooble';
-        call type => object {
-          call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
-          call kind => 'memorytype';
+        item object {
+          call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+          call name => 'sub';
+          call type => object {
+            call kind => 'functype';
+            call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+            call_list params => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              end;
+            };
+            call_list results => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              end;
+            };
+          };
         };
+        item object {
+          call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+          call name => 'frooble';
+          call type => object {
+            call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
+            call kind => 'memorytype';
+          };
+        };
+        end;
       };
-      end;
     };
   },
   'exports',

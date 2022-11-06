@@ -1,7 +1,7 @@
 use 5.008004;
 use Test2::V0 -no_srand => 1;
 use Wasm::Wasmtime::Module;
-use Wasm::Wasmtime::Module::Exports;
+use Wasm::Wasmtime::ModuleType::Exports;
 use YAML qw( Dump );
 
 {
@@ -13,11 +13,11 @@ use YAML qw( Dump );
         i32.add)
     )
   });
-  my $exports = Wasm::Wasmtime::Module::Exports->new($module);
+  my $exports = Wasm::Wasmtime::ModuleType::Exports->new($module);
   is(
     $exports,
     object {
-      call [ isa => 'Wasm::Wasmtime::Module::Exports' ] => T();
+      call [ isa => 'Wasm::Wasmtime::ModuleType::Exports' ] => T();
       call add => object {
         call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
       };

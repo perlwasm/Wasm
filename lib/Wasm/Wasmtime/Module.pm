@@ -7,8 +7,8 @@ use Ref::Util qw( is_blessed_ref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Engine;
 use Wasm::Wasmtime::Store;
-use Wasm::Wasmtime::Module::Exports;
-use Wasm::Wasmtime::Module::Imports;
+use Wasm::Wasmtime::ModuleType::Exports;
+use Wasm::Wasmtime::ModuleType::Imports;
 use Wasm::Wasmtime::ModuleType;
 use Wasm::Wasmtime::ImportType;
 use Wasm::Wasmtime::ExportType;
@@ -360,32 +360,30 @@ if(_ver ne '0.27.0')
 else
 {
   *type = sub {
-    Carp::croak("The Module type method is only available in 0.28.0 and newer");
+    my($self) = @_;
+    bless { module => $self }, 'Wasm::Wasmtime::ModuleType';
   };
 }
 
 =head2 exports
 
+[deprecated; please use $module->type->exports instead]
+
  my $exports = $module->exports;
 
-Returns a L<Wasm::Wasmtime::Module::Exports> object that can be used to query the module exports.
+Returns a L<Wasm::Wasmtime::ModuleType::Exports> object that can be used to query the module exports.
 
 =cut
 
-if(_ver ne '0.27.0')
+sub exports
 {
-  *exports = sub {
-    my($self) = @_;
-    $self->type->exports;
-  };
+  my($self) = @_;
+  Carp::carp("The exports method on Wasm::Wasmtime::Module is deprecated, please use \$module->type->exports instead");
+  $self->type->exports;
 }
-else
-{
-  *exports = sub
-  {
-    Wasm::Wasmtime::Module::Exports->new(shift);
-  };
 
+if(_ver eq '0.27.0')
+{
   $ffi->attach( [ exports => '_exports' ]=> [ 'wasm_module_t', 'wasm_exporttype_vec_t*' ] => sub {
     my($xsub, $self) = @_;
     my $exports = Wasm::Wasmtime::ExportTypeVec->new;
@@ -396,26 +394,23 @@ else
 
 =head2 imports
 
+[deprecated; please use $module->type->imports instead]
+
  my $imports = $module->imports;
 
-Returns a list of L<Wasm::Wasmtime::ImportType> objects for the objects imported by the WebAssembly module.
+Returns a L<Wasm::Wasmtime::ModuleType::Imports> for the objects imported by the WebAssembly module.
 
 =cut
 
-if(_ver ne '0.27.0')
+sub imports
 {
-  *imports = sub {
-    my($self) = @_;
-    $self->type->imports;
-  };
+  my($self) = @_;
+  Carp::carp("The imports method on Wasm::Wasmtime::Module is deprecated, please use \$module->type->imports instead");
+  $self->type->imports;
 }
-else
-{
-  *imports = sub
-  {
-    Wasm::Wasmtime::Module::Imports->new(shift);
-  };
 
+if(_ver eq '0.27.0')
+{
   $ffi->attach( [ imports => '_imports' ] => [ 'wasm_module_t', 'wasm_importtype_vec_t*' ] => sub {
     my($xsub, $self) = @_;
     my $imports = Wasm::Wasmtime::ImportTypeVec->new;
@@ -470,7 +465,7 @@ Converts the module imports and exports into a string for diagnostics.
 sub to_string
 {
   my($self) = @_;
-  my @externs = (@{ $self->imports }, @{ $self->exports });
+  my @externs = (@{ $self->type->imports }, @{ $self->type->exports });
   return "(module)\n" unless @externs;
   my $string = "(module\n";
   foreach my $extern (@externs)

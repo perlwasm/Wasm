@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use 5.008004;
 use Wasm::Wasmtime::FFI;
-use Wasm::Wasmtime::Module::Exports;
-use Wasm::Wasmtime::Module::Imports;
+use Wasm::Wasmtime::ModuleType::Exports;
+use Wasm::Wasmtime::ModuleType::Imports;
 use Wasm::Wasmtime::ImportType;
 use Wasm::Wasmtime::ExportType;
 
@@ -17,21 +17,21 @@ $ffi->load_custom_type('::PtrObject' => 'wasmtime_moduletype_t' => __PACKAGE__);
 
 =head1 SYNOPSIS
 
-# TODO
+# EXAMPLE: examples/synopsis/moduletype.pl
 
 =head1 DESCRIPTION
 
-TODO
+This class represents the type information of a module.
 
 =head1 METHODS
 
 =head2 imports
 
-# TODO
+ my $imports = $type->imports;
 
 =head2 exports
 
-# TODO
+ my $exports = $type->exports;
 
 =cut
 
@@ -51,17 +51,33 @@ if(_ver ne '0.27.0')
     $exports->to_list;
   });
 
-  sub exports
+  *exports = sub
   {
-    Wasm::Wasmtime::Module::Exports->new(shift);
-  }
+    Wasm::Wasmtime::ModuleType::Exports->new(shift);
+  };
 
-  sub imports
+  *imports = sub
   {
-    Wasm::Wasmtime::Module::Imports->new(shift);
-  }
+    Wasm::Wasmtime::ModuleType::Imports->new(shift);
+  };
 
   _generate_destroy();
 }
+else
+{
+
+  *exports = sub
+  {
+    my($self) = @_;
+    Wasm::Wasmtime::ModuleType::Exports->new($self->{module});
+  };
+
+  *imports = sub
+  {
+    my($self) = @_;
+    Wasm::Wasmtime::ModuleType::Imports->new($self->{module});
+  };
+}
+
 
 1;

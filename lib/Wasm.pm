@@ -346,7 +346,7 @@ sub import
 
   my $module = Wasm::Wasmtime::Module->new($linker->store->engine, @module);
 
-  foreach my $import (@{ $module->imports })
+  foreach my $import (@{ $module->type->imports })
   {
 
     my $module = $import->module;
@@ -447,7 +447,7 @@ sub import
   $linker->define_instance($package, $instance);
   $WASM{$package} = "$file";
 
-  my @me = @{ $module->exports   };
+  my @me = @{ $module->type->exports   };
   my @ie = @{ $instance->exports };
 
   my @function_names;
