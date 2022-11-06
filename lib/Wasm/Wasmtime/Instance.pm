@@ -37,11 +37,11 @@ $ffi->load_custom_type('::PtrObject' => 'wasm_instance_t' => __PACKAGE__);
 
  my $instance = Wasm::Wasmtime::Instance->new(
    $module,    # Wasm::Wasmtime::Module
-   $store      # Wasm::Wasmtime::Store
+   $context,   # Wasm::Wasmtime::Context
  );
  my $instance = Wasm::Wasmtime::Instance->new(
    $module,    # Wasm::Wasmtime::Module
-   $store,     # Wasm::Wasmtime::Store
+   $context,   # Wasm::Wasmtime::Context
    \@imports,  # array reference of Wasm::Wasmtime::Extern
  );
 
@@ -112,81 +112,178 @@ sub _cast_import
 
 require FFI::Platypus::Memory;
 
-$ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module_t','record(Wasm::Wasmtime::Vec)*','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
-  my $xsub = shift;
-  my $class = shift;
-  my $module = shift;
-  my $store = is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Store')
-    ? shift
-    : Carp::croak('Creating a Wasm::Wasmtime::Instance instance without a Wasm::Wasmtime::Store object is no longer allowed');
+if(_ver ne '0.27.0')
+{
 
-  my $ptr;
-  my @keep;
+  $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasmtime_context_t','wasm_module_t','opaque','size_t','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my $module = shift;
 
-  if(defined $_[0] && !is_ref($_[0]))
-  {
-    ($ptr) = @_;
-    return bless {
-      ptr    => $ptr,
-      module => $module,
-      keep   => \@keep,
-    }, $class;
-  }
-  else
-  {
-    my($imports) = @_;
+    my $context;
 
-    $imports ||= [];
-    Carp::confess("imports is not an array reference") unless ref($imports) eq 'ARRAY';
-    my @imports = @$imports;
-    my $trap;
-
+    if(is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Store'))
     {
-      my @mi = @{ $module->type->imports };
-      if(@mi != @imports)
-      {
-        Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
-      }
-
-      @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
+      Carp::carp("Passing Store is deprecated, please pass a \$store->context instead");
+      $context = shift->context;
     }
-
-    my $imports_vec = Wasm::Wasmtime::Vec->new(
-      size => scalar @imports,
-      data => scalar(@imports) > 0 ? do {
-        my $count = scalar @imports;
-        my $ptr = FFI::Platypus::Memory::malloc($ffi->sizeof('opaque') * $count);
-        # void *memcpy(void *dest, const void *src, size_t n)
-        FFI::Platypus->new( lib => [undef] )->function( 'memcpy' => [ 'opaque', "opaque[$count]", 'size_t' ] => 'opaque' )->call($ptr, \@imports, $ffi->sizeof('opaque') * $count);
-      } : undef,
-    );
-
-    my $ptr;
-    if(my $error = $xsub->($store, $module, $imports_vec, \$ptr, \$trap))
+    elsif(is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Context'))
     {
-      FFI::Platypus::Memory::free($imports_vec->data) if defined $imports_vec->data;
-      Carp::croak("error creating module: " . $error->message);
+      $context = shift;
     }
     else
     {
-      FFI::Platypus::Memory::free($imports_vec->data) if defined $imports_vec->data;
-      if($trap)
+      Carp::croak('Creating a Wasm::Wasmtime::Instance instance without a Wasm::Wasmtime::Store object is no longer allowed');
+    }
+
+    my $ptr;
+    my @keep;
+
+    if(defined $_[0] && !is_ref($_[0]))
+    {
+      ($ptr) = @_;
+      return bless {
+        ptr    => $ptr,
+        module => $module,
+        keep   => \@keep,
+      }, $class;
+    }
+    else
+    {
+      my($imports) = @_;
+
+      $imports ||= [];
+      Carp::confess("imports is not an array reference") unless ref($imports) eq 'ARRAY';
+      my @imports = @$imports;
+      my $trap;
+
       {
-        $trap = Wasm::Wasmtime::Trap->new($trap);
-        die $trap;
+        my @mi = @{ $module->type->imports };
+        if(@mi != @imports)
+        {
+          Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
+        }
+
+        @imports = map { _cast_import($_, shift @mi, $context, \@keep) } @imports;
+      }
+
+      my $ptr;
+      if(my $error = $xsub->($context, $module, \@imports, scalar(@imports), \$ptr, \$trap))
+      {
+        Carp::croak("error creating module: " . $error->message);
       }
       else
       {
-        return bless {
-          ptr    => $ptr,
-          module => $module,
-          keep   => \@keep,
-        }, $class;
+        if($trap)
+        {
+          $trap = Wasm::Wasmtime::Trap->new($trap);
+          die $trap;
+        }
+        else
+        {
+          return bless {
+            ptr    => $ptr,
+            module => $module,
+            keep   => \@keep,
+          }, $class;
+        }
       }
     }
-  }
+  });
 
-});
+}
+else
+{
+
+  $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasm_store_t','wasm_module_t','record(Wasm::Wasmtime::Vec)*','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $class = shift;
+    my $module = shift;
+
+    my $store;
+
+    if(is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Store'))
+    {
+      Carp::carp("Passing Store is deprecated, please pass a \$store->context instead");
+      $store = shift;
+    }
+    elsif(is_blessed_ref($_[0]) && $_[0]->isa('Wasm::Wasmtime::Context'))
+    {
+      $store = shift->{store};
+    }
+    else
+    {
+      Carp::croak('Creating a Wasm::Wasmtime::Instance instance without a Wasm::Wasmtime::Store object is no longer allowed');
+    }
+
+    my $ptr;
+    my @keep;
+
+    if(defined $_[0] && !is_ref($_[0]))
+    {
+      ($ptr) = @_;
+      return bless {
+        ptr    => $ptr,
+        module => $module,
+        keep   => \@keep,
+      }, $class;
+    }
+    else
+    {
+      my($imports) = @_;
+
+      $imports ||= [];
+      Carp::confess("imports is not an array reference") unless ref($imports) eq 'ARRAY';
+      my @imports = @$imports;
+      my $trap;
+
+      {
+        my @mi = @{ $module->type->imports };
+        if(@mi != @imports)
+        {
+          Carp::croak("Got @{[ scalar @imports ]} imports, but expected @{[ scalar @mi ]}");
+        }
+
+        @imports = map { _cast_import($_, shift @mi, $store, \@keep) } @imports;
+      }
+
+      my $imports_vec = Wasm::Wasmtime::Vec->new(
+        size => scalar @imports,
+        data => scalar(@imports) > 0 ? do {
+          my $count = scalar @imports;
+          my $ptr = FFI::Platypus::Memory::malloc($ffi->sizeof('opaque') * $count);
+          # void *memcpy(void *dest, const void *src, size_t n)
+          FFI::Platypus->new( lib => [undef] )->function( 'memcpy' => [ 'opaque', "opaque[$count]", 'size_t' ] => 'opaque' )->call($ptr, \@imports, $ffi->sizeof('opaque') * $count);
+        } : undef,
+      );
+
+      my $ptr;
+      if(my $error = $xsub->($store, $module, $imports_vec, \$ptr, \$trap))
+      {
+        FFI::Platypus::Memory::free($imports_vec->data) if defined $imports_vec->data;
+        Carp::croak("error creating module: " . $error->message);
+      }
+      else
+      {
+        FFI::Platypus::Memory::free($imports_vec->data) if defined $imports_vec->data;
+        if($trap)
+        {
+          $trap = Wasm::Wasmtime::Trap->new($trap);
+          die $trap;
+        }
+        else
+        {
+          return bless {
+            ptr    => $ptr,
+            module => $module,
+            keep   => \@keep,
+          }, $class;
+        }
+      }
+    }
+  });
+
+}
 
 =head1 METHODS
 
@@ -200,6 +297,12 @@ Returns the L<Wasm::Wasmtime::Module> for this instance.
 
 sub module { shift->{module} }
 
+=head2 type
+
+ my $type = $instance->type;
+
+Returns the type of the specified instance, which will be a L<Wasm::Wasmtime::InstanceType> instance.
+
 =head2 exports
 
  my $exports = $instance->exports;
@@ -209,19 +312,27 @@ This can be used to query and call exports from the instance.
 
 =cut
 
-sub exports
+if(_ver ne '0.27.0')
 {
-  Wasm::Wasmtime::Instance::Exports->new(shift);
+  # TODO: exports
+}
+else
+{
+  *exports = sub
+  {
+    Wasm::Wasmtime::Instance::Exports->new(shift);
+  };
+
+  $ffi->attach( [ exports => '_exports' ] => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
+    my($xsub, $self) = @_;
+    my $externs = Wasm::Wasmtime::ExternVec->new;
+    $xsub->($self, $externs);
+    $externs->to_list;
+  });
+
+  _generate_destroy();
 }
 
-$ffi->attach( [ exports => '_exports' ] => ['wasm_instance_t','wasm_extern_vec_t*'] => sub {
-  my($xsub, $self) = @_;
-  my $externs = Wasm::Wasmtime::ExternVec->new;
-  $xsub->($self, $externs);
-  $externs->to_list;
-});
-
-_generate_destroy();
 
 1;
 

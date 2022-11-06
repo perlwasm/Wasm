@@ -15,7 +15,7 @@ use YAML qw( Dump );
         i32.add)
     )
   });
-  my $instance = Wasm::Wasmtime::Instance->new($module, $store, []);
+  my $instance = Wasm::Wasmtime::Instance->new($module, $store->context, []);
   my $exports = Wasm::Wasmtime::Instance::Exports->new($instance);
   is(
     $exports,

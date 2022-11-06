@@ -85,10 +85,10 @@ if(_ver ne '0.27.0')
 {
   $ffi->attach( context => ['wasm_store_t'] => 'wasmtime_context_t' => sub {
     my($xsub, $self) = @_;
-    $self->{context} || do {
-      require Wasm::Wasmtime::Context;
-      $xsub->($self);
-    };
+    require Wasm::Wasmtime::Context;
+    my $context = $xsub->($self);
+    $context->{store} = $self;
+    $context;
   });
 }
 else

@@ -9,7 +9,7 @@ use Wasm::Wasmtime::Instance;
 my $store = wasm_store();
 
 is(
-  Wasm::Wasmtime::Instance->new(Wasm::Wasmtime::Module->new($store->engine, wat => '(module)'), $store),
+  Wasm::Wasmtime::Instance->new(Wasm::Wasmtime::Module->new($store->engine, wat => '(module)'), $store->context),
   object {
     call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
     call module => object {
@@ -32,7 +32,7 @@ is(
         i64.sub)
       (memory (export "frooble") 2 3)
     )
-  }), $store),
+  }), $store->context),
   object {
     call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
     call exports => object {
@@ -103,7 +103,7 @@ is(
           (func (export "run") (call $hello))
         )
       }),
-      $store,
+      $store->context,
     );
   },
   match qr/Got 0 imports, but expected 1/,
@@ -127,7 +127,7 @@ is(
     sub { $it_works = 1 },
   );
 
-  my $instance = Wasm::Wasmtime::Instance->new($module, $store, [$hello]);
+  my $instance = Wasm::Wasmtime::Instance->new($module, $store->context, [$hello]);
   $instance->exports->run->();
 
   is $it_works, T(), 'callback called';

@@ -12,7 +12,7 @@ my $module = Wasm::Wasmtime::Module->new( $store->engine, wat => q{
   )
 });
 
-my $instance = Wasm::Wasmtime::Instance->new($module, $store);
+my $instance = Wasm::Wasmtime::Instance->new($module, $store->context);
 
 my $exports = $instance->exports;
 

@@ -28,7 +28,7 @@ my $wasi   = Wasm::Wasmtime::WasiInstance->new(
 
 my $instance2 = Wasm::Wasmtime::Instance->new(
   Wasm::Wasmtime::Module->new($store->engine, wat => '(module)' ),
-  $store,
+  $store->context,
 );
 
 my $module2 = Wasm::Wasmtime::Module->new($store->engine, wat => '(module)' );

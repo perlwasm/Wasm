@@ -164,7 +164,7 @@ $ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*','opa
   elsif($ptr)
   {
     return Wasm::Wasmtime::Instance->new(
-      $module, $self->store, $ptr,
+      $module, $self->store->context, $ptr,
     );
   }
   else

@@ -41,7 +41,7 @@ sub _instance
 
   my $ctx = context();
 
-  my $instance = eval { Wasm::Wasmtime::Instance->new($module, wasm_store(), $imports) };
+  my $instance = eval { Wasm::Wasmtime::Instance->new($module, wasm_store()->context, $imports) };
   return $ctx->fail_and_release($name, "error creating instance", "$@") if $@;
 
   $ctx->release;

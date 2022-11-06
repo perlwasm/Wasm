@@ -14,6 +14,6 @@ my $module = Wasm::Wasmtime::Module->new( $store->engine, wat => q{
   )
 });
 
-my $instance = Wasm::Wasmtime::Instance->new($module, $store);
+my $instance = Wasm::Wasmtime::Instance->new($module, $store->context);
 my $add = $instance->exports->add;
 print $add->call(1,2), "\n";  # 3

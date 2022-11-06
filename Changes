@@ -8,6 +8,8 @@ Revision history for {{$dist->name}},
   - Added Wasm::Wasmtime::ModuleType class (gh#118)
   - Wasm::Wasmtime::Module::Imports renamed to Wasm::Wasmtime::ModuleType::Imports (gh#118)
   - Wasm::Wasmtime::Module::Exports renamed to Wasm::Wasmtime::ModuleType::Exports (gh#118)
+  - Passing Wasm::Wasmtime::Store into Wasm::Wasmtime::Instance->new is deprecated
+    pass $store->context instead (gh#118)
 
 0.23      2022-11-04 06:33:12 -0600
   - removed wasmtime_config_max_instances_set from Wasm::Wasmtime::Config

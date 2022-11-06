@@ -31,6 +31,7 @@ This class represents a WebAssembly module.
 
 =cut
 
+# TODO: this should properly be renamed to wasmtime_module_t
 $ffi->load_custom_type('::PtrObject' => 'wasm_module_t' => __PACKAGE__);
 
 if(_ver ne '0.27.0')

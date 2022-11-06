@@ -63,7 +63,7 @@ sub _lib
 }
 
 our $ffi_prefix = 'wasm_';
-our $ffi = FFI::Platypus->new( api => 1 );
+our $ffi = FFI::Platypus->new( api => 2 );
 FFI::C->ffi($ffi);
 $ffi->lib(__PACKAGE__->_lib);
 $ffi->mangler(sub {
@@ -181,24 +181,33 @@ sub _wrapper_destroy
 
 sub _generate_destroy
 {
+  my %arg = @_;
   my $caller = caller;
-  my $type = lc $caller;
-  if($type =~ /::linker$/)
+  my $type;
+  if(defined $arg{type})
   {
-    $type = 'wasmtime_linker_t';
-  }
-  elsif($type =~ /::wasi/)
-  {
-    $type =~ s/^.*::wasi(.*)$/wasi_${1}_t/g;
-  }
-  elsif($type =~ /::moduletype/)
-  {
-    $type = 'wasmtime_moduletype_t';
+    $type = $arg{type};
   }
   else
   {
-    $type =~ s/^.*:://;
-    $type = "wasm_${type}_t";
+    $type = lc $caller;
+    if($type =~ /::linker$/)
+    {
+      $type = 'wasmtime_linker_t';
+    }
+    elsif($type =~ /::wasi/)
+    {
+      $type =~ s/^.*::wasi(.*)$/wasi_${1}_t/g;
+    }
+    elsif($type =~ /::moduletype/)
+    {
+      $type = 'wasmtime_moduletype_t';
+    }
+    else
+    {
+      $type =~ s/^.*:://;
+      $type = "wasm_${type}_t";
+    }
   }
   $ffi->attach( [ delete => join('::', $caller, 'DESTROY') ] => [ $type ] => \&_wrapper_destroy);
 }
