@@ -74,7 +74,8 @@ subtest 'validate' => sub {
   );
 };
 
-subtest 'error' => sub {
+subtest 'errors' => sub {
+
   is(
     dies { Wasm::Wasmtime::Module->new('f00f') },
     match qr/error creating module/,
@@ -82,16 +83,49 @@ subtest 'error' => sub {
   );
 };
 
+subtest 'warnings' => sub {
+
+  my @warnings;
+  local $SIG{__WARN__} = sub {
+    my $message = shift;
+    if($message =~ /The .* method on Wasm::Wasmtime::Module/)
+    {
+      push @warnings, $message;
+    }
+    else
+    {
+      warn $message;
+    }
+  };
+
+  @warnings = ();
+  Wasm::Wasmtime::Module->new($wasm_binary)->exports;
+  is
+    \@warnings,
+    array {
+      item match qr/^The exports method on Wasm::Wasmtime::Module is deprecated, please use \$module->type->exports instead/;
+    },
+    'warning on deprecatd exports method';
+
+  @warnings = ();
+  Wasm::Wasmtime::Module->new($wasm_binary)->imports;
+
+  is
+    \@warnings,
+    array {
+      item match qr/^The imports method on Wasm::Wasmtime::Module is deprecated, please use \$module->type->imports instead/;
+    },
+    'warning on deprecatd imports method'
+
+};
+
 is(
   Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, $wasm_binary),
   object {
     call ['isa', 'Wasm::Wasmtime::Module'] => T();
-    if(Wasm::Wasmtime::FFI::_ver ne '0.27.0')
-    {
-      call type => object {
-        call ['isa', 'Wasm::Wasmtime::ModuleType' ] => T();
-      };
-    }
+    call type => object {
+      call ['isa', 'Wasm::Wasmtime::ModuleType' ] => T();
+    };
   },
   'basic create',
 );

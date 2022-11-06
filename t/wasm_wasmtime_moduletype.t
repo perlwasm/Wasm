@@ -4,8 +4,6 @@ use lib 't/lib';
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::ModuleType;
 
-skip_all '0.28.0 and better only' unless Wasm::Wasmtime::FFI::_ver ne '0.27.0';
-
 my $wasm_binary = "\0asm\x01\0\0\0";
 
 is(
