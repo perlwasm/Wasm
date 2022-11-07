@@ -3,6 +3,7 @@ package Wasm::Wasmtime::Instance;
 use strict;
 use warnings;
 use 5.008004;
+use FFI::C;
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Extern;
@@ -29,7 +30,23 @@ This class represents an instance of a WebAssembly module L<Wasm::Wasmtime::Modu
 =cut
 
 $ffi_prefix = 'wasm_instance_';
-$ffi->load_custom_type('::PtrObject' => 'wasm_instance_t' => __PACKAGE__);
+
+if(_ver ne '0.27.0')
+{
+  FFI::C->ffi($ffi);
+  FFI::C->struct(
+    wasm_instance_t => [
+      _store_id => 'uint64',
+      _index    => 'size_t',
+    ],
+  );
+  *_new = \&new;
+  delete $Wasm::Wasmtime::Instance::{new};
+}
+else
+{
+  $ffi->load_custom_type('::PtrObject' => 'wasm_instance_t' => __PACKAGE__);
+}
 
 =head1 CONSTRUCTOR
 
@@ -115,7 +132,7 @@ require FFI::Platypus::Memory;
 if(_ver ne '0.27.0')
 {
 
-  $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasmtime_context_t','wasm_module_t','opaque','size_t','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
+  $ffi->attach( [ wasmtime_instance_new => 'new' ] => ['wasmtime_context_t','wasm_module_t','opaque','size_t','wasm_instance_t','opaque*'] => 'wasmtime_error_t' => sub {
     my $xsub = shift;
     my $class = shift;
     my $module = shift;
@@ -167,8 +184,8 @@ if(_ver ne '0.27.0')
         @imports = map { _cast_import($_, shift @mi, $context, \@keep) } @imports;
       }
 
-      my $ptr;
-      if(my $error = $xsub->($context, $module, \@imports, scalar(@imports), \$ptr, \$trap))
+      my $self = __PACKAGE__->_new;
+      if(my $error = $xsub->($context, $module, \@imports, scalar(@imports), $self, \$trap))
       {
         Carp::croak("error creating module: " . $error->message);
       }
@@ -181,11 +198,9 @@ if(_ver ne '0.27.0')
         }
         else
         {
-          return bless {
-            ptr    => $ptr,
-            module => $module,
-            keep   => \@keep,
-          }, $class;
+          $self->{module} = $module;
+          $self->{keep}   = \@keep;
+          return $self;
         }
       }
     }
