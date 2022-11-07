@@ -1,7 +1,7 @@
 use 5.008004;
 use Test2::V0 -no_srand => 1;
 use Wasm::Wasmtime::Module;
-use Wasm::Wasmtime::Module::Imports;
+use Wasm::Wasmtime::ModuleType::Imports;
 use YAML qw( Dump );
 
 {
@@ -10,11 +10,11 @@ use YAML qw( Dump );
       (func $hello (import "" "add"))
     )
   });
-  my $imports = Wasm::Wasmtime::Module::Imports->new($module);
+  my $imports = $module->type->imports;
   is(
     $imports,
     object {
-      call [ isa => 'Wasm::Wasmtime::Module::Imports' ] => T();
+      call [ isa => 'Wasm::Wasmtime::ModuleType::Imports' ] => T();
 
       call add => object {
         call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();

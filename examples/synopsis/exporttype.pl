@@ -13,7 +13,7 @@ my $module = Wasm::Wasmtime::Module->new(wat => q{
 });
 
 
-my($foo, $bar) = @{ $module->exports };
+my($foo, $bar) = @{ $module->type->exports };
 
 print $foo->name, "\n";        # foo
 print $foo->type->kind, "\n";  # func

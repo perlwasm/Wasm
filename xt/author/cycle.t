@@ -19,8 +19,8 @@ subtest 'module' => sub {
     },
   );
 
-  $module->imports;
-  $module->exports;
+  $module->type->imports;
+  $module->type->exports;
 
   memory_cycle_ok $module;
 

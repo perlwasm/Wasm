@@ -13,11 +13,11 @@ my $module = Wasm::Wasmtime::Module->new( $store->engine, wat => q{
 });
 
 my $hello = Wasm::Wasmtime::Func->new(
-  $store,
+  $store->context,
   Wasm::Wasmtime::FuncType->new([],[]),
   sub { print "hello world!\n" },
 );
 
-my $instance = Wasm::Wasmtime::Instance->new($module, $store, [$hello]);
+my $instance = Wasm::Wasmtime::Instance->new($module, $store->context, [$hello]);
 $instance->exports->run->call(); # hello world!
 

@@ -39,18 +39,18 @@ This is a private class used internally by L<Wasm::Wasmtime> classes.
 
 =cut
 
-our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy );
+our @EXPORT = qw( $ffi $ffi_prefix _generate_vec_class _generate_destroy _ver );
 
 sub _lib
 {
   return $ENV{WASM_WASMTIME_FFI} if defined $ENV{WASM_WASMTIME_FFI};
   my @symbols = (
     # 0.19.0
-    'wasmtime_func_as_funcref',
+    #'wasmtime_func_as_funcref',           # removed in 0.28.0
     # 0.20.0 / 0.21.0
     'wasmtime_module_serialize',
     'wasmtime_module_deserialize',
-    'wasmtime_store_gc',
+    #'wasmtime_store_gc',                  # removed in 0.28.0
     ## 0.23.0
     'wasmtime_config_consume_fuel_set',
     #'wasmtime_config_max_instances_set',  # removed in 0.27.0
@@ -63,7 +63,7 @@ sub _lib
 }
 
 our $ffi_prefix = 'wasm_';
-our $ffi = FFI::Platypus->new( api => 1 );
+our $ffi = FFI::Platypus->new( api => 2 );
 FFI::C->ffi($ffi);
 $ffi->lib(__PACKAGE__->_lib);
 $ffi->mangler(sub {
@@ -71,6 +71,19 @@ $ffi->mangler(sub {
   return $name if $name =~ /^(wasm|wasmtime|wasi)_/;
   return $ffi_prefix . $name;
 });
+
+if($ffi->find_symbol('wasmtime_config_wasm_multi_memory_set'))
+{
+  constant->import(_ver => '0.29.0');
+}
+elsif($ffi->find_symbol('wasmtime_store_gc'))
+{
+  constant->import(_ver => '0.27.0');
+}
+else
+{
+  constant->import(_ver => '0.28.0');
+}
 
 { package Wasm::Wasmtime::Vec;
   use FFI::Platypus::Record;
@@ -168,20 +181,33 @@ sub _wrapper_destroy
 
 sub _generate_destroy
 {
+  my %arg = @_;
   my $caller = caller;
-  my $type = lc $caller;
-  if($type =~ /::linker$/)
+  my $type;
+  if(defined $arg{type})
   {
-    $type = 'wasmtime_linker_t';
-  }
-  elsif($type =~ /::wasi/)
-  {
-    $type =~ s/^.*::wasi(.*)$/wasi_${1}_t/g;
+    $type = $arg{type};
   }
   else
   {
-    $type =~ s/^.*:://;
-    $type = "wasm_${type}_t";
+    $type = lc $caller;
+    if($type =~ /::linker$/)
+    {
+      $type = 'wasmtime_linker_t';
+    }
+    elsif($type =~ /::wasi/)
+    {
+      $type =~ s/^.*::wasi(.*)$/wasi_${1}_t/g;
+    }
+    elsif($type =~ /::moduletype/)
+    {
+      $type = 'wasmtime_moduletype_t';
+    }
+    else
+    {
+      $type =~ s/^.*:://;
+      $type = "wasm_${type}_t";
+    }
   }
   $ffi->attach( [ delete => join('::', $caller, 'DESTROY') ] => [ $type ] => \&_wrapper_destroy);
 }

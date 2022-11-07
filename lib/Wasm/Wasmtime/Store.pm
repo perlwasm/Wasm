@@ -25,8 +25,17 @@ This class represents storage used by the WebAssembly engine.
 
 =cut
 
-$ffi_prefix = 'wasm_store_';
+if(_ver ne '0.27.0')
+{
+  $ffi_prefix = 'wasmtime_store_';
+}
+else
+{
+  $ffi_prefix = 'wasm_store_';
+}
+# TODO: we should change this to a wasmtime_store_t at some point
 $ffi->load_custom_type('::PtrObject' => 'wasm_store_t' => __PACKAGE__);
+$ffi->load_custom_type('::PtrObject' => 'wasmtime_context_t' => 'Wasm::Wasmtime::Context');
 
 =head1 CONSTRUCTOR
 
@@ -42,15 +51,58 @@ isn't provided, then a new one will be created.
 
 =cut
 
-$ffi->attach( new => ['wasm_engine_t'] => 'wasm_store_t' => sub {
-  my($xsub, $class, $engine) = @_;
-  $engine ||= Wasm::Wasmtime::Engine->new;
-  my $self = $xsub->($engine);
-  $self->{engine} = $engine;
-  $self;
-});
+if(_ver ne '0.27.0')
+{
+  # TODO: add support for the data and finazlizer here
+  $ffi->attach( new => ['wasm_engine_t','opaque','(opaque)->void'] => 'wasm_store_t' => sub {
+    my($xsub, $class, $engine) = @_;
+    $engine ||= Wasm::Wasmtime::Engine->new;
+    my $self = $xsub->($engine,undef,undef);
+    $self->{engine} = $engine;
+    $self;
+  });
+}
+else
+{
+  $ffi->attach( new => ['wasm_engine_t'] => 'wasm_store_t' => sub {
+    my($xsub, $class, $engine) = @_;
+    $engine ||= Wasm::Wasmtime::Engine->new;
+    my $self = $xsub->($engine);
+    $self->{engine} = $engine;
+    $self;
+  });
+}
+
+=head2 context
+
+ my $context = $store->context;
+
+Returns the L<Wasm::Wasmtime::Context> for this store.
+
+=cut
+
+if(_ver ne '0.27.0')
+{
+  $ffi->attach( context => ['wasm_store_t'] => 'wasmtime_context_t' => sub {
+    my($xsub, $self) = @_;
+    require Wasm::Wasmtime::Context;
+    my $context = $xsub->($self);
+    $context->{store} = $self;
+    $context;
+  });
+}
+else
+{
+  *context = sub {
+    my($self) = @_;
+    require Wasm::Wasmtime::Context;
+    bless { store => $self }, 'Wasm::Wasmtime::Context';
+  };
+}
 
 =head2 gc
+
+[deprecated use $store->context->gc instead]
 
  $store->gc;
 
@@ -60,7 +112,12 @@ will have their finalizers run.
 
 =cut
 
-$ffi->attach( [ wasmtime_store_gc => 'gc' ] => ['wasm_store_t'] => 'void' );
+sub gc
+{
+  my($self) = @_;
+  Carp::carp("Calling gc on a store directly is deprecated, please use \$store->context->gc instead");
+  $self->context->gc;
+}
 
 =head2 engine
 

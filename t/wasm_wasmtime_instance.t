@@ -9,7 +9,7 @@ use Wasm::Wasmtime::Instance;
 my $store = wasm_store();
 
 is(
-  Wasm::Wasmtime::Instance->new(Wasm::Wasmtime::Module->new($store->engine, wat => '(module)'), $store),
+  Wasm::Wasmtime::Instance->new(Wasm::Wasmtime::Module->new($store->engine, wat => '(module)'), $store->context),
   object {
     call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
     call module => object {
@@ -32,7 +32,7 @@ is(
         i64.sub)
       (memory (export "frooble") 2 3)
     )
-  }), $store),
+  }), $store->context),
   object {
     call [ isa => 'Wasm::Wasmtime::Instance' ] => T();
     call exports => object {
@@ -103,58 +103,12 @@ is(
           (func (export "run") (call $hello))
         )
       }),
-      $store,
+      $store->context,
     );
   },
   match qr/Got 0 imports, but expected 1/,
   'import count mismatch',
 );
-
-{
-  my $it_works;
-
-  my $store = Wasm::Wasmtime::Store->new;
-  my $module = Wasm::Wasmtime::Module->new( $store->engine, wat => q{
-    (module
-      (func $hello (import "" "hello"))
-      (func (export "run") (call $hello))
-    )
-  });
-
-  my $hello = Wasm::Wasmtime::Func->new(
-    $store,
-    Wasm::Wasmtime::FuncType->new([],[]),
-    sub { $it_works = 1 },
-  );
-
-  my $instance = Wasm::Wasmtime::Instance->new($module, $store, [$hello]);
-  $instance->exports->run->();
-
-  is $it_works, T(), 'callback called';
-}
-
-{
-  my $it_works;
-
-  is(
-    wasm_instance_ok([sub { $it_works = 1 }], q{
-      (module
-        (func $hello (import "" "hello"))
-        (func (export "run") (call $hello))
-      )
-    }),
-    object {
-      call exports => object {
-        call run => object {
-          call call => U();
-        };
-      };
-    },
-    'pass func as code ref'
-  );
-
-  is($it_works, T(), 'verified that we called the callback');
-}
 
 {
   wasm_instance_ok([undef], q{

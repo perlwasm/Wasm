@@ -7,6 +7,142 @@ use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Module;
 use Wasm::Wasmtime::Wat2Wasm;
 
+my $wasm_binary = "\0asm\x01\0\0\0";
+
+subtest 'validate' => sub {
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate($wasm_binary)),
+    T(),
+    'validate good raw',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))),
+    T(),
+    'validate good from wat2wasm',
+  );
+
+  is(
+    [Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))],
+    array {
+      item T();
+      item '';
+      end;
+    },
+    'validate good, list context',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate( wat => '(module)' )),
+    T(),
+    'validate good, key wat',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat2wasm('(module)'))),
+    T(),
+    'validate good with store',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat => '(module)')),
+    T(),
+    'validate good with store, key wat',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate('f00f')),
+    F(),
+    'validate bad',
+  );
+
+  is(
+    [Wasm::Wasmtime::Module->validate('f00f')],
+    array {
+      item F();
+      item match qr/./;
+      end;
+    },
+    'validate bad, list context',
+  );
+
+  is(
+    scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, 'f00f')),
+    F(),
+    'validate bad with store',
+  );
+};
+
+subtest 'errors' => sub {
+
+  is(
+    dies { Wasm::Wasmtime::Module->new('f00f') },
+    match qr/error creating module/,
+    'exception for bad wasm',
+  );
+};
+
+subtest 'warnings' => sub {
+
+  my @warnings;
+  local $SIG{__WARN__} = sub {
+    my $message = shift;
+    if($message =~ /The .* method on Wasm::Wasmtime::Module/)
+    {
+      push @warnings, $message;
+    }
+    else
+    {
+      warn $message;
+    }
+  };
+
+  @warnings = ();
+  Wasm::Wasmtime::Module->new($wasm_binary)->exports;
+  is
+    \@warnings,
+    array {
+      item match qr/^The exports method on Wasm::Wasmtime::Module is deprecated, please use \$module->type->exports instead/;
+    },
+    'warning on deprecatd exports method';
+
+  @warnings = ();
+  Wasm::Wasmtime::Module->new($wasm_binary)->imports;
+
+  is
+    \@warnings,
+    array {
+      item match qr/^The imports method on Wasm::Wasmtime::Module is deprecated, please use \$module->type->imports instead/;
+    },
+    'warning on deprecatd imports method'
+
+};
+
+is(
+  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, $wasm_binary),
+  object {
+    call ['isa', 'Wasm::Wasmtime::Module'] => T();
+    call type => object {
+      call ['isa', 'Wasm::Wasmtime::ModuleType' ] => T();
+    };
+  },
+  'basic create',
+);
+
+is(
+  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, wat2wasm('(module)')),
+  object {
+    call ['isa', 'Wasm::Wasmtime::Module'] => T();
+    call engine => object {
+      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
+    };
+    call to_string => "(module)\n";
+    call serialize => match qr/./;
+  },
+  'explicit engine',
+);
+
 is(
   Wasm::Wasmtime::Module->new(wat2wasm('(module)')),
   object {
@@ -42,23 +178,6 @@ is(
     call to_string => "(module)\n";
   },
   'created module from store + serealized',
-);
-
-is(
-  dies { Wasm::Wasmtime::Module->new('f00f') },
-  match qr/error creating module/,
-  'exception for bad wasm',
-);
-
-is(
-  Wasm::Wasmtime::Module->new(Wasm::Wasmtime::Engine->new, wat2wasm('(module)')),
-  object {
-    call ['isa', 'Wasm::Wasmtime::Module'] => T();
-    call engine => object {
-      call ['isa', 'Wasm::Wasmtime::Engine'] => T();
-    };
-  },
-  'explicit engine',
 );
 
 {
@@ -129,62 +248,6 @@ is(
 );
 
 is(
-  scalar(Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))),
-  T(),
-  'validate good',
-);
-
-is(
-  [Wasm::Wasmtime::Module->validate(wat2wasm('(module)'))],
-  array {
-    item T();
-    item '';
-    end;
-  },
-  'validate good, list context',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate( wat => '(module)' )),
-  T(),
-  'validate good, key wat',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat2wasm('(module)'))),
-  T(),
-  'validate good with store',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, wat => '(module)')),
-  T(),
-  'validate good with store, key wat',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate('f00f')),
-  F(),
-  'validate bad',
-);
-
-is(
-  [Wasm::Wasmtime::Module->validate('f00f')],
-  array {
-    item F();
-    item match qr/./;
-    end;
-  },
-  'validate bad, list context',
-);
-
-is(
-  scalar(Wasm::Wasmtime::Module->validate(Wasm::Wasmtime::Store->new, 'f00f')),
-  F(),
-  'validate bad with store',
-);
-
-is(
   Wasm::Wasmtime::Module->new(wat => q{
     (module
       (func (export "add") (param i32 i32) (result i32)
@@ -199,75 +262,78 @@ is(
     )
   }),
   object {
-    call exports => object {
-      call [ isa => 'Wasm::Wasmtime::Module::Exports' ] => T();
-      call add => object {
-        call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
-      };
-    };
-    call_list sub { @{ shift->imports } } => [];
-    call_list sub { @{ shift->exports } } => array {
-      item object {
-        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
-        call name => 'add';
-        call type => object {
+    call type => object {
+      call [ isa => 'Wasm::Wasmtime::ModuleType' ] => T();
+      call exports => object {
+        call [ isa => 'Wasm::Wasmtime::ModuleType::Exports' ] => T();
+        call add => object {
           call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
-          call kind => 'functype';
-          call_list params => array {
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i32';
-            };
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i32';
-            };
-            end;
-          };
-          call_list results => array {
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i32';
-            };
-            end;
-          };
         };
       };
-      item object {
-        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
-        call name => 'sub';
-        call type => object {
-          call kind => 'functype';
-          call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
-          call_list params => array {
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i64';
+      call_list sub { @{ shift->imports } } => [];
+      call_list sub { @{ shift->exports } } => array {
+        item object {
+          call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+          call name => 'add';
+          call type => object {
+            call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+            call kind => 'functype';
+            call_list params => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              end;
             };
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i64';
+            call_list results => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i32';
+              };
+              end;
             };
-            end;
-          };
-          call_list results => array {
-            item object {
-              call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-              call kind => 'i64';
-            };
-            end;
           };
         };
-      };
-      item object {
-        call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
-        call name => 'frooble';
-        call type => object {
-          call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
-          call kind => 'memorytype';
+        item object {
+          call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+          call name => 'sub';
+          call type => object {
+            call kind => 'functype';
+            call [ isa => 'Wasm::Wasmtime::FuncType' ] => T();
+            call_list params => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              end;
+            };
+            call_list results => array {
+              item object {
+                call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
+                call kind => 'i64';
+              };
+              end;
+            };
+          };
         };
+        item object {
+          call [ isa => 'Wasm::Wasmtime::ExportType' ] => T();
+          call name => 'frooble';
+          call type => object {
+            call [ isa => 'Wasm::Wasmtime::MemoryType' ] => T();
+            call kind => 'memorytype';
+          };
+        };
+        end;
       };
-      end;
     };
   },
   'exports',

@@ -11,7 +11,7 @@ my $module = Wasm::Wasmtime::Module->new( wat => q{
   )
 });
 
-my $exports = $module->exports;   # Wasm::Wasmtime::Module::Exports
+my $exports = $module->type->exports;   # Wasm::Wasmtime::Module::Exports
 
 my $type1      = $exports->add;   # this is the Wasm::Wasmtime::FuncType for add
 my $type2      = $exports->{add}; # this is also the Wasm::Wasmtime::FuncType for add

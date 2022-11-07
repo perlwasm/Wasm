@@ -3,6 +3,7 @@ use Test2::V0 -no_srand => 1;
 use lib 't/lib';
 use Test2::Tools::Wasm;
 use Wasm::Wasmtime::Store;
+use Wasm::Wasmtime::Instance;
 use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::FuncType;
 
@@ -253,6 +254,52 @@ is(
 
   note $error;
 
+}
+
+{
+  my $it_works;
+
+  my $store = Wasm::Wasmtime::Store->new;
+  my $module = Wasm::Wasmtime::Module->new( $store->engine, wat => q{
+    (module
+      (func $hello (import "" "hello"))
+      (func (export "run") (call $hello))
+    )
+  });
+
+  my $hello = Wasm::Wasmtime::Func->new(
+    $store,
+    Wasm::Wasmtime::FuncType->new([],[]),
+    sub { $it_works = 1 },
+  );
+
+  my $instance = Wasm::Wasmtime::Instance->new($module, $store->context, [$hello]);
+  $instance->exports->run->();
+
+  is $it_works, T(), 'callback called';
+}
+
+{
+  my $it_works;
+
+  is(
+    wasm_instance_ok([sub { $it_works = 1 }], q{
+      (module
+        (func $hello (import "" "hello"))
+        (func (export "run") (call $hello))
+      )
+    }),
+    object {
+      call exports => object {
+        call run => object {
+          call call => U();
+        };
+      };
+    },
+    'pass func as code ref'
+  );
+
+  is($it_works, T(), 'verified that we called the callback');
 }
 
 done_testing;

@@ -1,4 +1,4 @@
-package Wasm::Wasmtime::Instance::Exports;
+package Wasm::Wasmtime::ModuleType::Exports;
 
 use strict;
 use warnings;
@@ -8,13 +8,13 @@ use Hash::Util ();
 use overload
   '%{}' => sub {
     my $self   = shift;
-    my $instance = $$self;
-    $instance->{exports};
+    my $module = $$self;
+    $module->{exports};
   },
   '@{}' => sub {
     my $self = shift;
-    my $instance = $$self;
-    my @exports = $instance->_exports;
+    my $module = $$self;
+    my @exports = $module->_exports;
     Internals::SvREADONLY @exports, 1;
     Internals::SvREADONLY $exports[$_], 1 for 0..$#exports;
     \@exports;
@@ -22,32 +22,32 @@ use overload
   bool => sub { 1 },
   fallback => 1;
 
-# ABSTRACT: Wasmtime instance exports class
+# ABSTRACT: Wasmtime module exports class
 # VERSION
 
 =head1 SYNOPSIS
 
-# EXAMPLE: examples/synopsis/instance_exports.pl
+# EXAMPLE: examples/synopsis/module_exports.pl
 
 =head1 DESCRIPTION
 
 B<WARNING>: WebAssembly and Wasmtime are a moving target and the interface for these modules
 is under active development.  Use with caution.
 
-This class represents the exports from an instance.  It can be used in a number of different ways.
+This class represents the exports from a module.  It can be used in a number of different ways.
 
 =over 4
 
 =item autoload methods
 
- my $foo = $instance->exports->foo;
+ my $foo = $module->type->exports->foo;
 
 Calling the name of an export as a method returns the L<Wasm::Wasmtime::ExternType> for the
 export.
 
 =item As a hash reference
 
- my $foo = $instance->exports->{foo};
+ my $foo = $module->type->exports->{foo};
 
 Using the Exports class as a hash reference allows you to get exports that might clash with
 common Perl methods like C<new>, C<can>, C<DESTROY>, etc.  The L<Wasm::Wasmtime::ExternType>
@@ -55,7 +55,7 @@ will be returned.
 
 =item An array reference
 
- my $foo = $instance->exports->[0];
+ my $foo = $module->type->exports->[0];
 
 This will give you the list of exports in the order that they are defined in your WebAssembly.
 The object returned is a L<Wasm::Wasmtime::ExportType>, which is essentially a name and a
@@ -67,28 +67,27 @@ L<Wasm::Wasmtime::ExternType>.
 
 sub new
 {
-  my($class, $instance) = @_;
+  my($class, $module) = @_;
 
-  $instance->{exports} ||= do {
-    my @exports = $instance->_exports;
-    my @module_exports   = @{ $instance->module->type->exports };
+  $module->{exports} ||= do {
+    my @exports = $module->_exports;
     my %exports;
-    foreach my $i (0..$#exports)
+    foreach my $export (@exports)
     {
-      $exports{$module_exports[$i]->name} = $exports[$i];
+      $exports{$export->name} = $export->type;
     }
     Hash::Util::lock_hash(%exports);
     \%exports;
   };
 
-  bless \$instance, $class;
+  bless \$module, $class;
 }
 
 sub can
 {
   my($self, $name) = @_;
-  my $instance = $$self;
-  exists $instance->{exports}->{$name}
+  my $module = $$self;
+  exists $module->{exports}->{$name}
     ? sub { $self->$name }
     : $self->SUPER::can($name);
 }
@@ -101,9 +100,9 @@ sub AUTOLOAD
   my $name = $AUTOLOAD;
   $name=~ s/^.*:://;
 
-  my $instance = $$self;
-  Carp::croak("no export $name") unless exists $instance->{exports}->{$name};
-  $instance->{exports}->{$name};
+  my $module = $$self;
+  Carp::croak("no export $name") unless exists $module->{exports}->{$name};
+  $module->{exports}->{$name};
 }
 
 sub DESTROY

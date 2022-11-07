@@ -37,9 +37,9 @@ pod_coverage:
     - Wasm::Wasmtime::Caller#new
     - Wasm::Wasmtime::Instance::Exports#new
     - Wasm::Wasmtime::Instance::Exports#can
-    - Wasm::Wasmtime::Module::Exports#new
-    - Wasm::Wasmtime::Module::Exports#can
-    - Wasm::Wasmtime::Module::Imports#new
-    - Wasm::Wasmtime::Module::Imports#can
+    - Wasm::Wasmtime::ModuleType::Exports#new
+    - Wasm::Wasmtime::ModuleType::Exports#can
+    - Wasm::Wasmtime::ModuleType::Imports#new
+    - Wasm::Wasmtime::ModuleType::Imports#can
     - Wasm::Memory#new
     - Test2::Plugin::Wasm

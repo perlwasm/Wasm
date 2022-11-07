@@ -37,22 +37,45 @@ Takes WebAssembly Text C<$wat> and converts it into the WebAssembly binary C<$wa
 
 =cut
 
-$ffi->attach( wat2wasm => ['wasm_byte_vec_t*','wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
-  my $xsub = shift;
-  my $wat = Wasm::Wasmtime::ByteVec->new($_[0]);
-  my $ret = Wasm::Wasmtime::ByteVec->new;
-  my $error = $xsub->($wat, $ret);
-  if($error)
-  {
-    Carp::croak($error->message . "\nwat2wasm error");
-  }
-  else
-  {
-    my $wasm = $ret->get;
-    $ret->delete;
-    return $wasm;
-  }
-});
+if(_ver ne '0.27.0')
+{
+  require FFI::Platypus::Buffer;
+  $ffi->attach( wat2wasm => ['opaque','size_t','wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my($ptr, $len) = FFI::Platypus::Buffer::scalar_to_buffer $_[0];
+    my $ret = Wasm::Wasmtime::ByteVec->new;
+    my $error = $xsub->($ptr, $len, $ret);
+    if($error)
+    {
+      Carp::croak($error->message . "\nwat2wasm error");
+    }
+    else
+    {
+      my $wasm = $ret->get;
+      $ret->delete;
+      return $wasm;
+    }
+  });
+}
+else
+{
+  $ffi->attach( wat2wasm => ['wasm_byte_vec_t*','wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
+    my $xsub = shift;
+    my $wat = Wasm::Wasmtime::ByteVec->new($_[0]);
+    my $ret = Wasm::Wasmtime::ByteVec->new;
+    my $error = $xsub->($wat, $ret);
+    if($error)
+    {
+      Carp::croak($error->message . "\nwat2wasm error");
+    }
+    else
+    {
+      my $wasm = $ret->get;
+      $ret->delete;
+      return $wasm;
+    }
+  });
+}
 
 1;
 
