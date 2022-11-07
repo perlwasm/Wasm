@@ -4,9 +4,11 @@ use Test2::Plugin::Wasm;
 use Wasm::Wasmtime::Memory;
 use Wasm::Wasmtime::Store;
 
+my $context = Wasm::Wasmtime::Store->new->context;
+
 is(
   Wasm::Wasmtime::Memory->new(
-    Wasm::Wasmtime::Store->new,
+    $context,
     Wasm::Wasmtime::MemoryType->new([1,2]),
   ),
   object {
@@ -17,7 +19,7 @@ is(
 
 is(
   Wasm::Wasmtime::Memory->new(
-    Wasm::Wasmtime::Store->new,
+    $context,
     [1,2],
   ),
   object {
@@ -28,7 +30,7 @@ is(
 
 is(
   Wasm::Wasmtime::Memory->new(
-    Wasm::Wasmtime::Store->new,
+    $context,
     [2, 6],
   ),
   object {
@@ -39,7 +41,7 @@ is(
     call data => match qr/^[0-9]+$/;
     call data_size => match qr/^[0-9]+$/;
     call size => 2;
-    call [ grow => 3] => T();
+    call [ grow => 3] => D();
     call size => 5;
     call is_func   => F();
     call is_global => F();

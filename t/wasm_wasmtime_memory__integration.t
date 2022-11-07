@@ -23,7 +23,7 @@ is(
         call data => match qr/^[0-9]+$/;
         call data_size => match qr/^[0-9]+$/;
         call size => 2;
-        call [ grow => 3] => T();
+        call [ grow => 3] => D();
         call size => 5;
         call is_func   => F();
         call is_global => F();

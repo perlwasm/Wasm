@@ -116,7 +116,7 @@ sub _cast_import
     if($mi->type->kind eq 'memorytype')
     {
       my $m = Wasm::Wasmtime::Memory->new(
-        $store,
+        $store->context,
         $mi->type,
       );
       $$ii = $m if defined $ii;
@@ -189,19 +189,16 @@ if(_ver ne '0.27.0')
       {
         Carp::croak("error creating module: " . $error->message);
       }
+      if($trap)
+      {
+        $trap = Wasm::Wasmtime::Trap->new($trap);
+        die $trap;
+      }
       else
       {
-        if($trap)
-        {
-          $trap = Wasm::Wasmtime::Trap->new($trap);
-          die $trap;
-        }
-        else
-        {
-          $self->{module} = $module;
-          $self->{keep}   = \@keep;
-          return $self;
-        }
+        $self->{module} = $module;
+        $self->{keep}   = \@keep;
+        return $self;
       }
     }
   });
