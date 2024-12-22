@@ -5,3 +5,6 @@
 *.wasm
 /jit-*
 /.teset-script*
+/.build
+*.old
+*.orig
