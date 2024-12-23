@@ -17,7 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         cip:
-          - tag: static
           - tag: "5.41"
           - tag: "5.40"
 #          - tag: "5.40"
@@ -37,7 +36,6 @@ jobs:
           - tag: "5.14"
           - tag: "5.12"
           - tag: "5.10"
-          - tag: "5.8"
 
     env:
       CIP_TAG: ${{ matrix.cip.tag }}
