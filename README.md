@@ -1,4 +1,4 @@
-# Wasm ![linux](https://github.com/perlwasm/Wasm/workflows/linux/badge.svg) ![windows](https://github.com/perlwasm/Wasm/workflows/windows/badge.svg) ![macos](https://github.com/perlwasm/Wasm/workflows/macos/badge.svg)
+# Wasm ![static](https://github.com/perlwasm/Wasm/workflows/static/badge.svg) ![linux](https://github.com/perlwasm/Wasm/workflows/linux/badge.svg) ![windows](https://github.com/perlwasm/Wasm/workflows/windows/badge.svg) ![macos](https://github.com/perlwasm/Wasm/workflows/macos/badge.svg)
 
 Write Perl extensions using Wasm
 
@@ -224,7 +224,7 @@ Graham Ollis <plicease@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2020-2022 by Graham Ollis.
+This software is copyright (c) 2020-2024 by Graham Ollis.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
