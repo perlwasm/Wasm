@@ -4,6 +4,7 @@ Revision history for {{$dist->name}},
   - Require Alien::wasmtime 0.18 or wasmtime 48.0.1 (gh#121)
   - The API for Wasm::Wasmtime* has changed radically, to reflect changes
     in wasmtime itself.  Wasm should provide the same API.
+  - Use FFI::Platypus api => 2 throughout (now requires FFI::Platypus 2.00)
 
 0.23      2022-11-04 06:33:12 -0600
   - removed wasmtime_config_max_instances_set from Wasm::Wasmtime::Config
