@@ -34,6 +34,7 @@ pod_spelling_system:
     - stackful
     - memory64
     - macOS
+    - async
 
 pod_coverage:
   skip: 0
