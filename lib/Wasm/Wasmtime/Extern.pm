@@ -127,7 +127,16 @@ sub _fill_extern
   $extern;
 }
 
-# to_extern -> a fresh Wasm::Wasmtime::ExternData (wasmtime_extern_t) for this object
+=head2 to_extern
+
+ my $extern_data = $extern->to_extern;
+
+Internal: returns a fresh L<Wasm::Wasmtime::FFI> C<Wasm::Wasmtime::ExternData>
+(a C<wasmtime_extern_t>) populated from this object's handle, for use as an
+import or with C<< Wasm::Wasmtime::Linker->define >>.
+
+=cut
+
 sub to_extern
 {
   my($self) = @_;
