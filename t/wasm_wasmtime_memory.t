@@ -23,6 +23,8 @@ is(
         call data => match qr/^[0-9]+$/;
         call data_size => match qr/^[0-9]+$/;
         call size => 2;
+        call page_size => 65536;
+        call page_size_log2 => 16;
         call [ grow => 3] => T();
         call size => 5;
         call is_func   => F();

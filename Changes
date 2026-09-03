@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}},
 
 {{$NEXT}}
+  - Wasm::Wasmtime::MemoryType gained modern introspection: minimum, maximum,
+    is64, is_shared, page_size and page_size_log2 methods, and its constructor
+    now accepts a hash reference to build memory64, shared, or custom-page-size
+    memory types (the array reference form is unchanged)
+  - Wasm::Wasmtime::Memory gained page_size and page_size_log2 methods
   - Wasm::Wasmtime::Config now exposes the full set of wasmtime 48 config
     setters: the remaining wasm proposal toggles (tail_call, function_references,
     gc, exceptions, relaxed_simd, multi_memory, memory64, custom_page_sizes,

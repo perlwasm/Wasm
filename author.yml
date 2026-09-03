@@ -35,6 +35,8 @@ pod_spelling_system:
     - memory64
     - macOS
     - async
+    - KiB
+    - log2
 
 pod_coverage:
   skip: 0
