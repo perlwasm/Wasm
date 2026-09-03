@@ -30,6 +30,10 @@ pod_spelling_system:
     - anyref
     - dylib
     - runtimes
+    - NaN
+    - stackful
+    - memory64
+    - macOS
 
 pod_coverage:
   skip: 0

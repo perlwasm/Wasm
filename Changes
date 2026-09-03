@@ -1,6 +1,15 @@
 Revision history for {{$dist->name}},
 
 {{$NEXT}}
+  - Wasm::Wasmtime::Config now exposes the full set of wasmtime 48 config
+    setters: the remaining wasm proposal toggles (tail_call, function_references,
+    gc, exceptions, relaxed_simd, multi_memory, memory64, custom_page_sizes,
+    wide_arithmetic, branch_hinting, stack_switching, component_model and its
+    async variants), shared_memory, gc_support, concurrency_support,
+    parallel_compilation, cranelift_nan_canonicalization, memory_may_move,
+    memory_init_cow, memory_reservation_for_growth, native_unwind_info,
+    macos_use_mach_ports, signals_based_traps, cranelift_regalloc_algorithm,
+    target, and cranelift_flag_enable / cranelift_flag_set
 
 0.24      2026-09-03 09:16:17 -0600
   - Require Alien::wasmtime 0.18 or wasmtime 48.0.1 (gh#121)
