@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}},
 
 {{$NEXT}}
+
+0.24      2026-09-03 09:16:17 -0600
   - Require Alien::wasmtime 0.18 or wasmtime 48.0.1 (gh#121)
   - The API for Wasm::Wasmtime* has changed radically, to reflect changes
     in wasmtime itself.  Wasm should provide the same API.
