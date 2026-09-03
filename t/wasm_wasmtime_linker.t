@@ -4,7 +4,7 @@ use Test2::Plugin::Wasm;
 use lib 't/lib';
 use Test2::Tools::Wasm;
 use Wasm::Wasmtime::Linker;
-use Wasm::Wasmtime::WasiInstance;
+use Wasm::Wasmtime::WasiConfig;
 
 my $instance = wasm_instance_ok( [], q{
   (module
@@ -22,9 +22,7 @@ my $instance = wasm_instance_ok( [], q{
 
 my $module = $instance->module;
 my $store  = wasm_store();
-my $wasi   = Wasm::Wasmtime::WasiInstance->new(
-  $store, "wasi_snapshot_preview1",
-);
+$store->set_wasi(Wasm::Wasmtime::WasiConfig->new);
 
 my $instance2 = Wasm::Wasmtime::Instance->new(
   Wasm::Wasmtime::Module->new($store->engine, wat => '(module)' ),
@@ -42,7 +40,7 @@ is(
     call [ allow_shadowing => 1 ] => D();
     call [ allow_shadowing => 0 ] => D();
     call [ define => 'xx', 'add0', $instance->exports->add ] => D();
-    call [ define_wasi => $wasi ] => T();
+    call [ "define_wasi" ] => T();
     call [ define_instance => "foo", $instance2 ] => T();
     call [ instantiate => $module2 ] => object {
       call [ isa => 'Wasm::Wasmtime::Instance' ] => T();

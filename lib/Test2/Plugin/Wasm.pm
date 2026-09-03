@@ -92,9 +92,8 @@ sub import
           my $self = shift->$orig(@_);
           my $ctx = context();
           $ctx->note("virtual memory address limit detected, try to set limits to zero");
-          $self->static_memory_maximum_size(0);
-          $self->static_memory_guard_size(0);
-          $self->dynamic_memory_guard_size(0);
+          $self->memory_reservation(0);
+          $self->memory_guard_size(0);
           $ctx->release;
           $self;
         },

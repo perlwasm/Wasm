@@ -10,7 +10,6 @@ my %modules;
 my $post_diag;
 
 $modules{$_} = $_ for qw(
-  Alien::wasmtime
   Capture::Tiny
   Devel::GlobalDestruction
   ExtUtils::MakeMaker
@@ -20,7 +19,6 @@ $modules{$_} = $_ for qw(
   FFI::CheckLib
   FFI::Platypus
   FFI::Platypus::Buffer
-  FFI::Platypus::Memory
   FFI::Platypus::Record
   FFI::Platypus::Type::PtrObject
   Path::Tiny
@@ -29,20 +27,17 @@ $modules{$_} = $_ for qw(
   Test2::API
   Test2::Mock
   Test2::V0
-  Test::Alien::Diag
   YAML
   autodie
 );
 
 $post_diag = sub {
-  eval { require Test::Alien::Diag; require Alien::wasmtime; Test::Alien::Diag::alien_diag('Alien::wasmtime'); };
-  if($@) {
-    eval {
-      require Wasm::Wasmtime::FFI;
-      diag "Wasm::Wasmtime::FFI->_lib = $_" for Wasm::Wasmtime::FFI->_lib;
-    };
-    diag "error requiring Wasm::Wasmtime::FFI: $@" if $@;
+  diag "WASM_WASMTIME_FFI = @{[ $ENV{WASM_WASMTIME_FFI} // '(unset)' ]}";
+  eval {
+    require Wasm::Wasmtime::FFI;
+    diag "Wasm::Wasmtime::FFI->_lib = $_" for Wasm::Wasmtime::FFI->_lib;
   };
+  diag "error requiring Wasm::Wasmtime::FFI: $@" if $@;
 };
 
 my @modules = sort keys %modules;

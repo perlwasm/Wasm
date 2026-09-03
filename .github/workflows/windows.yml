@@ -28,7 +28,7 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.eol lf
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
 
       - name: Set up Perl
         run: |
@@ -43,7 +43,7 @@ jobs:
           perl -V > perlversion.txt
 
       - name: Cache CPAN modules
-        uses: actions/cache@v1
+        uses: actions/cache@v6
         env:
           cache-name: cache-cpan-modules
         with:

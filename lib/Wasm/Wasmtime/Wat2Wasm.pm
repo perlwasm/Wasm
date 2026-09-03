@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use 5.008004;
 use Wasm::Wasmtime::FFI;
+use FFI::Platypus::Buffer ();
+use Carp ();
 use base qw( Exporter );
 
 # ABSTRACT: Convert WebAssembly Text to Wasm
@@ -37,11 +39,12 @@ Takes WebAssembly Text C<$wat> and converts it into the WebAssembly binary C<$wa
 
 =cut
 
-$ffi->attach( wat2wasm => ['wasm_byte_vec_t*','wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
+$ffi->attach( wat2wasm => ['opaque','size_t','wasm_byte_vec_t*'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
-  my $wat = Wasm::Wasmtime::ByteVec->new($_[0]);
+  my $wat = "$_[0]";
+  my($wat_ptr, $wat_len) = FFI::Platypus::Buffer::scalar_to_buffer($wat);
   my $ret = Wasm::Wasmtime::ByteVec->new;
-  my $error = $xsub->($wat, $ret);
+  my $error = $xsub->($wat_ptr, $wat_len, $ret);
   if($error)
   {
     Carp::croak($error->message . "\nwat2wasm error");

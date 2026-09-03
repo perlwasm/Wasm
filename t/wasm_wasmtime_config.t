@@ -6,49 +6,31 @@ use File::Glob qw( bsd_glob );
 my $config = Wasm::Wasmtime::Config->new;
 isa_ok $config, 'Wasm::Wasmtime::Config';
 
-$config->debug_info(0);
-$config->debug_info(1);
-pass 'debug_info';
+foreach my $prop (qw(
+  debug_info
+  wasm_threads
+  wasm_reference_types
+  wasm_simd
+  wasm_bulk_memory
+  wasm_multi_value
+  epoch_interruption
+  consume_fuel
+  cranelift_debug_verifier
+))
+{
+  $config->$prop(0);
+  $config->$prop(1);
+  pass $prop;
+}
 
-$config->wasm_threads(0);
-$config->wasm_threads(1);
-pass 'wasm_threads';
-
-$config->wasm_reference_types(0);
-$config->wasm_reference_types(1);
-pass 'wasm_reference_types';
-
-$config->wasm_simd(0);
-$config->wasm_simd(1);
-pass 'wasm_simd';
-
-$config->wasm_bulk_memory(0);
-$config->wasm_bulk_memory(1);
-pass 'wasm_bulk_memory';
-
-$config->wasm_multi_value(0);
-$config->wasm_multi_value(1);
-pass 'wasm_multi_value';
-
-$config->interruptable(0);
-$config->interruptable(1);
-pass 'interruptable';
-
-$config->max_wasm_stack(1024);
+$config->max_wasm_stack(1024 * 1024);
 pass 'max_wasm_stack';
 
-$config->consume_fuel(1);
-pass 'consume_fuel';
-
-foreach my $strategy (qw( auto cranelift lightbeam ))
+foreach my $strategy (qw( auto cranelift winch ))
 {
   if(my $e = dies { $config->strategy($strategy) })
   {
-    is(
-      $e,
-      mismatch qr/unknown strategy:/,
-      "strategy($strategy) = fail",
-    );
+    is($e, mismatch qr/unknown strategy:/, "strategy($strategy) = fail");
     note "exception: $e";
   }
   else
@@ -63,10 +45,6 @@ is
   'strategy: unknown strategy'
 ;
 
-$config->cranelift_debug_verifier(0);
-$config->cranelift_debug_verifier(1);
-pass 'cranelift_debug_verifier';
-
 foreach my $cranelift_opt_level (qw( none speed speed_and_size ))
 {
   $config->cranelift_opt_level($cranelift_opt_level);
@@ -79,15 +57,11 @@ is
   'cranelift_opt_level: unknown cranelift_opt_level'
 ;
 
-foreach my $profiler (qw( none jitdump ))
+foreach my $profiler (qw( none jitdump vtune perfmap ))
 {
   if(my $e = dies { $config->profiler($profiler) })
   {
-    is(
-      $e,
-      mismatch qr/unknown profiler:/,
-      "profiler($profiler) = fail",
-    );
+    is($e, mismatch qr/unknown profiler:/, "profiler($profiler) = fail");
     note "exception: $e";
   }
   else
@@ -102,20 +76,11 @@ is
   'profiler: unknown profiler'
 ;
 
-foreach my $prop (qw( static_memory_maximum_size static_memory_guard_size dynamic_memory_guard_size ))
+foreach my $prop (qw( memory_reservation memory_guard_size ))
 {
-  eval {
-    $config->$prop(1024);
-  };
-  if(my $error = $@)
-  {
-    is($error, match qr/property $prop is not available/, "$prop(1024)");
-    note "not available";
-  }
-  else
-  {
-    pass "$prop(1024)";
-  }
+  $config->$prop(0);
+  $config->$prop(1024 * 1024);
+  pass $prop;
 }
 
 unlink $_ for bsd_glob('jit-*.dump');

@@ -19,12 +19,8 @@ is(
   my $store = Wasm::Wasmtime::Store->new;
   my $linker = Wasm::Wasmtime::Linker->new($store);
 
-  my $wasi = Wasm::Wasmtime::WasiInstance->new(
-    $store,
-    "wasi_snapshot_preview1",
-    Wasm::Wasmtime::WasiConfig->new,
-  );
-  $linker->define_wasi($wasi);
+  $store->set_wasi(Wasm::Wasmtime::WasiConfig->new);
+  $linker->define_wasi;
   my $module = Wasm::Wasmtime::Module->new($store->engine, wat => q{
     (module
       (import "wasi_snapshot_preview1" "proc_exit" (func $proc_exit (param i32)))

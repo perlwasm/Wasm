@@ -3,12 +3,12 @@ use Test2::V0 -no_srand => 1;
 use Wasm::Wasmtime::TableType;
 
 is(
-  Wasm::Wasmtime::TableType->new('i32',[3,4]),
+  Wasm::Wasmtime::TableType->new('funcref',[3,4]),
   object {
     call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
     call element => object {
       call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-      call kind => 'i32';
+      call kind => 'funcref';
     };
     call limits => [3,4];
     call is_functype   => F();
@@ -17,37 +17,37 @@ is(
     call is_memorytype => F();
     call kind          => 'tabletype';
 
-    call to_string => '3 4 i32';
+    call to_string => '3 4 funcref';
   },
-  'i32,const',
+  'funcref',
 );
 
 is(
-  Wasm::Wasmtime::TableType->new('i64',[9,undef]),
+  Wasm::Wasmtime::TableType->new('funcref',[9,undef]),
   object {
     call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
     call element => object {
       call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-      call kind => 'i64';
+      call kind => 'funcref';
     };
     call limits => [9,0xffffffff];
-    call to_string => '9 i64';
+    call to_string => '9 funcref';
   },
-  'i64,var',
+  'funcref no max',
 );
 
 is(
-  Wasm::Wasmtime::TableType->new(Wasm::Wasmtime::ValType->new('f32'),[1,6]),
+  Wasm::Wasmtime::TableType->new(Wasm::Wasmtime::ValType->new('externref'),[1,6]),
   object {
     call [ isa => 'Wasm::Wasmtime::TableType' ] => T();
     call element => object {
       call [ isa => 'Wasm::Wasmtime::ValType' ] => T();
-      call kind => 'f32';
+      call kind => 'anyref';
     };
     call limits => [1,6];
-    call to_string => '1 6 f32';
+    call to_string => '1 6 anyref';
   },
-  '(i64),var',
+  'externref',
 );
 
 done_testing;

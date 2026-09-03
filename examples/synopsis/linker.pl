@@ -5,15 +5,13 @@ use Wasm::Wasmtime;
 my $store  = Wasm::Wasmtime::Store->new;
 my $linker = Wasm::Wasmtime::Linker->new($store);
 
-# Instanciate and define a WASI instance
-my $wasi = Wasm::Wasmtime::WasiInstance->new(
-  $store,
-  "wasi_snapshot_preview1",
+# Configure WASI on the store and define the WASI imports in the linker
+$store->set_wasi(
   Wasm::Wasmtime::WasiConfig
     ->new
     ->inherit_stdout
 );
-$linker->define_wasi($wasi);
+$linker->define_wasi;
 
 # Create a logger module + instance
 my $logger = $linker->instantiate(

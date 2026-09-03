@@ -9,14 +9,12 @@ my $store = Wasm::Wasmtime::Store->new;
 # First set up our linker which is going to be linking modules together. We
 # want our linker to have wasi available, so we set that up here as well.
 my $linker = Wasm::Wasmtime::Linker->new($store);
-my $wasi = Wasm::Wasmtime::WasiInstance->new(
-  $store,
-  "wasi_snapshot_preview1",
+$store->set_wasi(
   Wasm::Wasmtime::WasiConfig
     ->new
     ->inherit_stdout
 );
-$linker->define_wasi($wasi);
+$linker->define_wasi;
 
 # Load and compile our two modules
 my $module1 = Wasm::Wasmtime::Module->new($store->engine, file => path(__FILE__)->parent->child('linking1.wat') );
