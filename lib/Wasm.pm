@@ -354,10 +354,9 @@ sub import
     if($module =~ /^(wasi_unstable|wasi_snapshot_preview1)$/)
     {
       next if $WASM{$module};
-      $linker->define_wasi(
-        $wasi ||= Wasm::Wasmtime::WasiInstance->new(
-          $linker->store,
-          $module,
+      unless($wasi)
+      {
+        $linker->store->set_wasi(
           Wasm::Wasmtime::WasiConfig
             ->new
             ->set_argv($0, @ARGV)
@@ -365,9 +364,11 @@ sub import
             ->inherit_stdin
             ->inherit_stdout
             ->inherit_stderr
-            ->preopen_dir("/", "/"),
-        )
-      );
+            ->preopen_dir("/", "/")
+        );
+        $linker->define_wasi;
+        $wasi = 1;
+      }
       $WASM{$module} = __FILE__;  # Maybe Wasi::Snapshot::Preview1 etc.
       next;
     }

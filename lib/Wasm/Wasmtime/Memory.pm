@@ -4,10 +4,11 @@ use strict;
 use warnings;
 use 5.008004;
 use base qw( Wasm::Wasmtime::Extern );
-use Ref::Util qw( is_ref is_plain_arrayref );
+use Ref::Util qw( is_blessed_ref is_plain_arrayref );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::MemoryType;
+use Carp ();
 use constant is_memory => 1;
 use constant kind => 'memory';
 
@@ -27,8 +28,7 @@ This class represents a WebAssembly memory object.
 
 =cut
 
-$ffi_prefix = 'wasm_memory_';
-$ffi->load_custom_type('::PtrObject' => 'wasm_memory_t' => __PACKAGE__);
+$ffi_prefix = 'wasmtime_memory_';
 
 =head1 CONSTRUCTOR
 
@@ -43,24 +43,20 @@ Creates a new memory object.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t', 'wasm_memorytype_t'] => 'wasm_memory_t' => sub {
+$ffi->attach( [ wasmtime_memory_new => 'new' ] => ['opaque', 'wasm_memorytype_t', 'wasmtime_memory_t'] => 'wasmtime_error_t' => sub {
   my $xsub = shift;
   my $class = shift;
-  if(is_ref $_[0])
+  my($store, $memorytype) = @_;
+  Carp::croak("Wasm::Wasmtime::Memory->new requires a Wasm::Wasmtime::Store")
+    unless is_blessed_ref($store) && $store->isa('Wasm::Wasmtime::Store');
+  $memorytype = Wasm::Wasmtime::MemoryType->new($memorytype)
+    if is_plain_arrayref $memorytype;
+  my $data = Wasm::Wasmtime::MemoryData->new;
+  if(my $error = $xsub->($store->context, $memorytype, $data))
   {
-    my($store, $memorytype) = @_;
-    $memorytype = Wasm::Wasmtime::MemoryType->new($memorytype)
-      if is_plain_arrayref $memorytype;
-    return $xsub->($store, $memorytype);
+    Carp::croak($error->message);
   }
-  else
-  {
-    my($ptr, $owner) = @_;
-    return bless {
-      ptr   => $ptr,
-      owner => $owner,
-    }, $class;
-  }
+  bless { data => $data, store => $store }, $class;
 });
 
 =head1 METHODS
@@ -73,24 +69,22 @@ Returns the L<Wasm::Wasmtime::MemoryType> object for this memory object.
 
 =cut
 
-$ffi->attach( type => ['wasm_memory_t'] => 'wasm_memorytype_t' => sub {
+$ffi->attach( [ wasmtime_memory_type => 'type' ] => ['opaque', 'wasmtime_memory_t'] => 'wasm_memorytype_t' => sub {
   my($xsub, $self) = @_;
-  my $type = $xsub->($self);
-  $type->{owner} = $self->{owner} || $self if $type;
-  $type;
+  $xsub->($self->context, $self->{data});
 });
 
 =head2 data
 
  my $pointer = $memory->data;
 
-Returns a pointer to the start of the memory.
+Returns a pointer (as an integer) to the start of the memory.
 
 =cut
 
-$ffi->attach( data => ['wasm_memory_t'] => 'opaque' => sub {
+$ffi->attach( [ wasmtime_memory_data => 'data' ] => ['opaque', 'wasmtime_memory_t'] => 'opaque' => sub {
   my($xsub, $self) = @_;
-  $xsub->($self);
+  $xsub->($self->context, $self->{data});
 });
 
 =head2 data_size
@@ -101,9 +95,9 @@ Returns the current size of the memory in bytes.
 
 =cut
 
-$ffi->attach( data_size => ['wasm_memory_t'] => 'size_t' => sub {
+$ffi->attach( [ wasmtime_memory_data_size => 'data_size' ] => ['opaque', 'wasmtime_memory_t'] => 'size_t' => sub {
   my($xsub, $self) = @_;
-  $xsub->($self);
+  $xsub->($self->context, $self->{data});
 });
 
 =head2 size
@@ -114,9 +108,9 @@ Returns the current size of the memory in pages.
 
 =cut
 
-$ffi->attach( size => ['wasm_memory_t'] => 'uint32' => sub {
+$ffi->attach( [ wasmtime_memory_size => 'size' ] => ['opaque', 'wasmtime_memory_t'] => 'uint64' => sub {
   my($xsub, $self) = @_;
-  $xsub->($self);
+  $xsub->($self->context, $self->{data});
 });
 
 =head2 grow
@@ -127,13 +121,17 @@ Tries to increase the page size by the given C<$delta>.  Returns true on success
 
 =cut
 
-$ffi->attach( grow => ['wasm_memory_t', 'uint32'] => 'bool' => sub {
+$ffi->attach( [ wasmtime_memory_grow => 'grow' ] => ['opaque', 'wasmtime_memory_t', 'uint64', 'uint64*'] => 'wasmtime_error_t' => sub {
   my($xsub, $self, $delta) = @_;
-  $xsub->($self, $delta);
+  my $prev = 0;
+  my $error = $xsub->($self->context, $self->{data}, $delta, \$prev);
+  if($error)
+  {
+    # match the old boolean-ish behaviour
+    return !!0;
+  }
+  return !!1;
 });
-
-__PACKAGE__->_cast(3);
-_generate_destroy();
 
 1;
 

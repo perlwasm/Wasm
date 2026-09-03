@@ -3,6 +3,7 @@ package Wasm::Wasmtime::Caller;
 use strict;
 use warnings;
 use 5.008004;
+use FFI::Platypus::Buffer ();
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Extern;
 use base qw( Exporter );
@@ -10,7 +11,6 @@ use base qw( Exporter );
 our @EXPORT = qw( wasmtime_caller );
 
 $ffi_prefix = 'wasmtime_caller_';
-$ffi->load_custom_type('::PtrObject' => 'wasmtime_caller_t' => __PACKAGE__);
 
 # ABSTRACT: Wasmtime caller interface
 # VERSION
@@ -23,11 +23,7 @@ $ffi->load_custom_type('::PtrObject' => 'wasmtime_caller_t' => __PACKAGE__);
 
 This class represents the caller's context when calling a Perl L<Wasm::Wasmtime::Func> from
 WebAssembly.  The primary purpose of this structure is to provide access to the caller's
-exported memory.  This allows functions which take pointers as arguments to easily read the
-memory the pointers point into.
-
-This is intended to be a pretty temporary mechanism for accessing the Caller's memory until
-interface types has been fully standardized and implemented.
+exported memory.
 
 =head1 FUNCTIONS
 
@@ -36,13 +32,11 @@ interface types has been fully standardized and implemented.
  my $caller = wasmtime_caller;
  my $caller = wasmtime_caller $index;
 
-This returns the current caller context (an instance of L<Wasm::Wasmtime::Caller>).  If
-the current Perl code wasn't called from WebAssembly, then it will return C<undef>.  If
-C<$index> is given, then that indicates how many WebAssembly call frames to go back
-before the current one.  (This is vaguely similar to how the Perl C<caller> function
-works).
+Returns the current caller context (an instance of L<Wasm::Wasmtime::Caller>), or
+C<undef> if the current Perl code wasn't called from WebAssembly.  C<$index>
+indicates how many WebAssembly call frames to go back.
 
-This function is exported by default using L<Exporter>.
+This function is exported by default.
 
 =cut
 
@@ -59,25 +53,42 @@ sub wasmtime_caller (;$)
 
  my $extern = $caller->export_get($name);
 
-Returns the L<Wasm::Wasmtime::Extern> for the named export C<$name>.  As of this writing,
-only L<Wasm::Wasmtime::Memory> types are supported.
+Returns the L<Wasm::Wasmtime::Extern> for the named export C<$name>.  As of this
+writing only L<Wasm::Wasmtime::Memory> exports are supported by Wasmtime here.
 
 =cut
 
 sub new
 {
-  my($class, $ptr) = @_;
+  my($class, $ptr, $store) = @_;
   bless {
-    ptr => $ptr,
+    ptr   => $ptr,
+    store => $store,
   }, $class;
 }
 
-$ffi->attach( export_get => ['wasmtime_caller_t','wasm_byte_vec_t*'] => 'wasm_extern_t' => sub {
+=head2 store
+
+ my $store = $caller->store;
+
+Returns the L<Wasm::Wasmtime::Store> the caller belongs to.
+
+=cut
+
+sub store { shift->{store} }
+
+$ffi->attach( export_get => ['opaque','opaque','size_t','wasmtime_extern_t'] => 'bool' => sub {
   my $xsub = shift;
   my $self = shift;
   return undef unless $self->{ptr};
-  my $name = Wasm::Wasmtime::ByteVec->new($_[0]);
-  $xsub->($self, $name);
+  my $name = shift;
+  $name = defined $name ? "$name" : "";
+  my($nptr, $nlen) = FFI::Platypus::Buffer::scalar_to_buffer($name);
+  my $extern = Wasm::Wasmtime::ExternData->new;
+  return undef unless $xsub->($self->{ptr}, $nptr, $nlen, $extern);
+  my $obj = Wasm::Wasmtime::Extern->from_extern($extern, $self->{store});
+  $extern->free;
+  $obj;
 });
 
 1;

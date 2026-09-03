@@ -39,6 +39,8 @@ foreach my $key (keys %kind)
   my $value = $kind{$key};
   $rkind{$value} = $key;
 }
+# 'externref' is the wasm-c-api name for kind 128; accept it as an alias
+$rkind{externref} = 128;
 
 =head1 CONSTRUCTOR
 

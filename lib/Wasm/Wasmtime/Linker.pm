@@ -3,11 +3,11 @@ package Wasm::Wasmtime::Linker;
 use strict;
 use warnings;
 use 5.008004;
+use FFI::Platypus::Buffer qw( scalar_to_buffer );
 use Wasm::Wasmtime::FFI;
 use Wasm::Wasmtime::Store;
 use Wasm::Wasmtime::Extern;
 use Wasm::Wasmtime::Instance;
-use Wasm::Wasmtime::WasiInstance;
 use Wasm::Wasmtime::Func;
 use Wasm::Wasmtime::Trap;
 use Ref::Util qw( is_blessed_ref );
@@ -44,9 +44,11 @@ Create a new WebAssembly linker object.
 
 =cut
 
-$ffi->attach( new => ['wasm_store_t'] => 'wasmtime_linker_t' => sub {
+$ffi->attach( new => ['wasm_engine_t'] => 'wasmtime_linker_t' => sub {
   my($xsub, $class, $store) = @_;
-  my $self = $xsub->($store);
+  Carp::croak("Wasm::Wasmtime::Linker->new requires a Wasm::Wasmtime::Store")
+    unless is_blessed_ref($store) && $store->isa('Wasm::Wasmtime::Store');
+  my $self = $xsub->($store->engine);
   $self->{store} = $store;
   $self;
 });
@@ -57,11 +59,9 @@ $ffi->attach( new => ['wasm_store_t'] => 'wasmtime_linker_t' => sub {
 
  $linker->allow_shadowing($bool);
 
-Sets the allow shadowing property.
-
 =cut
 
-$ffi->attach( allow_shadowing => [ 'wasmtime_linker_t', 'bool' ] => sub {
+$ffi->attach( allow_shadowing => [ 'wasmtime_linker_t', 'bool' ] => 'void' => sub {
   my($xsub, $self, $value) = @_;
   $xsub->($self, $value);
   $self;
@@ -69,156 +69,129 @@ $ffi->attach( allow_shadowing => [ 'wasmtime_linker_t', 'bool' ] => sub {
 
 =head2 define
 
- $linker->define(
-   $module,
-   $name,
-   $extern,    # Wasm::Wasmtime::Extern
- );
+ $linker->define($module, $name, $extern);
 
-Define the given extern.  You can use a func, global, table or memory object in its place
-and this method will get the extern for you.
+Define the given extern (a L<Wasm::Wasmtime::Func>, C<::Memory>, C<::Global> or C<::Table>).
 
 =cut
 
-$ffi->attach( define => ['wasmtime_linker_t', 'wasm_byte_vec_t*', 'wasm_byte_vec_t*', 'opaque'] => 'wasmtime_error_t' => sub {
+$ffi->attach( define => ['wasmtime_linker_t', 'opaque', 'opaque', 'size_t', 'opaque', 'size_t', 'wasmtime_extern_t'] => 'wasmtime_error_t' => sub {
   my $xsub   = shift;
   my $self   = shift;
-  my $module = Wasm::Wasmtime::ByteVec->new(shift);
-  my $name   = Wasm::Wasmtime::ByteVec->new(shift);
-  my $extern = shift;
+  my($module, $name, $extern) = @_;
 
-  # Fix this sillyness when/if ::Extern becomes a base class for extern classes
-  if(is_blessed_ref($extern) && (   $extern->isa('Wasm::Wasmtime::Extern')
-                                 || $extern->isa('Wasm::Wasmtime::Func')
-                                 || $extern->isa('Wasm::Wasmtime::Memory')
-                                 || $extern->isa('Wasm::Wasmtime::Global')
-                                 || $extern->isa('Wasm::Wasmtime::Table')))
+  Carp::croak("not an extern: $extern")
+    unless is_blessed_ref($extern) && $extern->isa('Wasm::Wasmtime::Extern');
+
+  my $mod = defined $module ? "$module" : "";
+  my $nam = defined $name   ? "$name"   : "";
+  my($mptr, $mlen) = scalar_to_buffer($mod);
+  my($nptr, $nlen) = scalar_to_buffer($nam);
+  my $e = $extern->to_extern;
+  if(my $error = $xsub->($self, $self->store->context, $mptr, $mlen, $nptr, $nlen, $e))
   {
-    my $error = $xsub->($self, $module, $name, $extern->{ptr});
-    Carp::croak($error->message) if $error;
-    return $self;
+    Carp::croak($error->message);
   }
-  else
-  {
-    Carp::croak("not an extern: $extern");
-  }
+  $self;
 });
 
 =head2 define_wasi
 
- $linker->define_wasi(
-   $wasi,   # Wasm::Wasmtime::WasiInstance
- );
+ $linker->define_wasi;
 
-Define WASI instance.
+Define the WASI imports in this linker.  The WASI state itself must be
+configured on the store with C<< $store->set_wasi($wasi_config) >>.  Any
+argument is accepted and ignored for backwards compatibility.
 
 =cut
 
-$ffi->attach( define_wasi => ['wasmtime_linker_t', 'wasi_instance_t'] => 'wasmtime_error_t' => sub {
-  my($xsub, $self, $wasi) = @_;
-  my $error = $xsub->($self, $wasi);
-  Carp::croak($error->message) if $error;
+$ffi->attach( define_wasi => ['wasmtime_linker_t'] => 'wasmtime_error_t' => sub {
+  my($xsub, $self) = @_;
+  if(my $error = $xsub->($self))
+  {
+    Carp::croak($error->message);
+  }
   $self;
 });
 
 =head2 define_instance
 
- $linker->define_instance(
-   $name,       # string
-   $instance,   # Wasm::Wasmtime::Instance
- );
-
-Define WebAssembly instance.
+ $linker->define_instance($name, $instance);
 
 =cut
 
-$ffi->attach( define_instance => ['wasmtime_linker_t', 'wasm_byte_vec_t*', 'wasm_instance_t'] => 'wasmtime_error_t' => sub {
+$ffi->attach( define_instance => ['wasmtime_linker_t', 'opaque', 'opaque', 'size_t', 'wasmtime_instance_t'] => 'wasmtime_error_t' => sub {
   my($xsub, $self, $name, $instance) = @_;
-  my $vname = Wasm::Wasmtime::ByteVec->new($name);
-  my $error = $xsub->($self, $vname, $instance);
-  Carp::croak($error->message) if $error;
+  my $nam = defined $name ? "$name" : "";
+  my($nptr, $nlen) = scalar_to_buffer($nam);
+  if(my $error = $xsub->($self, $self->store->context, $nptr, $nlen, $instance->{data}))
+  {
+    Carp::croak($error->message);
+  }
   $self;
 });
 
 =head2 instantiate
 
- my $instance = $linker->instantiate(
-   $module,
- );
+ my $instance = $linker->instantiate($module);
 
-Instantiate the module using the linker.  Returns the new L<Wasm::Wasmtime::Instance> object.
+Instantiate the module using the linker.  Returns a L<Wasm::Wasmtime::Instance>.
 
 =cut
 
-$ffi->attach( instantiate => ['wasmtime_linker_t','wasm_module_t','opaque*','opaque*'] => 'wasmtime_error_t' => sub {
+$ffi->attach( instantiate => ['wasmtime_linker_t','opaque','wasmtime_module_t','wasmtime_instance_t','opaque*'] => 'wasmtime_error_t' => sub {
   my($xsub, $self, $module) = @_;
+  my $data = Wasm::Wasmtime::InstanceData->new;
   my $trap;
-  my $ptr;
-  my $error = $xsub->($self, $module, \$ptr, \$trap);
-  Carp::croak($error->message) if $error;
-  if($trap)
+  if(my $error = $xsub->($self, $self->store->context, $module, $data, \$trap))
   {
-    $trap = Wasm::Wasmtime::Trap->new($trap);
-    die $trap;
+    die Wasm::Wasmtime::Trap->from_error($error);
   }
-  elsif($ptr)
-  {
-    return Wasm::Wasmtime::Instance->new(
-      $module, $self->store, $ptr,
-    );
-  }
-  else
-  {
-    Carp::croak("unknown instantiate error");
-  }
+  die Wasm::Wasmtime::Trap->new($trap) if $trap;
+  return Wasm::Wasmtime::Instance->_new_from_data($data, $self->store, $module);
 });
 
 =head2 get_one_by_name
 
- my $extern = $linker->get_one_by_name($module,$name);
+ my $extern = $linker->get_one_by_name($module, $name);
 
 Returns the L<Wasm::Wasmtime::Extern> for the given C<$module> and C<$name>.
-C<undef> is returned if there is no such extern with that C<$name>.
+Throws an exception if there is no such item.
 
 =cut
 
-$ffi->attach( get_one_by_name => ['wasmtime_linker_t','wasm_byte_vec_t*','wasm_byte_vec_t*','opaque*'] => 'wasmtime_error_t' => sub {
+$ffi->attach( [ get => 'get_one_by_name' ] => ['wasmtime_linker_t','opaque','opaque','size_t','opaque','size_t','wasmtime_extern_t'] => 'bool' => sub {
   my($xsub, $self, $module, $name) = @_;
-  my $vmodule = Wasm::Wasmtime::ByteVec->new($module);
-  my $vname = Wasm::Wasmtime::ByteVec->new($name);
-  my $ptr;
-  if(my $error = $xsub->($self, $vmodule, $vname, \$ptr))
-  {
-    Carp::croak($error->message);
-  }
-  else
-  {
-    $ptr
-      ? $ffi->cast('opaque','wasm_extern_t',$ptr)
-      : undef;
-  }
+  my $mod = defined $module ? "$module" : "";
+  my $nam = defined $name   ? "$name"   : "";
+  my($mptr, $mlen) = scalar_to_buffer($mod);
+  my($nptr, $nlen) = scalar_to_buffer($nam);
+  my $extern = Wasm::Wasmtime::ExternData->new;
+  $xsub->($self, $self->store->context, $mptr, $mlen, $nptr, $nlen, $extern)
+    or Carp::croak("no such item in linker: $mod\::$nam");
+  my $obj = Wasm::Wasmtime::Extern->from_extern($extern, $self->store);
+  $extern->free;
+  $obj;
 });
 
 =head2 get_default
 
  my $func = $linker->get_default($name);
 
-Acquires the "default export" of the named module in this linker.  Returns a L<Wasm::Wasmtime::Func>.
+Acquires the "default export" of the named module.  Returns a L<Wasm::Wasmtime::Func>.
 
 =cut
 
-$ffi->attach( get_default => ['wasmtime_linker_t','wasm_byte_vec_t*','opaque*'] => 'wasmtime_error_t' => sub {
+$ffi->attach( get_default => ['wasmtime_linker_t','opaque','opaque','size_t','wasmtime_func_t'] => 'wasmtime_error_t' => sub {
   my($xsub, $self, $name) = @_;
-  my $vname = Wasm::Wasmtime::ByteVec->new($name);
-  my $ptr;
-  if(my $error = $xsub->($self, $vname, \$ptr))
+  my $nam = defined $name ? "$name" : "";
+  my($nptr, $nlen) = scalar_to_buffer($nam);
+  my $data = Wasm::Wasmtime::FuncData->new;
+  if(my $error = $xsub->($self, $self->store->context, $nptr, $nlen, $data))
   {
     Carp::croak($error->message);
   }
-  else
-  {
-    return $ptr ? Wasm::Wasmtime::Func->new($ptr, $self) : undef;
-  }
+  bless { data => $data, store => $self->store }, 'Wasm::Wasmtime::Func';
 });
 
 =head2 store
@@ -231,7 +204,7 @@ Returns the L<Wasm::Wasmtime::Store> for the linker.
 
 sub store { shift->{store} }
 
-_generate_destroy();
+_generate_destroy('wasmtime_linker_delete');
 
 1;
 

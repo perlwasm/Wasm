@@ -14,8 +14,5 @@ $config->inherit_argv
        ->inherit_stderr
        ->preopen_dir("/", "/host");
 
-my $wasi = Wasm::Wasmtime::WasiInstance->new(
-  $store,
-  "wasi_snapshot_preview1",
-  $config,
-);
+# Apply the WASI configuration to the store (this consumes $config).
+$store->set_wasi($config);

@@ -25,6 +25,11 @@ pod_spelling_system:
     - interruptable
     - gc
     - finalizers
+    - funcref
+    - externref
+    - anyref
+    - dylib
+    - runtimes
 
 pod_coverage:
   skip: 0

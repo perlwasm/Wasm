@@ -44,17 +44,16 @@ $ffi->attach( [ 'new_with_config' => 'new' ] => ['wasm_config_t'] => 'wasm_engin
   $config ||= Wasm::Wasmtime::Config->new;
   if(defined $ENV{PERL_WASM_WASMTIME_MEMORY})
   {
-    my($static_memory_maximum_size, $static_memory_guard_size, $dynamic_memory_guard_size) = split /:/, $ENV{PERL_WASM_WASMTIME_MEMORY};
-    $config->static_memory_maximum_size($static_memory_maximum_size);
-    $config->static_memory_guard_size($static_memory_guard_size);
-    $config->dynamic_memory_guard_size($dynamic_memory_guard_size);
+    my($memory_reservation, $memory_guard_size) = split /:/, $ENV{PERL_WASM_WASMTIME_MEMORY};
+    $config->memory_reservation($memory_reservation) if defined $memory_reservation && length $memory_reservation;
+    $config->memory_guard_size($memory_guard_size)   if defined $memory_guard_size   && length $memory_guard_size;
   }
-  my $self = $xsub->($config),
+  my $self = $xsub->($config);
   delete $config->{ptr};
   $self;
 });
 
-_generate_destroy();
+_generate_destroy('wasm_engine_delete');
 
 1;
 
