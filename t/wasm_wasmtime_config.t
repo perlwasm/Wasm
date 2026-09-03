@@ -16,6 +16,33 @@ foreach my $prop (qw(
   epoch_interruption
   consume_fuel
   cranelift_debug_verifier
+  cranelift_nan_canonicalization
+  parallel_compilation
+  concurrency_support
+  gc_support
+  shared_memory
+  memory_may_move
+  memory_init_cow
+  native_unwind_info
+  macos_use_mach_ports
+  signals_based_traps
+  wasm_function_references
+  wasm_gc
+  wasm_exceptions
+  wasm_multi_memory
+  wasm_memory64
+  wasm_tail_call
+  wasm_relaxed_simd
+  wasm_relaxed_simd_deterministic
+  wasm_custom_page_sizes
+  wasm_wide_arithmetic
+  wasm_branch_hinting
+  wasm_stack_switching
+  wasm_component_model
+  wasm_component_model_async
+  wasm_component_model_async_stackful
+  wasm_component_model_more_async_builtins
+  wasm_component_model_map
 ))
 {
   $config->$prop(0);
@@ -57,6 +84,18 @@ is
   'cranelift_opt_level: unknown cranelift_opt_level'
 ;
 
+foreach my $algorithm (qw( backtracking single_pass ))
+{
+  $config->cranelift_regalloc_algorithm($algorithm);
+  pass "cranelift_regalloc_algorithm($algorithm) = ok";
+}
+
+is
+  dies { $config->cranelift_regalloc_algorithm('foo') },
+  match qr/unknown cranelift_regalloc_algorithm: foo/,
+  'cranelift_regalloc_algorithm: unknown cranelift_regalloc_algorithm'
+;
+
 foreach my $profiler (qw( none jitdump vtune perfmap ))
 {
   if(my $e = dies { $config->profiler($profiler) })
@@ -76,12 +115,24 @@ is
   'profiler: unknown profiler'
 ;
 
-foreach my $prop (qw( memory_reservation memory_guard_size ))
+foreach my $prop (qw( memory_reservation memory_guard_size memory_reservation_for_growth ))
 {
   $config->$prop(0);
   $config->$prop(1024 * 1024);
   pass $prop;
 }
+
+is
+  dies { $config->target('not-a-real-triple') },
+  match qr/./,
+  'target: bogus triple dies'
+;
+
+$config->cranelift_flag_enable('has_sse42');
+pass 'cranelift_flag_enable';
+
+$config->cranelift_flag_set('opt_level', 'speed');
+pass 'cranelift_flag_set';
 
 unlink $_ for bsd_glob('jit-*.dump');
 

@@ -47,8 +47,11 @@ from Wasm space into Perl space.
 =head2 WASM_WASMTIME_FFI
 
 The full path to the C<wasmtime> shared library (F<libwasmtime.so>,
-F<libwasmtime.dylib> or F<wasmtime.dll>).  This must currently be set; a modern
-C<wasmtime> (developed against 48.0.1) is required.
+F<libwasmtime.dylib> or F<wasmtime.dll>).  This is optional: if it is not set a
+system F<libwasmtime> is looked for, and failing that L<Alien::wasmtime> (which
+bundles a suitable wasmtime 48.x) is used.  Set it only to override which
+library is loaded.  A modern C<wasmtime> (developed against 48.0.1) is required
+either way.
 
 =head2 PERL_WASM_WASMTIME_MEMORY
 

@@ -30,6 +30,13 @@ pod_spelling_system:
     - anyref
     - dylib
     - runtimes
+    - NaN
+    - stackful
+    - memory64
+    - macOS
+    - async
+    - KiB
+    - log2
 
 pod_coverage:
   skip: 0

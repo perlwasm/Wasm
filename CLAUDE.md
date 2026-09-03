@@ -12,11 +12,12 @@ WebAssembly execution is provided by the **modern wasmtime C API** (`libwasmtime
 `wasmtime_context_t` / `wasmtime_store_t` interface), reached through `FFI::Platypus` — there is
 no XS or compiled C in this repo. Developed against **wasmtime 48.0.1**; the pre-1.0 `wasm-c-api`
 object model is no longer supported. The library is located by `Wasm::Wasmtime::FFI::_lib` in order: the `WASM_WASMTIME_FFI`
-environment variable (full path to `libwasmtime.so` / `.dylib` / `.dll`; use this here —
-`~/opt/wasmtime/<version>/lib/libwasmtime.so`), then a plain `FFI::CheckLib` probe for a
+environment variable (full path to `libwasmtime.so` / `.dylib` / `.dll`), then a plain `FFI::CheckLib` probe for a
 system `libwasmtime`, then `Alien::wasmtime` if installed (`dist.ini` has a `[DynamicPrereqs]`
 that pulls in `Alien::wasmtime` >= 0.18 — which bundles wasmtime 48.x — when no system library
-is found). It dies if none of those work. All three paths probe for the sentinel symbols
+is found). It dies if none of those work. **The installed `Alien::wasmtime` here already provides
+48.0.1, so `WASM_WASMTIME_FFI` does not need to be set** — set it only to force a different
+libwasmtime. All three paths probe for the sentinel symbols
 `wasmtime_wat2wasm`, `wasmtime_module_new`, `wasmtime_linker_define_wasi`,
 `wasmtime_instance_export_nth`, which the feature-reduced ("min", Pulley-only) libwasmtime
 lacks — `_lib` walks every `Alien::wasmtime->dynamic_libs` and takes the first *full* build,
@@ -35,14 +36,14 @@ dzil regenerate           # refresh generated in-repo files (e.g. t/00_diag.t, R
 dzil run <cmd>            # run <cmd> with the built dist in @INC
 ```
 
-Run a single test file directly (tests need both `lib/` and `t/lib/` in `@INC`, plus the
-`WASM_WASMTIME_FFI` env var):
+Run a single test file directly (tests need both `lib/` and `t/lib/` in `@INC`; the
+libwasmtime is picked up from `Alien::wasmtime` automatically):
 
 ```sh
-export WASM_WASMTIME_FFI=$HOME/opt/wasmtime/48.0.1/lib/libwasmtime.so
 perl -Ilib -It/lib t/wasm_func.t
 prove -lr -It/lib t/          # whole suite
 prove -l  -It/lib xt/author/  # critic, cycle, examples
+# optional: export WASM_WASMTIME_FFI=/path/to/libwasmtime.so  # to override
 ```
 
 Lint (config is `perlcriticrc`: severity 1, `only = 1`, Community policies + selected extras):
@@ -63,7 +64,7 @@ Two layers, low to high:
 
 ### `Wasm::Wasmtime::*` — thin FFI bindings to the wasmtime C API
 
-- `Wasm::Wasmtime::FFI` is the private core. It resolves `libwasmtime` (via `WASM_WASMTIME_FFI`),
+- `Wasm::Wasmtime::FFI` is the private core. It resolves `libwasmtime` (via `_lib`: `WASM_WASMTIME_FFI`, then a system lib, then `Alien::wasmtime`),
   creates the shared `$ffi` (`FFI::Platypus`) object, installs a name mangler that leaves
   `wasm_` / `wasmtime_` / `wasi_` symbols alone and prefixes everything else, and provides
   `_generate_vec_class` / `_generate_destroy(<c_delete_fn>)` code generators. It also defines the
@@ -130,7 +131,9 @@ Companion user-facing modules — mostly documentation and thin conveniences ove
 
 ## Environment variables
 
-- `WASM_WASMTIME_FFI` — **required**: absolute path to `libwasmtime.so` / `.dylib` / `.dll`.
+- `WASM_WASMTIME_FFI` — **optional**: absolute path to `libwasmtime.so` / `.dylib` / `.dll`,
+  used to override the library `_lib` would otherwise find. Not needed when `Alien::wasmtime`
+  (48.x) or a system libwasmtime is installed, as is the case here.
 - `PERL_WASM_WASMTIME_MEMORY` — colon-separated `memory_reservation:memory_guard_size` for
   tuning wasmtime linear-memory allocation in production (set both to `0` to avoid large
   `PROT_NONE` reservations under `ulimit -v`).

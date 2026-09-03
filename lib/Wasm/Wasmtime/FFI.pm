@@ -33,9 +33,13 @@ C<wasmtime_context_t> / C<wasmtime_store_t> based interface), and was developed
 against Wasmtime 48.0.1.  The old C<wasm-c-api> object model (pre-1.0 Wasmtime)
 is no longer supported.
 
-The location of the Wasmtime shared library must currently be provided via the
+The Wasmtime shared library is located by C<_lib>, which tries, in order: the
 C<WASM_WASMTIME_FFI> environment variable (the full path to F<libwasmtime.so>,
-F<libwasmtime.dylib> or F<wasmtime.dll>).
+F<libwasmtime.dylib> or F<wasmtime.dll>), a plain L<FFI::CheckLib> probe for a
+system F<libwasmtime>, and finally L<Alien::wasmtime> (0.18 or later bundles a
+suitable wasmtime 48.x).  It dies only if none of those yield a full-featured
+library.  Setting C<WASM_WASMTIME_FFI> is therefore optional, and only needed
+to override the library that would otherwise be found.
 
 =head1 SEE ALSO
 
@@ -90,7 +94,8 @@ sub _lib
     }
   }
 
-  die "unable to locate a modern libwasmtime; set the WASM_WASMTIME_FFI "
+  die "unable to locate a modern libwasmtime; install Alien::wasmtime 0.18 or "
+    . "later (which bundles wasmtime 48.x), or set the WASM_WASMTIME_FFI "
     . "environment variable to the full path of the wasmtime shared library "
     . "(developed against wasmtime 48.0.1)\n";
 }

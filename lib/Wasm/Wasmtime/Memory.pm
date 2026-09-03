@@ -133,6 +133,34 @@ $ffi->attach( [ wasmtime_memory_grow => 'grow' ] => ['opaque', 'wasmtime_memory_
   return !!1;
 });
 
+=head2 page_size
+
+ my $bytes = $memory->page_size;
+
+Returns the page size of this memory in bytes.  This is C<65536> (64KiB)
+unless the custom-page-sizes proposal is in use.
+
+=cut
+
+$ffi->attach( [ wasmtime_memory_page_size => 'page_size' ] => ['opaque', 'wasmtime_memory_t'] => 'uint64' => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->context, $self->{data});
+});
+
+=head2 page_size_log2
+
+ my $log2 = $memory->page_size_log2;
+
+Returns the base-2 logarithm of this memory's page size in bytes (C<16> for
+the default 64KiB page size).
+
+=cut
+
+$ffi->attach( [ wasmtime_memory_page_size_log2 => 'page_size_log2' ] => ['opaque', 'wasmtime_memory_t'] => 'uint8' => sub {
+  my($xsub, $self) = @_;
+  $xsub->($self->context, $self->{data});
+});
+
 1;
 
 =head1 SEE ALSO
