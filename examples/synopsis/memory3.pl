@@ -5,8 +5,8 @@ use Wasm::Memory qw( wasm_caller_memory );
 {
   # this just uses Platypus to create a utility function
   # to convert a pointer to a C string into a Perl string.
-  use FFI::Platypus 1.00;
-  my $ffi = FFI::Platypus->new( api => 1 );
+  use FFI::Platypus 2.00;
+  my $ffi = FFI::Platypus->new( api => 2 );
   $ffi->attach_cast( 'cstring' => 'opaque' => 'string' );
 }
 

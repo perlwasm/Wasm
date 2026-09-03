@@ -5,7 +5,7 @@ use warnings;
 use 5.008004;
 use FFI::C 0.05;
 use FFI::C::Util ();
-use FFI::Platypus 1.26;
+use FFI::Platypus 2.00;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.26 qw( find_lib );
 use Sub::Install;
@@ -78,7 +78,7 @@ sub _lib
     foreach my $candidate (Alien::wasmtime->dynamic_libs)
     {
       my $ok = eval {
-        my $probe = FFI::Platypus->new( api => 1, lib => $candidate );
+        my $probe = FFI::Platypus->new( api => 2, lib => $candidate );
         my $found = 1;
         foreach my $sym (@symbols)
         {
@@ -96,7 +96,7 @@ sub _lib
 }
 
 our $ffi_prefix = 'wasm_';
-our $ffi = FFI::Platypus->new( api => 1 );
+our $ffi = FFI::Platypus->new( api => 2 );
 FFI::C->ffi($ffi);
 $ffi->lib(__PACKAGE__->_lib);
 $ffi->mangler(sub {

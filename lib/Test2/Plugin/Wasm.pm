@@ -40,7 +40,7 @@ sub get_virtual_memory_limit
   {
     require FFI::Platypus;
     require FFI::C::StructDef;
-    my $ffi = FFI::Platypus->new( api => 1, lib => [undef] );
+    my $ffi = FFI::Platypus->new( api => 2, lib => [undef] );
     my $rlimit;
     if($ffi->find_symbol('getrlimit'))
     {
